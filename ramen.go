@@ -44,3 +44,12 @@ func Location(name string) (string, error) {
 
 	return loc, nil
 }
+
+func Root(name string) (string, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return os.Getwd()
+	}
+
+	return name, nil
+}

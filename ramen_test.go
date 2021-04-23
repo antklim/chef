@@ -69,3 +69,36 @@ func TestProjectLocation(t *testing.T) {
 		})
 	}
 }
+
+func TestProjectRoot(t *testing.T) {
+	cwd, err := os.Getwd()
+	require.NoError(t, err)
+
+	testCases := []struct {
+		desc   string
+		name   string
+		assert func(*testing.T, string, error)
+	}{
+		{
+			desc: "returns current working drrectory when no root provided",
+			assert: func(t *testing.T, root string, err error) {
+				require.NoError(t, err)
+				assert.Equal(t, cwd, root)
+			},
+		},
+		{
+			desc: "returns root directory when provided",
+			name: "sushi",
+			assert: func(t *testing.T, root string, err error) {
+				require.NoError(t, err)
+				assert.Equal(t, "sushi", root)
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			root, err := ramen.Root(tC.name)
+			tC.assert(t, root, err)
+		})
+	}
+}
