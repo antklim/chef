@@ -1,7 +1,9 @@
 package ramen_test
 
 import (
+	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/antklim/ramen"
@@ -10,7 +12,6 @@ import (
 )
 
 // TODO: creates project home directory in project location
-
 func TestProjectInit(t *testing.T) {
 	testCases := []struct {
 		desc   string
@@ -33,43 +34,48 @@ func TestProjectInit(t *testing.T) {
 	}
 }
 
-// TODO: when no permissions to read/write to project location root then return error
-// TODO: when project location root already has a directory equal to project name then return error
-
 func TestProjectLocation(t *testing.T) {
-	cwd, err := os.Getwd()
+	tmpDir, err := ioutil.TempDir("", "ramentest")
+	defer os.RemoveAll(tmpDir)
+	require.NoError(t, err)
+
+	err = os.Mkdir(path.Join(tmpDir, "sushi"), 0755)
 	require.NoError(t, err)
 
 	testCases := []struct {
 		desc   string
 		name   string
+		root   string
 		assert func(*testing.T, string, error)
 	}{
 		{
-			desc: "project location is cwd/name when no project root provided by user",
+			desc: "is root/name when project root provided by user",
 			name: "miso",
+			root: tmpDir,
 			assert: func(t *testing.T, loc string, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, cwd+"/miso", loc)
+				assert.Equal(t, path.Join(tmpDir, "miso"), loc)
 			},
 		},
 		{
-			desc: "returns error when cwd contains file or directory with the project name",
-			name: "cmd",
+			desc: "returns error when root contains file or directory with the project name",
+			name: "sushi",
+			root: tmpDir,
 			assert: func(t *testing.T, loc string, err error) {
-				assert.EqualError(t, err, "file or directory cmd already exists")
+				assert.EqualError(t, err, "file or directory sushi already exists")
 				assert.Equal(t, loc, "")
 			},
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			loc, err := ramen.Location(tC.name)
+			loc, err := ramen.Location(tC.name, tC.root)
 			tC.assert(t, loc, err)
 		})
 	}
 }
 
+// TODO: verify if project root is a valid direcory and user has access to it
 func TestProjectRoot(t *testing.T) {
 	cwd, err := os.Getwd()
 	require.NoError(t, err)

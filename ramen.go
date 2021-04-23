@@ -27,15 +27,14 @@ func (p *Project) Init(name string) error {
 	return os.Mkdir(name, 0755)
 }
 
-// Location returns project location for a given project name.
-// Project directory located in the current working directory.
-func Location(name string) (string, error) {
-	cwd, err := os.Getwd()
+// Location returns project location for a given project name and root.
+func Location(name, root string) (string, error) {
+	wd, err := Root(root)
 	if err != nil {
 		return "", err
 	}
 
-	loc := path.Join(cwd, name)
+	loc := path.Join(wd, name)
 
 	fi, err := os.Stat(loc)
 	if fi != nil {
