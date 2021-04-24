@@ -44,6 +44,7 @@ func Location(name, root string) (string, error) {
 	return loc, nil
 }
 
+// Root validates provided project root.
 func Root(name string) (string, error) {
 	var err error
 
@@ -55,9 +56,13 @@ func Root(name string) (string, error) {
 		return "", err
 	}
 
-	_, err = os.Stat(name)
+	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
 		return "", fmt.Errorf("root directory %s does not exist", name)
+	}
+
+	if !fi.IsDir() {
+		return "", fmt.Errorf("%s is not a directory", name)
 	}
 
 	return name, nil

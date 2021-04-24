@@ -85,6 +85,10 @@ func TestProjectRoot(t *testing.T) {
 	err = os.Mkdir(sushiDir, 0755)
 	require.NoError(t, err)
 
+	karrageFile := path.Join(tmpDir, "karrage")
+	_, err = os.Create(karrageFile)
+	require.NoError(t, err)
+
 	cwd, err := os.Getwd()
 	require.NoError(t, err)
 
@@ -119,9 +123,14 @@ func TestProjectRoot(t *testing.T) {
 				assert.Equal(t, "", root)
 			},
 		},
-		// {
-		// 	desc: "fails when provided root is a file",
-		// },
+		{
+			desc: "fails when provided root is not a directory",
+			name: karrageFile,
+			assert: func(t *testing.T, root string, err error) {
+				require.EqualError(t, err, karrageFile+" is not a directory")
+				assert.Equal(t, "", root)
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
