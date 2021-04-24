@@ -45,9 +45,19 @@ func Location(name, root string) (string, error) {
 }
 
 func Root(name string) (string, error) {
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return os.Getwd()
+	var err error
+
+	if name = strings.TrimSpace(name); name == "" {
+		name, err = os.Getwd()
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	_, err = os.Stat(name)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("root directory %s does not exist", name)
 	}
 
 	return name, nil

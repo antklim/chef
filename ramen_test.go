@@ -58,7 +58,7 @@ func TestProjectLocation(t *testing.T) {
 			},
 		},
 		{
-			desc: "returns error when root contains file or directory with the project name",
+			desc: "fails when root contains file or directory with the project name",
 			name: "sushi",
 			root: tmpDir,
 			assert: func(t *testing.T, loc string, err error) {
@@ -77,6 +77,14 @@ func TestProjectLocation(t *testing.T) {
 
 // TODO: verify if project root is a valid direcory and user has access to it
 func TestProjectRoot(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "ramentest")
+	defer os.RemoveAll(tmpDir)
+	require.NoError(t, err)
+
+	sushiDir := path.Join(tmpDir, "sushi")
+	err = os.Mkdir(sushiDir, 0755)
+	require.NoError(t, err)
+
 	cwd, err := os.Getwd()
 	require.NoError(t, err)
 
@@ -86,20 +94,34 @@ func TestProjectRoot(t *testing.T) {
 		assert func(*testing.T, string, error)
 	}{
 		{
-			desc: "returns current working drrectory when no root provided",
+			desc: "is current working drrectory when no root provided",
 			assert: func(t *testing.T, root string, err error) {
 				require.NoError(t, err)
 				assert.Equal(t, cwd, root)
 			},
 		},
 		{
-			desc: "returns root directory when provided",
-			name: "sushi",
+			desc: "is root directory when provided",
+			name: sushiDir,
 			assert: func(t *testing.T, root string, err error) {
 				require.NoError(t, err)
-				assert.Equal(t, "sushi", root)
+				assert.Equal(t, sushiDir, root)
 			},
 		},
+		// {
+		// 	desc: "fails when user has no permissions to write to a root directory",
+		// },
+		{
+			desc: "fails when provided root does not exist",
+			name: "tempura",
+			assert: func(t *testing.T, root string, err error) {
+				require.EqualError(t, err, "root directory tempura does not exist")
+				assert.Equal(t, "", root)
+			},
+		},
+		// {
+		// 	desc: "fails when provided root is a file",
+		// },
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
