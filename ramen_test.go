@@ -75,7 +75,6 @@ func TestProjectLocation(t *testing.T) {
 	}
 }
 
-// TODO: verify if project root is a valid direcory and user has access to it
 func TestProjectRoot(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ramentest")
 	defer os.RemoveAll(tmpDir)
@@ -112,14 +111,11 @@ func TestProjectRoot(t *testing.T) {
 				assert.Equal(t, sushiDir, root)
 			},
 		},
-		// {
-		// 	desc: "fails when user has no permissions to write to a root directory",
-		// },
 		{
 			desc: "fails when provided root does not exist",
 			name: "tempura",
 			assert: func(t *testing.T, root string, err error) {
-				require.EqualError(t, err, "root directory tempura does not exist")
+				require.EqualError(t, err, "stat tempura: no such file or directory")
 				assert.Equal(t, "", root)
 			},
 		},

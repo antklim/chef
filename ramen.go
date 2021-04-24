@@ -57,8 +57,8 @@ func Root(name string) (string, error) {
 	}
 
 	fi, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("root directory %s does not exist", name)
+	if err != nil {
+		return "", err
 	}
 
 	if !fi.IsDir() {
