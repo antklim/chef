@@ -10,6 +10,7 @@ import (
 
 // TODO: make taste and server enums
 // TODO: make location and root private/internal
+// TODO: read layout settings from yaml
 
 type LayoutDir int
 
@@ -41,6 +42,44 @@ var dirName = map[LayoutDir]string{
 // ["app", "adapter", "provider", "server"]
 // server layout
 // ["http"]
+
+type layoutNode struct {
+	Name     string
+	Children []layoutNode
+}
+
+var defaultLayout = []layoutNode{
+	{Name: dirName[DirCmd]},
+	{
+		Name: dirName[DirInternal],
+		Children: []layoutNode{
+			{Name: dirName[DirApp]},
+			{Name: dirName[DirAdapter]},
+			{Name: dirName[DirProvider]},
+			{
+				Name: dirName[DirServer],
+				Children: []layoutNode{
+					{Name: dirName[DirHttp]},
+				},
+			},
+		},
+	},
+	{Name: dirName[DirTest]},
+}
+
+func layoutBuilder(root string, node layoutNode) error {
+	dir := path.Join(root, node.Name)
+	if err := os.Mkdir(dir, 0755); err != nil {
+		return err
+	}
+
+	for _, c := range node.Children {
+		if err := layoutBuilder(dir, c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // Project manager.
 type Project struct {
@@ -76,43 +115,17 @@ func (p *Project) Init(name, root string) error {
 		return err
 	}
 
-	// TODO: refactor directory creation
-	// 1. Making project root dir
-	if err := os.Mkdir(loc, 0755); err != nil {
-		return err
+	// TODO: refactor file creation
+	rl := layoutNode{
+		Name:     name,
+		Children: defaultLayout,
 	}
 
-	// 2. Making root/cmd
-	if err := os.Mkdir(path.Join(loc, dirName[DirCmd]), 0755); err != nil {
+	if err := layoutBuilder(root, rl); err != nil {
 		return err
 	}
 
 	if _, err := os.Create(path.Join(loc, dirName[DirCmd], "main.go")); err != nil {
-		return err
-	}
-
-	// 3. Making root/internal
-	if err := os.Mkdir(path.Join(loc, dirName[DirInternal]), 0755); err != nil {
-		return err
-	}
-
-	if err := os.Mkdir(path.Join(loc, dirName[DirInternal], dirName[DirApp]), 0755); err != nil {
-		return err
-	}
-
-	if err := os.Mkdir(path.Join(loc, dirName[DirInternal], dirName[DirAdapter]), 0755); err != nil {
-		return err
-	}
-
-	if err := os.Mkdir(path.Join(loc, dirName[DirInternal], dirName[DirProvider]), 0755); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(path.Join(loc, dirName[DirInternal], dirName[DirServer], dirName[DirHttp]), 0755); err != nil {
-		return err
-	}
-
-	if err := os.Mkdir(path.Join(loc, dirName[DirTest]), 0755); err != nil {
 		return err
 	}
 
