@@ -11,6 +11,7 @@ import (
 // TODO: make taste and server enums
 // TODO: make location and root private/internal
 // TODO: read layout settings from yaml
+// TODO: update location to location validation function
 
 type LayoutDir int
 
@@ -36,20 +37,26 @@ var dirName = map[LayoutDir]string{
 	DirHttp:     "http",
 }
 
-// default project layout
-// ["cmd", "internal", "test"]
-// internal layout
-// ["app", "adapter", "provider", "server"]
-// server layout
-// ["http"]
+type node int
+
+const (
+	nodeDir node = iota
+	nodeFile
+)
 
 type layoutNode struct {
 	Name     string
+	Type     node
 	Children []layoutNode
 }
 
 var defaultLayout = []layoutNode{
-	{Name: dirName[DirCmd]},
+	{
+		Name: dirName[DirCmd],
+		Children: []layoutNode{
+			{Name: "main.go", Type: nodeFile},
+		},
+	},
 	{
 		Name: dirName[DirInternal],
 		Children: []layoutNode{
@@ -68,16 +75,27 @@ var defaultLayout = []layoutNode{
 }
 
 func layoutBuilder(root string, node layoutNode) error {
-	dir := path.Join(root, node.Name)
-	if err := os.Mkdir(dir, 0755); err != nil {
-		return err
-	}
+	o := path.Join(root, node.Name) // file system object, either file or directory
 
-	for _, c := range node.Children {
-		if err := layoutBuilder(dir, c); err != nil {
+	switch node.Type {
+	case nodeFile:
+		f, err := os.Create(o)
+		if err != nil {
 			return err
 		}
+		return f.Chmod(0644)
+	default:
+		if err := os.Mkdir(o, 0755); err != nil {
+			return err
+		}
+
+		for _, c := range node.Children {
+			if err := layoutBuilder(o, c); err != nil {
+				return err
+			}
+		}
 	}
+
 	return nil
 }
 
@@ -110,22 +128,17 @@ func (p *Project) Init(name, root string) error {
 		return errors.New("project name required")
 	}
 
-	loc, err := Location(name, root)
+	_, err := Location(name, root)
 	if err != nil {
 		return err
 	}
 
-	// TODO: refactor file creation
 	rl := layoutNode{
 		Name:     name,
 		Children: defaultLayout,
 	}
 
 	if err := layoutBuilder(root, rl); err != nil {
-		return err
-	}
-
-	if _, err := os.Create(path.Join(loc, dirName[DirCmd], "main.go")); err != nil {
 		return err
 	}
 
