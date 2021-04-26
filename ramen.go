@@ -8,13 +8,18 @@ import (
 	"strings"
 )
 
+// TODO: make tase and server enums
+
 // Project manager.
 type Project struct {
+	Name   string
+	Root   string
 	Taste  string
 	Server string
 }
 
 var defaultProject = &Project{
+	Name:   "ramen",
 	Taste:  "app",
 	Server: "http",
 }

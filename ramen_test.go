@@ -19,6 +19,7 @@ func TestNewProject(t *testing.T) {
 		{
 			desc: "returns default project manager when no options provided",
 			proj: &ramen.Project{
+				Name:   "ramen",
 				Taste:  "app",
 				Server: "http",
 			},
@@ -45,6 +46,12 @@ func TestProjectInit(t *testing.T) {
 				assert.EqualError(t, err, "project name required")
 			},
 		},
+		// {
+		// 	desc: "inits default project",
+		// 	assert: func(t *testing.T, err error) {
+		// 		require.NoError(t, err)
+		// 	},
+		// },
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
