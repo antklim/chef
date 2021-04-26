@@ -25,6 +25,8 @@ var defaultProject = &Project{
 }
 
 // New project.
+// TODO: add options
+// TODO: move name validation to option validation
 func New() *Project {
 	return defaultProject
 }
