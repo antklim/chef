@@ -9,32 +9,32 @@ import (
 )
 
 // TODO: make taste and server enums
-// TODO: make location and root private/internal
 // TODO: read layout settings from yaml
+// TODO: make location and root functino private/internal
 // TODO: update location to location validation function
 
-type LayoutDir int
+type layoutDir int
 
 const (
-	DirCmd LayoutDir = iota
-	DirInternal
-	DirTest
-	DirApp
-	DirAdapter
-	DirProvider
-	DirServer
-	DirHttp
+	dirCmd layoutDir = iota
+	dirInternal
+	dirTest
+	dirApp
+	dirAdapter
+	dirProvider
+	dirServer
+	dirHttp
 )
 
-var dirName = map[LayoutDir]string{
-	DirCmd:      "cmd",
-	DirInternal: "internal",
-	DirTest:     "test",
-	DirApp:      "app",
-	DirAdapter:  "adapter",
-	DirProvider: "provider",
-	DirServer:   "server",
-	DirHttp:     "http",
+var dirName = map[layoutDir]string{
+	dirCmd:      "cmd",
+	dirInternal: "internal",
+	dirTest:     "test",
+	dirApp:      "app",
+	dirAdapter:  "adapter",
+	dirProvider: "provider",
+	dirServer:   "server",
+	dirHttp:     "http",
 }
 
 type node int
@@ -52,26 +52,26 @@ type layoutNode struct {
 
 var defaultLayout = []layoutNode{
 	{
-		Name: dirName[DirCmd],
+		Name: dirName[dirCmd],
 		Children: []layoutNode{
 			{Name: "main.go", Type: nodeFile},
 		},
 	},
 	{
-		Name: dirName[DirInternal],
+		Name: dirName[dirInternal],
 		Children: []layoutNode{
-			{Name: dirName[DirApp]},
-			{Name: dirName[DirAdapter]},
-			{Name: dirName[DirProvider]},
+			{Name: dirName[dirApp]},
+			{Name: dirName[dirAdapter]},
+			{Name: dirName[dirProvider]},
 			{
-				Name: dirName[DirServer],
+				Name: dirName[dirServer],
 				Children: []layoutNode{
-					{Name: dirName[DirHttp]},
+					{Name: dirName[dirHttp]},
 				},
 			},
 		},
 	},
-	{Name: dirName[DirTest]},
+	{Name: dirName[dirTest]},
 }
 
 func layoutBuilder(root string, node layoutNode) error {
