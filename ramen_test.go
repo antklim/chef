@@ -11,7 +11,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TODO: creates project home directory in project location
+func TestNewProject(t *testing.T) {
+	testCases := []struct {
+		desc string
+		proj *ramen.Project
+	}{
+		{
+			desc: "returns default project manager when no options provided",
+			proj: &ramen.Project{
+				Taste:  "app",
+				Server: "http",
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := ramen.New()
+			assert.Equal(t, tC.proj, p)
+		})
+	}
+}
+
+// TODO: creates project home directory in project root location
 func TestProjectInit(t *testing.T) {
 	testCases := []struct {
 		desc   string

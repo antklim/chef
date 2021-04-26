@@ -10,14 +10,22 @@ import (
 
 // Project manager.
 type Project struct {
+	Taste  string
+	Server string
+}
+
+var defaultProject = &Project{
+	Taste:  "app",
+	Server: "http",
 }
 
 // New project.
 func New() *Project {
-	return &Project{}
+	return defaultProject
 }
 
 // Init initializes the project layout.
+// TODO: make init a package level function with the default project.Init call.
 func (p *Project) Init(name string) error {
 	name = strings.TrimSpace(name)
 	if name == "" {
