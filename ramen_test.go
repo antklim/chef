@@ -36,9 +36,14 @@ func TestNewProject(t *testing.T) {
 // TODO: move name validation to a New method
 // TODO: creates project home directory in project root location
 func TestProjectInit(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "ramentest")
+	defer os.RemoveAll(tmpDir)
+	require.NoError(t, err)
+
 	testCases := []struct {
 		desc   string
 		name   string
+		root   string
 		assert func(*testing.T, error)
 	}{
 		{
@@ -47,17 +52,22 @@ func TestProjectInit(t *testing.T) {
 				assert.EqualError(t, err, "project name required")
 			},
 		},
-		// {
-		// 	desc: "inits default project",
-		// 	assert: func(t *testing.T, err error) {
-		// 		require.NoError(t, err)
-		// 	},
-		// },
+		{
+			desc: "inits default project",
+			name: "ramentest",
+			root: tmpDir,
+			assert: func(t *testing.T, err error) {
+				require.NoError(t, err)
+				de, err := os.ReadDir(path.Join(tmpDir, "ramentest"))
+				require.NoError(t, err)
+				assert.Len(t, de, 2) // root of the project should include cmd, internal
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			p := ramen.New()
-			err := p.Init(tC.name)
+			err := p.Init(tC.name, tC.root)
 			tC.assert(t, err)
 		})
 	}

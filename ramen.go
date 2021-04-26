@@ -8,7 +8,9 @@ import (
 	"strings"
 )
 
-// TODO: make tase and server enums
+// TODO: make taste and server enums
+// TODO: make location and root private/internal
+// TODO: make a list of layout components like cmd, internal, ...
 
 // Project manager.
 type Project struct {
@@ -33,13 +35,34 @@ func New() *Project {
 
 // Init initializes the project layout.
 // TODO: make init a package level function with the default project.Init call.
-func (p *Project) Init(name string) error {
+func (p *Project) Init(name, root string) error {
 	name = strings.TrimSpace(name)
 	if name == "" {
 		return errors.New("project name required")
 	}
 
-	return os.Mkdir(name, 0755)
+	loc, err := Location(name, root)
+	if err != nil {
+		return err
+	}
+
+	// TODO: refactor directory creation
+	// 1. Making project root dir
+	if err := os.Mkdir(loc, 0755); err != nil {
+		return err
+	}
+
+	// 2. Making root/cmd
+	if err := os.Mkdir(path.Join(loc, "cmd"), 0755); err != nil {
+		return err
+	}
+
+	// 3. Making root/internal
+	if err := os.Mkdir(path.Join(loc, "internal"), 0755); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Location returns project location for a given project name and root.
