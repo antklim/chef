@@ -57,8 +57,32 @@ func (p *Project) Init(name, root string) error {
 		return err
 	}
 
+	if _, err := os.Create(path.Join(loc, "cmd", "main.go")); err != nil {
+		return err
+	}
+
 	// 3. Making root/internal
 	if err := os.Mkdir(path.Join(loc, "internal"), 0755); err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(path.Join(loc, "internal", "app"), 0755); err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(path.Join(loc, "internal", "adapter"), 0755); err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(path.Join(loc, "internal", "provider"), 0755); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(path.Join(loc, "internal", "server", "http"), 0755); err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(path.Join(loc, "test"), 0755); err != nil {
 		return err
 	}
 

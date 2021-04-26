@@ -20,6 +20,7 @@ structure:
 /internal/server - an application server
 /internal/server/http - http routes and handlers definitions 
 /internal/server/grpc - grpc message handlers
+/test - contains testing tools
 
 By default it creates a template for application with http server
 Commands:
