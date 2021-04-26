@@ -34,7 +34,6 @@ func TestNewProject(t *testing.T) {
 }
 
 // TODO: move name validation to a New method
-// TODO: creates project home directory in project root location
 func TestProjectInit(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ramentest")
 	defer os.RemoveAll(tmpDir)
