@@ -8,10 +8,22 @@ import (
 	"strings"
 )
 
-// TODO: make taste and server enums
 // TODO: read layout settings from yaml
-// TODO: make location and root functino private/internal
+// TODO: make location and root functions private/internal
 // TODO: update location to location validation function
+
+type ProjectTaste string
+
+const (
+	TasteApp ProjectTaste = "app"
+	TastePkg ProjectTaste = "pkg"
+)
+
+type ProjectServer string
+
+const (
+	ServerHttp ProjectServer = "http"
+)
 
 type layoutDir int
 
@@ -103,14 +115,14 @@ func layoutBuilder(root string, node layoutNode) error {
 type Project struct {
 	Name   string
 	Root   string
-	Taste  string
-	Server string
+	Taste  ProjectTaste
+	Server ProjectServer
 }
 
 var defaultProject = &Project{
 	Name:   "ramen",
-	Taste:  "app",
-	Server: "http",
+	Taste:  TasteApp,
+	Server: ServerHttp,
 }
 
 // New project.
