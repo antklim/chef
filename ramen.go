@@ -11,6 +11,8 @@ import (
 // TODO: read layout settings from yaml
 // TODO: make location and root functions private/internal
 // TODO: update location to location validation function
+// TODO: refactor project structure
+// TODO: use go:embed to init projects
 
 type ProjectTaste string
 

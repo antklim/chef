@@ -32,3 +32,7 @@ Options:
 --root, -r - project root directory
 --taste, -t - pkg, app
 --server, -s - http
+
+TODO: Add CI/CD pipeline
+  - test and coverage
+  - linting with golangci
