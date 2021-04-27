@@ -14,11 +14,11 @@ import (
 func TestNewProject(t *testing.T) {
 	testCases := []struct {
 		desc string
-		proj *ramen.Project
+		proj ramen.Project
 	}{
 		{
 			desc: "returns default project manager when no options provided",
-			proj: &ramen.Project{
+			proj: ramen.Project{
 				Name:   "ramen",
 				Taste:  "app",
 				Server: "http",
@@ -27,13 +27,34 @@ func TestNewProject(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New()
+			p := ramen.New("ramen")
 			assert.Equal(t, tC.proj, p)
 		})
 	}
 }
 
-// TODO: move name validation to a New method
+func TestProjectValidate(t *testing.T) {
+	testCases := []struct {
+		desc string
+		err  string
+	}{
+		{
+			desc: "fails when project name is an empty string",
+			err:  "project name required: empty name provided",
+		},
+		// {
+		// 	desc: "fails when project location is invalid",
+		// },
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := ramen.New("")
+			err := p.Validate()
+			assert.EqualError(t, err, tC.err)
+		})
+	}
+}
+
 func TestProjectInit(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "ramentest")
 	defer os.RemoveAll(tmpDir)
@@ -45,12 +66,6 @@ func TestProjectInit(t *testing.T) {
 		root   string
 		assert func(*testing.T, error)
 	}{
-		{
-			desc: "project name required",
-			assert: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "project name required")
-			},
-		},
 		{
 			desc: "inits default project",
 			name: "ramentest",
@@ -90,8 +105,11 @@ func TestProjectInit(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New()
-			err := p.Init(tC.name, tC.root)
+			p := ramen.New(tC.name)
+			err := p.Validate()
+			require.NoError(t, err)
+
+			err = p.Init(tC.root)
 			tC.assert(t, err)
 		})
 	}

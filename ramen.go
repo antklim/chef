@@ -119,34 +119,40 @@ type Project struct {
 	Server ProjectServer
 }
 
-var defaultProject = &Project{
-	Name:   "ramen",
-	Taste:  TasteApp,
-	Server: ServerHttp,
+func defaultProject(name string) Project {
+	return Project{
+		Name:   name,
+		Taste:  TasteApp,
+		Server: ServerHttp,
+	}
 }
 
 // New project.
 // TODO: add options
-// TODO: move name validation to option validation
-func New() *Project {
-	return defaultProject
+func New(name string) Project {
+	name = strings.TrimSpace(name)
+	return defaultProject(name)
+}
+
+// TODO: implement option validation
+func (p *Project) Validate() error {
+	if p.Name == "" {
+		return errors.New("project name required: empty name provided")
+	}
+
+	return nil
 }
 
 // Init initializes the project layout.
 // TODO: make init a package level function with the default project.Init call.
-func (p *Project) Init(name, root string) error {
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return errors.New("project name required")
-	}
-
-	_, err := Location(name, root)
+func (p *Project) Init(root string) error {
+	_, err := Location(p.Name, root)
 	if err != nil {
 		return err
 	}
 
 	rl := layoutNode{
-		Name:     name,
+		Name:     p.Name,
 		Children: defaultLayout,
 	}
 
