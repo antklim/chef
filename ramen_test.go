@@ -14,20 +14,38 @@ import (
 func TestNewProject(t *testing.T) {
 	testCases := []struct {
 		desc string
+		name string
+		opts []ramen.Option
 		proj ramen.Project
 	}{
 		{
 			desc: "returns default project manager when no options provided",
+			name: "ramen",
 			proj: ramen.Project{
 				Name:   "ramen",
 				Taste:  "app",
 				Server: "http",
 			},
 		},
+		{
+			desc: "returns project with custom options",
+			opts: []ramen.Option{
+				ramen.WithRoot("/r"),
+				ramen.WithServer(ramen.ServerGrpc),
+				ramen.WithTaste(ramen.TastePkg),
+			},
+			name: "borsch",
+			proj: ramen.Project{
+				Name:   "borsch",
+				Root:   "/r",
+				Taste:  "pkg",
+				Server: "grpc",
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New("ramen")
+			p := ramen.New(tC.name, tC.opts...)
 			assert.Equal(t, tC.proj, p)
 		})
 	}

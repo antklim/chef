@@ -23,6 +23,7 @@ type ProjectServer string
 
 const (
 	ServerHttp ProjectServer = "http"
+	ServerGrpc ProjectServer = "grpc"
 )
 
 type layoutDir int
@@ -128,10 +129,13 @@ func defaultProject(name string) Project {
 }
 
 // New project.
-// TODO: add options
-func New(name string) Project {
+func New(name string, options ...Option) Project {
 	name = strings.TrimSpace(name)
-	return defaultProject(name)
+	p := defaultProject(name)
+	for _, opt := range options {
+		opt.apply(&p)
+	}
+	return p
 }
 
 // TODO: implement option validation
@@ -161,6 +165,40 @@ func (p *Project) Init(root string) error {
 	}
 
 	return nil
+}
+
+type Option interface {
+	apply(*Project)
+}
+
+type funcOption struct {
+	f func(*Project)
+}
+
+func (fo *funcOption) apply(p *Project) {
+	fo.f(p)
+}
+
+func newFuncOption(f func(*Project)) *funcOption {
+	return &funcOption{f}
+}
+
+func WithRoot(r string) Option {
+	return newFuncOption(func(p *Project) {
+		p.Root = r
+	})
+}
+
+func WithTaste(t ProjectTaste) Option {
+	return newFuncOption(func(p *Project) {
+		p.Taste = t
+	})
+}
+
+func WithServer(s ProjectServer) Option {
+	return newFuncOption(func(p *Project) {
+		p.Server = s
+	})
 }
 
 // Location returns project location for a given project name and root.
