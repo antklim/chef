@@ -31,7 +31,7 @@ const (
 type layoutDir int
 
 const (
-	dirCmd layoutDir = iota
+	dirCmd layoutDir = iota + 1
 	dirInternal
 	dirTest
 	dirApp
@@ -55,7 +55,7 @@ var dirName = map[layoutDir]string{
 type node int
 
 const (
-	nodeDir node = iota
+	nodeDir node = iota + 1
 	nodeFile
 )
 
