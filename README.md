@@ -34,6 +34,3 @@ Options:
 --root, -r - project root directory
 --category, -c - pkg, app
 --server, -s - http
-
-TODO: Add CI/CD pipeline
-  - linting with golangci

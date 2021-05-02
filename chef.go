@@ -24,8 +24,8 @@ const (
 type ProjectServer string
 
 const (
-	ServerHttp ProjectServer = "http"
-	ServerGrpc ProjectServer = "grpc"
+	ServerHTTP ProjectServer = "http"
+	ServerGRPC ProjectServer = "grpc"
 )
 
 type layoutDir int
@@ -38,7 +38,7 @@ const (
 	dirAdapter
 	dirProvider
 	dirServer
-	dirHttp
+	dirHTTP
 )
 
 var dirName = map[layoutDir]string{
@@ -49,7 +49,7 @@ var dirName = map[layoutDir]string{
 	dirAdapter:  "adapter",
 	dirProvider: "provider",
 	dirServer:   "server",
-	dirHttp:     "http",
+	dirHTTP:     "http",
 }
 
 type node int
@@ -81,7 +81,7 @@ var defaultLayout = []layoutNode{
 			{
 				Name: dirName[dirServer],
 				Children: []layoutNode{
-					{Name: dirName[dirHttp]},
+					{Name: dirName[dirHTTP]},
 				},
 			},
 		},
@@ -98,7 +98,8 @@ func layoutBuilder(root string, node layoutNode) error {
 		if err != nil {
 			return err
 		}
-		return f.Chmod(0644)
+		return f.Chmod(0644) // nolint
+	case nodeDir:
 	default:
 		if err := os.Mkdir(o, 0755); err != nil {
 			return err
@@ -126,7 +127,7 @@ func defaultProject(name string) Project {
 	return Project{
 		Name:     name,
 		Category: CategoryApp,
-		Server:   ServerHttp,
+		Server:   ServerHTTP,
 	}
 }
 
@@ -212,7 +213,7 @@ func Location(name, root string) (string, error) {
 
 	loc := path.Join(wd, name)
 
-	fi, err := os.Stat(loc)
+	fi, _ := os.Stat(loc)
 	if fi != nil {
 		return "", fmt.Errorf("file or directory %s already exists", name)
 	}

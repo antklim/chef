@@ -31,7 +31,7 @@ func TestNewProject(t *testing.T) {
 			opts: []chef.Option{
 				chef.WithCategory(chef.CategoryPkg),
 				chef.WithRoot("/r"),
-				chef.WithServer(chef.ServerGrpc),
+				chef.WithServer(chef.ServerGRPC),
 			},
 			name: "borsch",
 			proj: chef.Project{
