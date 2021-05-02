@@ -1,4 +1,4 @@
-package ramen_test
+package chef_test
 
 import (
 	"io/ioutil"
@@ -6,7 +6,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/antklim/ramen"
+	"github.com/antklim/chef"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,13 +15,13 @@ func TestNewProject(t *testing.T) {
 	testCases := []struct {
 		desc string
 		name string
-		opts []ramen.Option
-		proj ramen.Project
+		opts []chef.Option
+		proj chef.Project
 	}{
 		{
 			desc: "returns default project manager when no options provided",
 			name: "ramen",
-			proj: ramen.Project{
+			proj: chef.Project{
 				Name:   "ramen",
 				Taste:  "app",
 				Server: "http",
@@ -29,13 +29,13 @@ func TestNewProject(t *testing.T) {
 		},
 		{
 			desc: "returns project with custom options",
-			opts: []ramen.Option{
-				ramen.WithRoot("/r"),
-				ramen.WithServer(ramen.ServerGrpc),
-				ramen.WithTaste(ramen.TastePkg),
+			opts: []chef.Option{
+				chef.WithRoot("/r"),
+				chef.WithServer(chef.ServerGrpc),
+				chef.WithTaste(chef.TastePkg),
 			},
 			name: "borsch",
-			proj: ramen.Project{
+			proj: chef.Project{
 				Name:   "borsch",
 				Root:   "/r",
 				Taste:  "pkg",
@@ -45,7 +45,7 @@ func TestNewProject(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New(tC.name, tC.opts...)
+			p := chef.New(tC.name, tC.opts...)
 			assert.Equal(t, tC.proj, p)
 		})
 	}
@@ -66,7 +66,7 @@ func TestProjectValidate(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New("")
+			p := chef.New("")
 			err := p.Validate()
 			assert.EqualError(t, err, tC.err)
 		})
@@ -74,7 +74,7 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func TestProjectInit(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "ramentest")
+	tmpDir, err := ioutil.TempDir("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -86,34 +86,34 @@ func TestProjectInit(t *testing.T) {
 	}{
 		{
 			desc: "inits default project",
-			name: "ramentest",
+			name: "cheftest",
 			root: tmpDir,
 			assert: func(t *testing.T, err error) {
 				require.NoError(t, err)
 				{
 					// root of the project should include cmd, internal, test
-					de, err := os.ReadDir(path.Join(tmpDir, "ramentest"))
+					de, err := os.ReadDir(path.Join(tmpDir, "cheftest"))
 					require.NoError(t, err)
 					assert.Len(t, de, 3)
 				}
 
 				{
 					// root/cmd should include main.go
-					de, err := os.ReadDir(path.Join(tmpDir, "ramentest", "cmd"))
+					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "cmd"))
 					require.NoError(t, err)
 					assert.Len(t, de, 1)
 				}
 
 				{
 					// root/internal should include app, adapter, provider, and server
-					de, err := os.ReadDir(path.Join(tmpDir, "ramentest", "internal"))
+					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "internal"))
 					require.NoError(t, err)
 					assert.Len(t, de, 4)
 				}
 
 				{
 					// root/internal/server should include http
-					de, err := os.ReadDir(path.Join(tmpDir, "ramentest", "internal", "server"))
+					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "internal", "server"))
 					require.NoError(t, err)
 					assert.Len(t, de, 1)
 				}
@@ -123,7 +123,7 @@ func TestProjectInit(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := ramen.New(tC.name)
+			p := chef.New(tC.name)
 			err := p.Validate()
 			require.NoError(t, err)
 
@@ -134,7 +134,7 @@ func TestProjectInit(t *testing.T) {
 }
 
 func TestProjectLocation(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "ramentest")
+	tmpDir, err := ioutil.TempDir("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -168,14 +168,14 @@ func TestProjectLocation(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			loc, err := ramen.Location(tC.name, tC.root)
+			loc, err := chef.Location(tC.name, tC.root)
 			tC.assert(t, loc, err)
 		})
 	}
 }
 
 func TestProjectRoot(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "ramentest")
+	tmpDir, err := ioutil.TempDir("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -229,7 +229,7 @@ func TestProjectRoot(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			root, err := ramen.Root(tC.name)
+			root, err := chef.Root(tC.name)
 			tC.assert(t, root, err)
 		})
 	}

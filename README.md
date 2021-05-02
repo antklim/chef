@@ -1,6 +1,6 @@
-# ramen
+# chef
 
-Ramen is a layout and components generator for Go projects.
+Chef is a layout and components generator for Go projects.
 
 Tastes:
 - pkg - package

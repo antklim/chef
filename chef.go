@@ -1,4 +1,4 @@
-package ramen
+package chef
 
 import (
 	"errors"

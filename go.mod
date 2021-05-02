@@ -1,4 +1,4 @@
-module github.com/antklim/ramen
+module github.com/antklim/chef
 
 go 1.16
 
