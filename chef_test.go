@@ -1,7 +1,6 @@
 package chef_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -74,7 +73,7 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func TestProjectInit(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "cheftest")
+	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -134,7 +133,7 @@ func TestProjectInit(t *testing.T) {
 }
 
 func TestProjectLocation(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "cheftest")
+	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -175,7 +174,7 @@ func TestProjectLocation(t *testing.T) {
 }
 
 func TestProjectRoot(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "cheftest")
+	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
