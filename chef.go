@@ -14,11 +14,11 @@ import (
 // TODO: refactor project structure
 // TODO: use go:embed to init projects
 
-type ProjectTaste string
+type ProjectCategory string
 
 const (
-	TasteApp ProjectTaste = "app"
-	TastePkg ProjectTaste = "pkg"
+	CategoryApp ProjectCategory = "app"
+	CategoryPkg ProjectCategory = "pkg"
 )
 
 type ProjectServer string
@@ -116,17 +116,17 @@ func layoutBuilder(root string, node layoutNode) error {
 
 // Project manager.
 type Project struct {
-	Name   string
-	Root   string
-	Taste  ProjectTaste
-	Server ProjectServer
+	Name     string
+	Root     string
+	Category ProjectCategory
+	Server   ProjectServer
 }
 
 func defaultProject(name string) Project {
 	return Project{
-		Name:   name,
-		Taste:  TasteApp,
-		Server: ServerHttp,
+		Name:     name,
+		Category: CategoryApp,
+		Server:   ServerHttp,
 	}
 }
 
@@ -191,9 +191,9 @@ func WithRoot(r string) Option {
 	})
 }
 
-func WithTaste(t ProjectTaste) Option {
+func WithCategory(c ProjectCategory) Option {
 	return newFuncOption(func(p *Project) {
-		p.Taste = t
+		p.Category = c
 	})
 }
 

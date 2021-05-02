@@ -22,24 +22,24 @@ func TestNewProject(t *testing.T) {
 			desc: "returns default project manager when no options provided",
 			name: "ramen",
 			proj: chef.Project{
-				Name:   "ramen",
-				Taste:  "app",
-				Server: "http",
+				Name:     "ramen",
+				Category: "app",
+				Server:   "http",
 			},
 		},
 		{
 			desc: "returns project with custom options",
 			opts: []chef.Option{
+				chef.WithCategory(chef.CategoryPkg),
 				chef.WithRoot("/r"),
 				chef.WithServer(chef.ServerGrpc),
-				chef.WithTaste(chef.TastePkg),
 			},
 			name: "borsch",
 			proj: chef.Project{
-				Name:   "borsch",
-				Root:   "/r",
-				Taste:  "pkg",
-				Server: "grpc",
+				Name:     "borsch",
+				Root:     "/r",
+				Category: "pkg",
+				Server:   "grpc",
 			},
 		},
 	}
