@@ -55,7 +55,7 @@ var dirName = map[layoutDir]string{
 type node int
 
 const (
-	nodeDir node = iota + 1
+	nodeDir node = iota
 	nodeFile
 )
 
@@ -100,6 +100,7 @@ func layoutBuilder(root string, node layoutNode) error {
 		}
 		return f.Chmod(0644) // nolint
 	case nodeDir:
+		fallthrough
 	default:
 		if err := os.Mkdir(o, 0755); err != nil {
 			return err
