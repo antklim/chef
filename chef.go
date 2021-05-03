@@ -190,6 +190,16 @@ func (p Project) Init() error {
 	return nil
 }
 
+func (p Project) Location() (string, error) {
+	wd, err := p.root()
+	if err != nil {
+		return "", err
+	}
+
+	loc := path.Join(wd, p.Name)
+	return loc, nil
+}
+
 func (p Project) root() (root string, err error) {
 	root = p.Root
 	if root == "" {

@@ -168,6 +168,44 @@ func TestProjectLocation(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
+	cwd, err := os.Getwd()
+	require.NoError(t, err)
+
+	name := "chef"
+
+	testCases := []struct {
+		desc string
+		opts []chef.Option
+		loc  string
+	}{
+		{
+			desc: "is cwd/name when project root not provided by user",
+			loc:  path.Join(cwd, name),
+		},
+		{
+			desc: "is root/name when project root provided by user",
+			opts: []chef.Option{chef.WithRoot(tmpDir)},
+			loc:  path.Join(tmpDir, name),
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := chef.New(name, tC.opts...)
+			err := p.Validate()
+			require.NoError(t, err)
+
+			loc, err := p.Location()
+			require.NoError(t, err)
+			assert.Equal(t, tC.loc, loc)
+		})
+	}
+}
+
+func TestChefLocation(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "cheftest")
+	defer os.RemoveAll(tmpDir)
+	require.NoError(t, err)
+
 	err = os.Mkdir(path.Join(tmpDir, "sushi"), 0755)
 	require.NoError(t, err)
 
@@ -186,16 +224,6 @@ func TestProjectLocation(t *testing.T) {
 				assert.Equal(t, path.Join(tmpDir, "miso"), loc)
 			},
 		},
-		// TODO: is cwd/name when project root not provided by user
-		// {
-		// 	desc: "is cwd/name when project root not provided by user",
-		// 	name: "miso",
-		// 	root: tmpDir,
-		// 	assert: func(t *testing.T, loc string, err error) {
-		// 		assert.NoError(t, err)
-		// 		assert.Equal(t, path.Join(tmpDir, "miso"), loc)
-		// 	},
-		// },
 		{
 			desc: "fails when root contains file or directory with the project name",
 			name: "sushi",
