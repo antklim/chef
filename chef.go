@@ -148,6 +148,20 @@ func (p Project) Validate() error {
 		return errors.New("project name required: empty name provided")
 	}
 
+	root, err := p.root()
+	if err != nil {
+		return err
+	}
+
+	fi, err := os.Stat(root)
+	if err != nil {
+		return err
+	}
+
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", root)
+	}
+
 	return nil
 }
 

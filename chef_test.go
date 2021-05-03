@@ -51,13 +51,35 @@ func TestNewProject(t *testing.T) {
 }
 
 func TestProjectValidate(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "cheftest")
+	defer os.RemoveAll(tmpDir)
+	require.NoError(t, err)
+
+	karrageFile := path.Join(tmpDir, "karrage")
+	_, err = os.Create(karrageFile)
+	require.NoError(t, err)
+
 	testCases := []struct {
 		desc string
+		name string
+		opts []chef.Option
 		err  string
 	}{
 		{
 			desc: "fails when project name is an empty string",
 			err:  "project name required: empty name provided",
+		},
+		{
+			desc: "fails when provided root does not exist",
+			name: "cheftempura",
+			opts: []chef.Option{chef.WithRoot("tempura")},
+			err:  "stat tempura: no such file or directory",
+		},
+		{
+			desc: "fails when provided root is not a directory",
+			name: "chefkarrage",
+			opts: []chef.Option{chef.WithRoot(karrageFile)},
+			err:  karrageFile + " is not a directory",
 		},
 		// TODO: fails when project location is invalid
 		// {
@@ -70,7 +92,7 @@ func TestProjectValidate(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := chef.New("")
+			p := chef.New(tC.name, tC.opts...)
 			err := p.Validate()
 			assert.EqualError(t, err, tC.err)
 		})
@@ -164,6 +186,16 @@ func TestProjectLocation(t *testing.T) {
 				assert.Equal(t, path.Join(tmpDir, "miso"), loc)
 			},
 		},
+		// TODO: is cwd/name when project root not provided by user
+		// {
+		// 	desc: "is cwd/name when project root not provided by user",
+		// 	name: "miso",
+		// 	root: tmpDir,
+		// 	assert: func(t *testing.T, loc string, err error) {
+		// 		assert.NoError(t, err)
+		// 		assert.Equal(t, path.Join(tmpDir, "miso"), loc)
+		// 	},
+		// },
 		{
 			desc: "fails when root contains file or directory with the project name",
 			name: "sushi",
@@ -182,6 +214,7 @@ func TestProjectLocation(t *testing.T) {
 	}
 }
 
+// TODO: delete test after functionality moved to project
 func TestProjectRoot(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
