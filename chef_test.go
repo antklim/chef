@@ -59,8 +59,13 @@ func TestProjectValidate(t *testing.T) {
 			desc: "fails when project name is an empty string",
 			err:  "project name required: empty name provided",
 		},
+		// TODO: fails when project location is invalid
 		// {
 		// 	desc: "fails when project location is invalid",
+		// },
+		// TODO: fails when root contains file or directory with the project name
+		// {
+		// 	desc: "fails when root contains file or directory with the project name",
 		// },
 	}
 	for _, tC := range testCases {
