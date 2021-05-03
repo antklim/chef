@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/antklim/chef"
 )
@@ -13,7 +12,8 @@ import (
 func main() {
 	fmt.Println("Chef v0.1.0")
 	p := chef.New("XYZ")
-	if err := p.Init(""); err != nil {
-		log.Fatal(err)
-	}
+	p.Init("")
+	// if err := p.Init(""); err != nil {
+	// 	log.Fatal(err)
+	// }
 }
