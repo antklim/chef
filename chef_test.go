@@ -119,14 +119,18 @@ func TestProjectInit(t *testing.T) {
 				// TODO: all leaf directories should contain .gitkeep
 			},
 		},
+		// TODO: inits default project in current directory
+		// {
+		// 	desc: "inits default project in current directory",
+		// },
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := chef.New(tC.name)
+			p := chef.New(tC.name, chef.WithRoot(tC.root))
 			err := p.Validate()
 			require.NoError(t, err)
 
-			err = p.Init(tC.root)
+			err = p.Init()
 			tC.assert(t, err)
 		})
 	}

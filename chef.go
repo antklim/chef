@@ -143,7 +143,7 @@ func New(name string, options ...Option) Project {
 }
 
 // TODO: implement option validation
-func (p *Project) Validate() error {
+func (p Project) Validate() error {
 	if p.Name == "" {
 		return errors.New("project name required: empty name provided")
 	}
@@ -153,8 +153,8 @@ func (p *Project) Validate() error {
 
 // Init initializes the project layout.
 // TODO: make init a package level function with the default project.Init call.
-func (p *Project) Init(root string) error {
-	_, err := Location(p.Name, root)
+func (p Project) Init() error {
+	_, err := Location(p.Name, p.Root)
 	if err != nil {
 		return err
 	}
@@ -164,11 +164,24 @@ func (p *Project) Init(root string) error {
 		Children: defaultLayout,
 	}
 
+	root, err := p.root()
+	if err != nil {
+		return err
+	}
+
 	if err := layoutBuilder(root, rl); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (p Project) root() (root string, err error) {
+	root = p.Root
+	if root == "" {
+		root, err = os.Getwd()
+	}
+	return
 }
 
 type Option interface {
@@ -189,7 +202,7 @@ func newFuncOption(f func(*Project)) *funcOption {
 
 func WithRoot(r string) Option {
 	return newFuncOption(func(p *Project) {
-		p.Root = r
+		p.Root = strings.TrimSpace(r)
 	})
 }
 
@@ -226,7 +239,7 @@ func Location(name, root string) (string, error) {
 func Root(name string) (string, error) {
 	var err error
 
-	if name = strings.TrimSpace(name); name == "" {
+	if name == "" {
 		name, err = os.Getwd()
 	}
 

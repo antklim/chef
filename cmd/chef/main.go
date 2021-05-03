@@ -13,7 +13,11 @@ import (
 func main() {
 	fmt.Println("Chef v0.1.0")
 	p := chef.New("XYZ")
-	if err := p.Init(""); err != nil {
+	if err := p.Validate(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := p.Init(); err != nil {
 		log.Fatal(err)
 	}
 }
