@@ -27,34 +27,46 @@ const (
 	ServerGRPC Server = "grpc"
 )
 
-// Project manager.
-type Project struct {
-	Name     string
-	Root     string
-	Category Category
-	Server   Server
+const (
+	defaultCategory = CategoryApp
+	defaultServer   = ServerHTTP
+)
+
+type projectOptions struct {
+	root string
+	cat  Category
+	srv  Server
 }
 
-func defaultProject(name string) Project {
-	return Project{
-		Name:     name,
-		Category: CategoryApp,
-		Server:   ServerHTTP,
-	}
+var defaultProjectOptions = projectOptions{
+	cat: defaultCategory,
+	srv: defaultServer,
+}
+
+// Project manager.
+type Project struct {
+	name string
+	opts projectOptions
 }
 
 // New project.
-func New(name string, opts ...Option) Project {
+func New(name string, opt ...Option) Project {
 	name = strings.TrimSpace(name)
-	p := defaultProject(name)
-	for _, o := range opts {
-		o.apply(&p)
+	opts := defaultProjectOptions
+
+	for _, o := range opt {
+		o.apply(&opts)
+	}
+
+	p := Project{
+		name: name,
+		opts: opts,
 	}
 	return p
 }
 
 func (p Project) Validate() error {
-	if p.Name == "" {
+	if p.name == "" {
 		return errors.New("project name required: empty name provided")
 	}
 
@@ -72,9 +84,9 @@ func (p Project) Validate() error {
 		return fmt.Errorf("%s is not a directory", root)
 	}
 
-	fi, _ = os.Stat(path.Join(root, p.Name))
+	fi, _ = os.Stat(path.Join(root, p.name))
 	if fi != nil {
-		return fmt.Errorf("file or directory %s already exists", p.Name)
+		return fmt.Errorf("file or directory %s already exists", p.name)
 	}
 
 	return nil
@@ -83,7 +95,7 @@ func (p Project) Validate() error {
 // Init initializes the project layout.
 func (p Project) Init() error {
 	rl := layout.Node{
-		Name:     p.Name,
+		Name:     p.name,
 		Children: layout.Default,
 	}
 
@@ -99,8 +111,24 @@ func (p Project) Init() error {
 	return nil
 }
 
+func (p Project) Name() string {
+	return p.name
+}
+
+func (p Project) Root() string {
+	return p.opts.root
+}
+
+func (p Project) Category() Category {
+	return p.opts.cat
+}
+
+func (p Project) Server() Server {
+	return p.opts.srv
+}
+
 func (p Project) root() (root string, err error) {
-	root = p.Root
+	root = p.opts.root
 	if root == "" {
 		root, err = os.Getwd()
 	}
@@ -108,35 +136,35 @@ func (p Project) root() (root string, err error) {
 }
 
 type Option interface {
-	apply(*Project)
+	apply(*projectOptions)
 }
 
 type funcOption struct {
-	f func(*Project)
+	f func(*projectOptions)
 }
 
-func (fo *funcOption) apply(p *Project) {
-	fo.f(p)
+func (fo *funcOption) apply(o *projectOptions) {
+	fo.f(o)
 }
 
-func newFuncOption(f func(*Project)) *funcOption {
+func newFuncOption(f func(*projectOptions)) *funcOption {
 	return &funcOption{f}
 }
 
 func WithRoot(r string) Option {
-	return newFuncOption(func(p *Project) {
-		p.Root = strings.TrimSpace(r)
+	return newFuncOption(func(o *projectOptions) {
+		o.root = strings.TrimSpace(r)
 	})
 }
 
 func WithCategory(c Category) Option {
-	return newFuncOption(func(p *Project) {
-		p.Category = c
+	return newFuncOption(func(o *projectOptions) {
+		o.cat = c
 	})
 }
 
 func WithServer(s Server) Option {
-	return newFuncOption(func(p *Project) {
-		p.Server = s
+	return newFuncOption(func(o *projectOptions) {
+		o.srv = s
 	})
 }

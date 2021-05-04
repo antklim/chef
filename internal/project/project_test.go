@@ -15,37 +15,36 @@ func TestNewProject(t *testing.T) {
 		desc string
 		name string
 		opts []project.Option
-		proj project.Project
+		root string
+		cat  project.Category
+		srv  project.Server
 	}{
 		{
 			desc: "returns default project manager when no options provided",
 			name: "ramen",
-			proj: project.Project{
-				Name:     "ramen",
-				Category: "app",
-				Server:   "http",
-			},
+			cat:  project.CategoryApp,
+			srv:  project.ServerHTTP,
 		},
 		{
 			desc: "returns project with custom options",
+			name: "borsch",
 			opts: []project.Option{
 				project.WithCategory(project.CategoryPkg),
 				project.WithRoot("/r"),
 				project.WithServer(project.ServerGRPC),
 			},
-			name: "borsch",
-			proj: project.Project{
-				Name:     "borsch",
-				Root:     "/r",
-				Category: "pkg",
-				Server:   "grpc",
-			},
+			root: "/r",
+			cat:  project.CategoryPkg,
+			srv:  project.ServerGRPC,
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			p := project.New(tC.name, tC.opts...)
-			assert.Equal(t, tC.proj, p)
+			assert.Equal(t, tC.name, p.Name())
+			assert.Equal(t, tC.root, p.Root())
+			assert.Equal(t, tC.cat, p.Category())
+			assert.Equal(t, tC.srv, p.Server())
 		})
 	}
 }
