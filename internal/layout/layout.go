@@ -1,6 +1,7 @@
 package layout
 
 import (
+	_ "embed" // required to be able to use go:embed
 	"os"
 	"path"
 )
@@ -35,6 +36,13 @@ const (
 	nodeDir node = iota
 	nodeFile
 )
+
+const (
+	fwrr = 0644
+)
+
+//go:embed .gitkeep
+var gitkeep []byte
 
 type Node struct {
 	Name     string
@@ -77,7 +85,7 @@ func Builder(root string, n Node) error {
 		if err != nil {
 			return err
 		}
-		return f.Chmod(0644) // nolint
+		return f.Chmod(fwrr)
 	case nodeDir:
 		fallthrough
 	default:
@@ -87,6 +95,12 @@ func Builder(root string, n Node) error {
 
 		for _, c := range n.Children {
 			if err := Builder(o, c); err != nil {
+				return err
+			}
+		}
+
+		if len(n.Children) == 0 {
+			if err := os.WriteFile(path.Join(o, ".gitkeep"), gitkeep, fwrr); err != nil {
 				return err
 			}
 		}

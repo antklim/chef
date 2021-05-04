@@ -99,94 +99,103 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
+func assertProjectLayout(t *testing.T, root string) {
+	{
+		// root of the project should include cmd, internal, test
+		de, err := os.ReadDir(path.Join(root, "cheftest"))
+		require.NoError(t, err)
+		assert.Len(t, de, 3)
+	}
+
+	{
+		// root/cmd should include main.go
+		de, err := os.ReadDir(path.Join(root, "cheftest", "cmd"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/internal should include app, adapter, provider, and server
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal"))
+		require.NoError(t, err)
+		assert.Len(t, de, 4)
+	}
+
+	{
+		// root/internal/app should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "app"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/internal/adapter should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "adapter"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/internal/provider should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "provider"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/internal/server should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "server"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/internal/server should include http
+		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "server"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/test should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "test"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+}
+
 func TestProjectInit(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
+	name := "cheftest"
+	tmpDir, err := os.MkdirTemp("", name)
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	defer os.RemoveAll("cheftest")
+	defer os.RemoveAll(name)
 
 	testCases := []struct {
 		desc   string
-		name   string
 		root   string
 		assert func(*testing.T, error)
 	}{
 		{
 			desc: "inits default project in provided directory",
-			name: "cheftest",
 			root: tmpDir,
 			assert: func(t *testing.T, err error) {
 				require.NoError(t, err)
-				{
-					// root of the project should include cmd, internal, test
-					de, err := os.ReadDir(path.Join(tmpDir, "cheftest"))
-					require.NoError(t, err)
-					assert.Len(t, de, 3)
-				}
-
-				{
-					// root/cmd should include main.go
-					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "cmd"))
-					require.NoError(t, err)
-					assert.Len(t, de, 1)
-				}
-
-				{
-					// root/internal should include app, adapter, provider, and server
-					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "internal"))
-					require.NoError(t, err)
-					assert.Len(t, de, 4)
-				}
-
-				{
-					// root/internal/server should include http
-					de, err := os.ReadDir(path.Join(tmpDir, "cheftest", "internal", "server"))
-					require.NoError(t, err)
-					assert.Len(t, de, 1)
-				}
-				// TODO: all leaf directories should contain .gitkeep
+				assertProjectLayout(t, tmpDir)
 			},
 		},
 		{
 			desc: "inits default project in current directory",
-			name: "cheftest",
 			assert: func(t *testing.T, err error) {
 				require.NoError(t, err)
-				{
-					// root of the project should include cmd, internal, test
-					de, err := os.ReadDir("cheftest")
-					require.NoError(t, err)
-					assert.Len(t, de, 3)
-				}
-
-				{
-					// root/cmd should include main.go
-					de, err := os.ReadDir(path.Join("cheftest", "cmd"))
-					require.NoError(t, err)
-					assert.Len(t, de, 1)
-				}
-
-				{
-					// root/internal should include app, adapter, provider, and server
-					de, err := os.ReadDir(path.Join("cheftest", "internal"))
-					require.NoError(t, err)
-					assert.Len(t, de, 4)
-				}
-
-				{
-					// root/internal/server should include http
-					de, err := os.ReadDir(path.Join("cheftest", "internal", "server"))
-					require.NoError(t, err)
-					assert.Len(t, de, 1)
-				}
-				// TODO: all leaf directories should contain .gitkeep
+				assertProjectLayout(t, "")
 			},
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := project.New(tC.name, project.WithRoot(tC.root))
+			p := project.New(name, project.WithRoot(tC.root))
 			err := p.Validate()
 			require.NoError(t, err)
 
