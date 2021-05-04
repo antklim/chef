@@ -9,8 +9,6 @@ import (
 )
 
 // TODO: read layout settings from yaml
-// TODO: make location and root functions private/internal
-// TODO: update location to location validation function
 // TODO: refactor project structure
 // TODO: use go:embed to init projects
 
@@ -162,17 +160,17 @@ func (p Project) Validate() error {
 		return fmt.Errorf("%s is not a directory", root)
 	}
 
+	fi, _ = os.Stat(path.Join(root, p.Name))
+	if fi != nil {
+		return fmt.Errorf("file or directory %s already exists", p.Name)
+	}
+
 	return nil
 }
 
 // Init initializes the project layout.
 // TODO: make init a package level function with the default project.Init call.
 func (p Project) Init() error {
-	_, err := Location(p.Name, p.Root)
-	if err != nil {
-		return err
-	}
-
 	rl := layoutNode{
 		Name:     p.Name,
 		Children: defaultLayout,
@@ -188,16 +186,6 @@ func (p Project) Init() error {
 	}
 
 	return nil
-}
-
-func (p Project) Location() (string, error) {
-	wd, err := p.root()
-	if err != nil {
-		return "", err
-	}
-
-	loc := path.Join(wd, p.Name)
-	return loc, nil
 }
 
 func (p Project) root() (root string, err error) {
@@ -240,45 +228,4 @@ func WithServer(s ProjectServer) Option {
 	return newFuncOption(func(p *Project) {
 		p.Server = s
 	})
-}
-
-// Location returns project location for a given project name and root.
-func Location(name, root string) (string, error) {
-	wd, err := Root(root)
-	if err != nil {
-		return "", err
-	}
-
-	loc := path.Join(wd, name)
-
-	fi, _ := os.Stat(loc)
-	if fi != nil {
-		return "", fmt.Errorf("file or directory %s already exists", name)
-	}
-
-	return loc, nil
-}
-
-// Root validates provided project root.
-func Root(name string) (string, error) {
-	var err error
-
-	if name == "" {
-		name, err = os.Getwd()
-	}
-
-	if err != nil {
-		return "", err
-	}
-
-	fi, err := os.Stat(name)
-	if err != nil {
-		return "", err
-	}
-
-	if !fi.IsDir() {
-		return "", fmt.Errorf("%s is not a directory", name)
-	}
-
-	return name, nil
 }

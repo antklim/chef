@@ -55,6 +55,9 @@ func TestProjectValidate(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
+	err = os.Mkdir(path.Join(tmpDir, "chefsushi"), 0755)
+	require.NoError(t, err)
+
 	karrageFile := path.Join(tmpDir, "karrage")
 	_, err = os.Create(karrageFile)
 	require.NoError(t, err)
@@ -81,14 +84,12 @@ func TestProjectValidate(t *testing.T) {
 			opts: []chef.Option{chef.WithRoot(karrageFile)},
 			err:  karrageFile + " is not a directory",
 		},
-		// TODO: fails when project location is invalid
-		// {
-		// 	desc: "fails when project location is invalid",
-		// },
-		// TODO: fails when root contains file or directory with the project name
-		// {
-		// 	desc: "fails when root contains file or directory with the project name",
-		// },
+		{
+			desc: "fails when root contains file or directory with the project name",
+			name: "chefsushi",
+			opts: []chef.Option{chef.WithRoot(tmpDir)},
+			err:  "file or directory chefsushi already exists",
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -111,7 +112,7 @@ func TestProjectInit(t *testing.T) {
 		assert func(*testing.T, error)
 	}{
 		{
-			desc: "inits default project",
+			desc: "inits default project in provided directory",
 			name: "cheftest",
 			root: tmpDir,
 			assert: func(t *testing.T, err error) {
@@ -159,147 +160,6 @@ func TestProjectInit(t *testing.T) {
 
 			err = p.Init()
 			tC.assert(t, err)
-		})
-	}
-}
-
-func TestProjectLocation(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
-
-	cwd, err := os.Getwd()
-	require.NoError(t, err)
-
-	name := "chef"
-
-	testCases := []struct {
-		desc string
-		opts []chef.Option
-		loc  string
-	}{
-		{
-			desc: "is cwd/name when project root not provided by user",
-			loc:  path.Join(cwd, name),
-		},
-		{
-			desc: "is root/name when project root provided by user",
-			opts: []chef.Option{chef.WithRoot(tmpDir)},
-			loc:  path.Join(tmpDir, name),
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p := chef.New(name, tC.opts...)
-			err := p.Validate()
-			require.NoError(t, err)
-
-			loc, err := p.Location()
-			require.NoError(t, err)
-			assert.Equal(t, tC.loc, loc)
-		})
-	}
-}
-
-func TestChefLocation(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
-
-	err = os.Mkdir(path.Join(tmpDir, "sushi"), 0755)
-	require.NoError(t, err)
-
-	testCases := []struct {
-		desc   string
-		name   string
-		root   string
-		assert func(*testing.T, string, error)
-	}{
-		{
-			desc: "is root/name when project root provided by user",
-			name: "miso",
-			root: tmpDir,
-			assert: func(t *testing.T, loc string, err error) {
-				assert.NoError(t, err)
-				assert.Equal(t, path.Join(tmpDir, "miso"), loc)
-			},
-		},
-		{
-			desc: "fails when root contains file or directory with the project name",
-			name: "sushi",
-			root: tmpDir,
-			assert: func(t *testing.T, loc string, err error) {
-				assert.EqualError(t, err, "file or directory sushi already exists")
-				assert.Equal(t, loc, "")
-			},
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			loc, err := chef.Location(tC.name, tC.root)
-			tC.assert(t, loc, err)
-		})
-	}
-}
-
-// TODO: delete test after functionality moved to project
-func TestProjectRoot(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
-
-	sushiDir := path.Join(tmpDir, "sushi")
-	err = os.Mkdir(sushiDir, 0755)
-	require.NoError(t, err)
-
-	karrageFile := path.Join(tmpDir, "karrage")
-	_, err = os.Create(karrageFile)
-	require.NoError(t, err)
-
-	cwd, err := os.Getwd()
-	require.NoError(t, err)
-
-	testCases := []struct {
-		desc   string
-		name   string
-		assert func(*testing.T, string, error)
-	}{
-		{
-			desc: "is current working drrectory when no root provided",
-			assert: func(t *testing.T, root string, err error) {
-				require.NoError(t, err)
-				assert.Equal(t, cwd, root)
-			},
-		},
-		{
-			desc: "is root directory when provided",
-			name: sushiDir,
-			assert: func(t *testing.T, root string, err error) {
-				require.NoError(t, err)
-				assert.Equal(t, sushiDir, root)
-			},
-		},
-		{
-			desc: "fails when provided root does not exist",
-			name: "tempura",
-			assert: func(t *testing.T, root string, err error) {
-				require.EqualError(t, err, "stat tempura: no such file or directory")
-				assert.Equal(t, "", root)
-			},
-		},
-		{
-			desc: "fails when provided root is not a directory",
-			name: karrageFile,
-			assert: func(t *testing.T, root string, err error) {
-				require.EqualError(t, err, karrageFile+" is not a directory")
-				assert.Equal(t, "", root)
-			},
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			root, err := chef.Root(tC.name)
-			tC.assert(t, root, err)
 		})
 	}
 }
