@@ -8,6 +8,7 @@ import (
 
 // TODO: read layout settings from yaml
 // TODO: add main.go via go:embed
+// TODO: use assets directory to store files used in project generation
 
 type layoutDir int
 
