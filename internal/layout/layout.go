@@ -6,6 +6,9 @@ import (
 	"path"
 )
 
+// TODO: read layout settings from yaml
+// TODO: add main.go via go:embed
+
 type layoutDir int
 
 const (
@@ -38,7 +41,8 @@ const (
 )
 
 const (
-	fwrr = 0644
+	fperm = 0644
+	dperm = 0755
 )
 
 //go:embed .gitkeep
@@ -85,11 +89,11 @@ func Builder(root string, n Node) error {
 		if err != nil {
 			return err
 		}
-		return f.Chmod(fwrr)
+		return f.Chmod(fperm)
 	case nodeDir:
 		fallthrough
 	default:
-		if err := os.Mkdir(o, 0755); err != nil {
+		if err := os.Mkdir(o, dperm); err != nil {
 			return err
 		}
 
@@ -100,7 +104,7 @@ func Builder(root string, n Node) error {
 		}
 
 		if len(n.Children) == 0 {
-			if err := os.WriteFile(path.Join(o, ".gitkeep"), gitkeep, fwrr); err != nil {
+			if err := os.WriteFile(path.Join(o, ".gitkeep"), gitkeep, fperm); err != nil {
 				return err
 			}
 		}

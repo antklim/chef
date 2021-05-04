@@ -10,9 +10,6 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
-// TODO: read layout settings from yaml
-// TODO: use go:embed to init projects
-
 type Category string
 
 const (
