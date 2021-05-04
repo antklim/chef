@@ -140,7 +140,6 @@ func New(name string, options ...Option) Project {
 	return p
 }
 
-// TODO: implement option validation
 func (p Project) Validate() error {
 	if p.Name == "" {
 		return errors.New("project name required: empty name provided")
