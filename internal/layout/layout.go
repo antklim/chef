@@ -46,8 +46,11 @@ const (
 	dperm = 0755
 )
 
-//go:embed .gitkeep
+//go:embed assets/.gitkeep
 var gitkeep []byte
+
+//go:embed assets/app/cmd/main.go
+var appmain []byte
 
 type Node struct {
 	Name     string
@@ -86,11 +89,18 @@ func Builder(root string, n Node) error {
 
 	switch n.Type {
 	case nodeFile:
-		f, err := os.Create(o)
-		if err != nil {
-			return err
+		// TODO: refactor
+		if n.Name == "main.go" {
+			if err := os.WriteFile(o, appmain, fperm); err != nil {
+				return err
+			}
+		} else {
+			f, err := os.Create(o)
+			if err != nil {
+				return err
+			}
+			return f.Chmod(fperm)
 		}
-		return f.Chmod(fperm)
 	case nodeDir:
 		fallthrough
 	default:
