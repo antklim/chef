@@ -10,7 +10,15 @@ Categories:
   - http
   - grpc
 
-Structure:
+App/Http structure:
+- /app - application source code
+- /adapter - adapters from/to app structures (for example from http-request to app struct)
+- /handler - http routes and handlers
+- /provider - external services providers/clients
+- /test - contains testing tools
+- main.go
+
+Others:
 - /cmd
 - /cmd/main.go
 
@@ -33,4 +41,4 @@ Options:
 --name, -n - project name
 --root, -r - project root directory
 --category, -c - pkg, app
---server, -s - http
+--server, -s - http, grpc
