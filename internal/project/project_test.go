@@ -101,57 +101,36 @@ func TestProjectValidate(t *testing.T) {
 
 func assertProjectLayout(t *testing.T, root string) {
 	{
-		// root of the project should include cmd, internal, test
+		// root of the project should include: adapter, app, handler, provider, test and main.go
 		de, err := os.ReadDir(path.Join(root, "cheftest"))
 		require.NoError(t, err)
-		assert.Len(t, de, 3)
+		assert.Len(t, de, 6)
 	}
 
 	{
-		// root/cmd should include main.go
-		de, err := os.ReadDir(path.Join(root, "cheftest", "cmd"))
+		// root/adapter should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "adapter"))
 		require.NoError(t, err)
 		assert.Len(t, de, 1)
 	}
 
 	{
-		// root/internal should include app, adapter, provider, and server
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal"))
-		require.NoError(t, err)
-		assert.Len(t, de, 4)
-	}
-
-	{
-		// root/internal/app should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "app"))
+		// root/app should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "app"))
 		require.NoError(t, err)
 		assert.Len(t, de, 1)
 	}
 
 	{
-		// root/internal/adapter should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "adapter"))
+		// root/handler should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "handler"))
 		require.NoError(t, err)
 		assert.Len(t, de, 1)
 	}
 
 	{
-		// root/internal/provider should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "provider"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/internal/server should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "server"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/internal/server should include http
-		de, err := os.ReadDir(path.Join(root, "cheftest", "internal", "server"))
+		// root/provider should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "provider"))
 		require.NoError(t, err)
 		assert.Len(t, de, 1)
 	}

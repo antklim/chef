@@ -14,24 +14,24 @@ type layoutDir int
 
 const (
 	dirCmd layoutDir = iota + 1
-	dirInternal
-	dirTest
-	dirApp
 	dirAdapter
+	dirApp
+	dirHandler
+	dirInternal
+	dirPkg
 	dirProvider
-	dirServer
-	dirHTTP
+	dirTest
 )
 
 var dirName = map[layoutDir]string{
 	dirCmd:      "cmd",
-	dirInternal: "internal",
-	dirTest:     "test",
-	dirApp:      "app",
 	dirAdapter:  "adapter",
+	dirApp:      "app",
+	dirHandler:  "handler",
+	dirInternal: "internal",
+	dirPkg:      "pkg",
 	dirProvider: "provider",
-	dirServer:   "server",
-	dirHTTP:     "http",
+	dirTest:     "test",
 }
 
 type node int
@@ -61,27 +61,12 @@ type Node struct {
 // Default project layout.
 // TODO: make it private
 var Default = []Node{
-	{
-		Name: dirName[dirCmd],
-		Children: []Node{
-			{Name: "main.go", Type: nodeFile},
-		},
-	},
-	{
-		Name: dirName[dirInternal],
-		Children: []Node{
-			{Name: dirName[dirApp]},
-			{Name: dirName[dirAdapter]},
-			{Name: dirName[dirProvider]},
-			{
-				Name: dirName[dirServer],
-				Children: []Node{
-					{Name: dirName[dirHTTP]},
-				},
-			},
-		},
-	},
+	{Name: dirName[dirAdapter]},
+	{Name: dirName[dirApp]},
+	{Name: dirName[dirHandler]},
+	{Name: dirName[dirProvider]},
 	{Name: dirName[dirTest]},
+	{Name: "main.go", Type: nodeFile},
 }
 
 func Builder(root string, n Node) error {
