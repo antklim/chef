@@ -6,9 +6,11 @@ import (
 	"path"
 )
 
+// TODO: use go:generate to generate application components
 // TODO: read layout settings from yaml
-// TODO: add main.go via go:embed
 // TODO: use assets directory to store files used in project generation
+// TODO: update assets to app_main.go, app_header.go, ...
+// TODO: test/build generated go code
 
 type layoutDir int
 

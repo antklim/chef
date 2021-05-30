@@ -9,6 +9,7 @@ Categories:
 - app - application
   - http
   - grpc
+- cli
 
 App/Http structure:
 - /app - application source code
@@ -40,5 +41,5 @@ add <component> - adds a component
 Options:
 --name, -n - project name
 --root, -r - project root directory
---category, -c - pkg, app
+--category, -c - pkg, app, cli
 --server, -s - http, grpc
