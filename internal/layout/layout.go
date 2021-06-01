@@ -1,15 +1,11 @@
 package layout
 
 import (
-	_ "embed" // required to be able to use go:embed
 	"os"
 	"path"
 )
 
-// TODO: use go:generate to generate application components
 // TODO: read layout settings from yaml
-// TODO: use assets directory to store files used in project generation
-// TODO: update assets to app_main.go, app_header.go, ...
 // TODO: test/build generated go code
 
 type layoutDir int
@@ -48,11 +44,7 @@ const (
 	dperm = 0755
 )
 
-//go:embed assets/.gitkeep
 var gitkeep []byte
-
-//go:embed assets/app/cmd/main.go
-var appmain []byte
 
 type Node struct {
 	Name     string
@@ -76,18 +68,20 @@ func Builder(root string, n Node) error {
 
 	switch n.Type {
 	case nodeFile:
+		f, err := os.Create(o)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
 		// TODO: refactor
 		if n.Name == "main.go" {
-			if err := os.WriteFile(o, appmain, fperm); err != nil {
+			if err := srvMainTemplate.Execute(f, nil); err != nil {
 				return err
 			}
-		} else {
-			f, err := os.Create(o)
-			if err != nil {
-				return err
-			}
-			return f.Chmod(fperm)
 		}
+
+		return f.Chmod(fperm)
 	case nodeDir:
 		fallthrough
 	default:

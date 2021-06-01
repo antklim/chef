@@ -1,4 +1,8 @@
-package main
+package layout
+
+import "text/template"
+
+var _srvMainTemplate = `package main
 
 import (
 	"fmt"
@@ -37,7 +41,9 @@ func handler() (string, http.Handler) {
 }
 
 func main() {
-	log.Println("Chef assets")
 	srv := NewServer()
+	log.Println("Starting a service...")
 	log.Fatal(srv.Start())
 }
+`
+var srvMainTemplate = template.Must(template.New("srv_main").Parse(_srvMainTemplate))
