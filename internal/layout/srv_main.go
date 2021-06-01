@@ -2,7 +2,7 @@ package layout
 
 import "text/template"
 
-var _srvMainTemplate = `package main
+const _srvMainTemplate = `package main
 
 import (
 	"fmt"
@@ -46,4 +46,5 @@ func main() {
 	log.Fatal(srv.Start())
 }
 `
+
 var srvMainTemplate = template.Must(template.New("srv_main").Parse(_srvMainTemplate))

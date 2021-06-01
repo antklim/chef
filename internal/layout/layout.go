@@ -8,6 +8,15 @@ import (
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
 
+// TODO: rename bootstrap command to boot
+
+// TODO: use http handler root template when bootstraping project
+// TODO: use http handler template to add health endpoint (on bootstrap)
+// TODO: make adding health endpoint on bootstrap optional
+// TODO: update server main template
+
+// TODO: support functionality of bring your own templates
+
 type layoutDir int
 
 const (
