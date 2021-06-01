@@ -10,13 +10,6 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
-type Category string
-
-const (
-	CategoryApp Category = "app"
-	CategoryPkg Category = "pkg"
-)
-
 type Server string
 
 const (
@@ -25,7 +18,7 @@ const (
 )
 
 const (
-	defaultCategory = CategoryApp
+	defaultCategory = CategoryService
 	defaultServer   = ServerHTTP
 )
 
@@ -106,6 +99,14 @@ func (p Project) Init() error {
 	}
 
 	return nil
+}
+
+// Bootstrap orchestrates project validation and initialization steps.
+func (p Project) Bootstrap() error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	return p.Init()
 }
 
 func (p Project) Name() string {

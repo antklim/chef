@@ -22,19 +22,19 @@ func TestNewProject(t *testing.T) {
 		{
 			desc: "returns default project manager when no options provided",
 			name: "ramen",
-			cat:  project.CategoryApp,
+			cat:  project.CategoryService,
 			srv:  project.ServerHTTP,
 		},
 		{
 			desc: "returns project with custom options",
 			name: "borsch",
 			opts: []project.Option{
-				project.WithCategory(project.CategoryPkg),
+				project.WithCategory(project.CategoryPackage),
 				project.WithRoot("/r"),
 				project.WithServer(project.ServerGRPC),
 			},
 			root: "/r",
-			cat:  project.CategoryPkg,
+			cat:  project.CategoryPackage,
 			srv:  project.ServerGRPC,
 		},
 	}

@@ -2,18 +2,10 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/antklim/chef"
+	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-)
-
-const (
-	projCategoryUnknown = "unknown"
-	projCategoryCLI     = "cli"
-	projCategoryPackage = "pkg"
-	projCategoryService = "srv"
 )
 
 var (
@@ -63,19 +55,18 @@ func bootstrapCmd() *cobra.Command {
 chef bootstrap --category [cli|pkg|srv] --name myproject
 chef bootstrap -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projCategory := projCategoryFor(inputs.Category)
+			projCategory := project.CategoryFor(inputs.Category)
 
-			if projCategory == projCategoryUnknown {
+			if projCategory.IsUnknown() {
 				return fmt.Errorf("unknown project category: %s", inputs.Category)
 			}
 
-			// TODO: init project structure and pass it to Init
-			// project := project {
-			// 	Name: inputs.Name,
-			// 	...
-			// }
+			p := project.New(inputs.Name,
+				project.WithRoot(inputs.Root),
+				project.WithCategory(project.Category(inputs.Category)),
+			)
 
-			if err := chef.Init(inputs.Name); err != nil {
+			if err := p.Bootstrap(); err != nil {
 				return errors.Wrap(err, "unable to bootstrap project")
 			}
 
@@ -91,17 +82,4 @@ chef bootstrap -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml
 	projLayout.RegisterString(cmd, &inputs.Layout, "")
 
 	return cmd
-}
-
-func projCategoryFor(v string) string {
-	switch strings.ToLower(v) {
-	case "cli":
-		return projCategoryCLI
-	case "pkg", "package":
-		return projCategoryPackage
-	case "srv", "service":
-		return projCategoryService
-	default:
-		return projCategoryUnknown
-	}
 }
