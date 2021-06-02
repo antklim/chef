@@ -13,7 +13,9 @@ import (
 type Server string
 
 const (
+	// ServerHTTP represents http server
 	ServerHTTP Server = "http"
+	// ServerGRPC represents grpc server
 	ServerGRPC Server = "grpc"
 )
 
@@ -94,11 +96,7 @@ func (p Project) Init() error {
 		return err
 	}
 
-	if err := layout.Builder(root, rl); err != nil {
-		return err
-	}
-
-	return nil
+	return layout.Builder(root, rl)
 }
 
 // Bootstrap orchestrates project validation and initialization steps.

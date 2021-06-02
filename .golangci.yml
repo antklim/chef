@@ -36,7 +36,6 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
     - gomnd
     - goprintffuncname
     - gosec
@@ -47,6 +46,7 @@ linters:
     - misspell
     - nakedret
     - nolintlint
+    - revive
     - staticcheck
     - structcheck
     - stylecheck

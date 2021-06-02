@@ -5,9 +5,13 @@ import "strings"
 type Category string
 
 const (
+	// CategoryUnknown represents unknown category of a project.
 	CategoryUnknown Category = "unknown"
-	CategoryCLI     Category = "cli"
+	// CategoryCLI represents CLI category of a project.
+	CategoryCLI Category = "cli"
+	// CategoryPackage represents package category of a project.
 	CategoryPackage Category = "pkg"
+	// CategoryService represents service category of a project.
 	CategoryService Category = "srv"
 )
 
