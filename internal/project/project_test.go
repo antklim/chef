@@ -104,7 +104,7 @@ func assertProjectLayout(t *testing.T, root string) {
 		// root of the project should include: adapter, app, handler, provider, test and main.go
 		de, err := os.ReadDir(path.Join(root, "cheftest"))
 		require.NoError(t, err)
-		assert.Len(t, de, 6)
+		assert.Len(t, de, 7)
 	}
 
 	{
@@ -131,6 +131,13 @@ func assertProjectLayout(t *testing.T, root string) {
 	{
 		// root/provider should include .gitkeep
 		de, err := os.ReadDir(path.Join(root, "cheftest", "provider"))
+		require.NoError(t, err)
+		assert.Len(t, de, 1)
+	}
+
+	{
+		// root/server should include .gitkeep
+		de, err := os.ReadDir(path.Join(root, "cheftest", "server"))
 		require.NoError(t, err)
 		assert.Len(t, de, 1)
 	}

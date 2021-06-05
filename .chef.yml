@@ -10,10 +10,13 @@ layout:
     name: app
     type: dir
   handler:
-    nane: handler 
+    nane: handler
     type: dir
   provider:
-    name: provider    
+    name: provider
+    type: dir
+  server:
+    name: server
     type: dir
   test:
     name: test

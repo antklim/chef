@@ -3,12 +3,11 @@ package layout
 import (
 	"os"
 	"path"
+	"text/template"
 )
 
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
-
-// TODO: rename bootstrap command to boot
 
 // TODO: use http handler root template when bootstraping project
 // TODO: use http handler template to add health endpoint (on bootstrap)
@@ -17,27 +16,33 @@ import (
 
 // TODO: support functionality of bring your own templates
 
+// TODO: init project with go.mod
+
 type layoutDir int
 
 const (
-	dirCmd layoutDir = iota + 1
-	dirAdapter
+	dirAdapter layoutDir = iota + 1
 	dirApp
+	dirCmd
 	dirHandler
+	dirHTTP
 	dirInternal
 	dirPkg
 	dirProvider
+	dirServer
 	dirTest
 )
 
 var dirName = map[layoutDir]string{
-	dirCmd:      "cmd",
 	dirAdapter:  "adapter",
 	dirApp:      "app",
+	dirCmd:      "cmd",
 	dirHandler:  "handler",
+	dirHTTP:     "http",
 	dirInternal: "internal",
 	dirPkg:      "pkg",
 	dirProvider: "provider",
+	dirServer:   "server",
 	dirTest:     "test",
 }
 
@@ -53,7 +58,19 @@ const (
 	dperm = 0755
 )
 
-var gitkeep []byte
+// TODO: consider using the following interfaces
+type nnode struct {
+	Name        string
+	Permissions int
+}
+
+type DirNode interface {
+	Children() []nnode
+}
+
+type FileNode interface {
+	Template() *template.Template
+}
 
 type Node struct {
 	Name     string
@@ -63,11 +80,33 @@ type Node struct {
 
 // Default project layout.
 // TODO: make it private
+// var defaultServiceLayout = []Node{
 var Default = []Node{
 	{Name: dirName[dirAdapter]},
 	{Name: dirName[dirApp]},
-	{Name: dirName[dirHandler]},
+	{
+		Name: dirName[dirHandler],
+		Children: []Node{
+			{
+				Name: dirName[dirHTTP],
+				Children: []Node{
+					{Name: "router.go", Type: nodeFile},
+				},
+			},
+		},
+	},
 	{Name: dirName[dirProvider]},
+	{
+		Name: dirName[dirServer],
+		Children: []Node{
+			{
+				Name: dirName[dirHTTP],
+				Children: []Node{
+					{Name: "server.go", Type: nodeFile},
+				},
+			},
+		},
+	},
 	{Name: dirName[dirTest]},
 	{Name: "main.go", Type: nodeFile},
 }
@@ -105,7 +144,7 @@ func Builder(root string, n Node) error {
 		}
 
 		if len(n.Children) == 0 {
-			if err := os.WriteFile(path.Join(o, ".gitkeep"), gitkeep, fperm); err != nil {
+			if err := os.WriteFile(path.Join(o, ".gitkeep"), nil, fperm); err != nil {
 				return err
 			}
 		}
