@@ -2,7 +2,9 @@ package layout
 
 import "text/template"
 
-const _srvMainTemplate = `package main
+// TODO: in imports replace chef/... with the project name
+
+const srvMainTemplate = `package main
 
 import (
 	server "chef/server/http"
@@ -16,7 +18,7 @@ func main() {
 var srvMain = fnode{
 	name:        "main.go",
 	permissions: fperm,
-	template:    template.Must(template.New("srv_main").Parse(_srvMainTemplate)),
+	template:    template.Must(template.New("srv_main").Parse(srvMainTemplate)),
 }
 
 var defaultServiceLayout = []Node{
@@ -35,10 +37,9 @@ var defaultServiceLayout = []Node{
 			dnode{
 				name:        dirHTTP,
 				permissions: dperm,
-				// TODO: add template
-				// children: []Nnode{
-				// 	httpRouter,
-				// },
+				children: []Node{
+					httpRouter,
+				},
 			},
 		},
 	},
@@ -53,10 +54,9 @@ var defaultServiceLayout = []Node{
 			dnode{
 				name:        dirHTTP,
 				permissions: dperm,
-				// TODO: add template
-				// children: []Nnode{
-				// 	httpServer,
-				// },
+				children: []Node{
+					httpServer,
+				},
 			},
 		},
 	},
