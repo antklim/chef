@@ -86,17 +86,14 @@ func (p Project) Validate() error {
 
 // Init initializes the project layout.
 func (p Project) Init() error {
-	rl := layout.Node{
-		Name:     p.name,
-		Children: layout.Default,
-	}
-
 	root, err := p.root()
 	if err != nil {
 		return err
 	}
 
-	return layout.Builder(root, rl)
+	rn := layout.RootNode(p.name)
+
+	return layout.Builder(root, rn)
 }
 
 // Bootstrap orchestrates project validation and initialization steps.

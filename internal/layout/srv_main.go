@@ -36,27 +36,3 @@ var SrvMain = srvMainNode{
 	permissions: fperm,
 	template:    template.Must(template.New("srv_main").Parse(_srvMainTemplate)),
 }
-
-// type serverNode struct {
-// 	name        string
-// 	permissions uint32
-// 	children    []Nnode
-// }
-
-// func (n serverNode) Name() string {
-// 	return n.name
-// }
-
-// func (n serverNode) Permissions() uint32 {
-// 	return n.permissions
-// }
-
-// func (n serverNode) Children() []Nnode {
-// 	return n.children
-// }
-
-// var httpServer = serverNode{
-// 	name:        "http",
-// 	permissions: dperm,
-// 	children:    []Nnode{srvMain},
-// }

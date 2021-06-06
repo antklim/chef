@@ -53,100 +53,93 @@ const (
 )
 
 type dirNode interface {
-	Children() []Nnode
+	Children() []Node
 }
 
 type fileNode interface {
 	Template() *template.Template
 }
 
-type Nnode interface {
+type Node interface {
 	Name() string
 	Permissions() uint32
 }
 
-type Node struct {
-	Name        string
-	Permissions int
-	Children    []Node
+type node struct {
+	name        string
+	permissions uint32
+	children    []Node
 }
 
-// Default project layout.
-// TODO: make it private
-// var defaultServiceLayout = []Node{
-var Default = []Node{
-	{Name: dirName[dirAdapter]},
-	{Name: dirName[dirApp]},
-	{
-		Name: dirName[dirHandler],
-		// Children: []Node{
-		// 	{
-		// 		Name: dirName[dirHTTP],
-		// 		Children: []Node{
-		// 			{Name: "router.go", Type: nodeFile},
-		// 		},
-		// 	},
-		// },
+func (n node) Name() string {
+	return n.name
+}
+
+func (n node) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n node) Children() []Node {
+	return n.children
+}
+
+func RootNode(name string) Node {
+	return node{
+		name:        name,
+		permissions: dperm,
+		children:    defaultServiceLayout,
+	}
+}
+
+var defaultServiceLayout = []Node{
+	node{
+		name:        dirName[dirAdapter],
+		permissions: dperm,
 	},
-	{Name: dirName[dirProvider]},
-	{
-		Name: dirName[dirServer],
-		Children: []Node{
-			{
-				Name: dirName[dirHTTP],
-				// Children: []Node{
-				// 	{Name: "server.go", Type: nodeFile},
+	node{
+		name:        dirName[dirApp],
+		permissions: dperm,
+	},
+	node{
+		name:        dirName[dirHandler],
+		permissions: dperm,
+		children: []Node{
+			node{
+				name:        dirName[dirHTTP],
+				permissions: dperm,
+				// TODO: add template
+				// children: []Nnode{
+				// 	httpRouter,
 				// },
 			},
 		},
 	},
-	{Name: dirName[dirTest]},
-	// {Name: "main.go", Type: nodeFile},
+	node{
+		name:        dirName[dirProvider],
+		permissions: dperm,
+	},
+	node{
+		name:        dirName[dirServer],
+		permissions: dperm,
+		children: []Node{
+			node{
+				name:        dirName[dirHTTP],
+				permissions: dperm,
+				// TODO: add template
+				// children: []Nnode{
+				// 	httpServer,
+				// },
+			},
+		},
+	},
+	node{
+		name:        dirName[dirTest],
+		permissions: dperm,
+	},
+	SrvMain,
 }
 
 func Builder(root string, n Node) error {
-	// o := path.Join(root, n.Name) // file system object, either file or directory
-
-	// switch n.Type {
-	// case nodeFile:
-	// 	f, err := os.Create(o)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	defer f.Close()
-
-	// 	// TODO: refactor
-	// 	if n.Name == "main.go" {
-	// 		if err := srvMainTemplate.Execute(f, nil); err != nil {
-	// 			return err
-	// 		}
-	// 	}
-
-	// 	return f.Chmod(fperm)
-	// case nodeDir:
-	// 	fallthrough
-	// default:
-	// 	if err := os.Mkdir(o, dperm); err != nil {
-	// 		return err
-	// 	}
-
-	// 	for _, c := range n.Children {
-	// 		if err := Builder(o, c); err != nil {
-	// 			return err
-	// 		}
-	// 	}
-
-	// 	if len(n.Children) == 0 {
-	// 		if err := os.WriteFile(path.Join(o, ".gitkeep"), nil, fperm); err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// }
-
-	return nil
-}
-
-func Builder2(root string, n Nnode) error {
 	if nn, ok := n.(dirNode); ok {
 		return buildDirNode(root, n, nn.Children())
 	}
@@ -158,7 +151,7 @@ func Builder2(root string, n Nnode) error {
 	return nil
 }
 
-func buildDirNode(root string, n Nnode, children []Nnode) error {
+func buildDirNode(root string, n Node, children []Node) error {
 	o := path.Join(root, n.Name())
 
 	if err := os.Mkdir(o, fs.FileMode(n.Permissions())); err != nil {
@@ -166,7 +159,7 @@ func buildDirNode(root string, n Nnode, children []Nnode) error {
 	}
 
 	for _, c := range children {
-		if err := Builder2(o, c); err != nil {
+		if err := Builder(o, c); err != nil {
 			return err
 		}
 	}
@@ -180,7 +173,7 @@ func buildDirNode(root string, n Nnode, children []Nnode) error {
 	return nil
 }
 
-func buildFileNode(root string, n Nnode, t *template.Template) error {
+func buildFileNode(root string, n Node, t *template.Template) error {
 	o := path.Join(root, n.Name())
 
 	f, err := os.Create(o)

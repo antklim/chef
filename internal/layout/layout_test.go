@@ -29,7 +29,7 @@ func assertLayout(t *testing.T, root string) {
 type dirNode struct {
 	name        string
 	permissions uint32
-	children    []layout.Nnode
+	children    []layout.Node
 }
 
 func (n dirNode) Name() string {
@@ -40,7 +40,7 @@ func (n dirNode) Permissions() uint32 {
 	return n.permissions
 }
 
-func (n dirNode) Children() []layout.Nnode {
+func (n dirNode) Children() []layout.Node {
 	return n.children
 }
 
@@ -52,7 +52,7 @@ var server = dirNode{
 var root = dirNode{
 	name:        projectName,
 	permissions: 0755,
-	children: []layout.Nnode{
+	children: []layout.Node{
 		layout.SrvMain,
 		server,
 	},
@@ -65,7 +65,7 @@ func TestLayoutBuilder(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	err = layout.Builder2(tmpDir, root)
+	err = layout.Builder(tmpDir, root)
 	require.NoError(t, err)
 	assertLayout(t, tmpDir)
 }
