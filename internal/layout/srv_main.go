@@ -2,48 +2,67 @@ package layout
 
 import "text/template"
 
-var _srvMainTemplate = `package main
+// TODO: in imports replace chef/... with the project name
+
+const srvMainTemplate = `package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+	server "chef/server/http"
 )
 
-type Server struct {
-	s *http.Server
-}
-
-func NewServer() *Server {
-	mux := http.NewServeMux()
-
-	r, h := handler()
-	mux.Handle(r, h)
-
-	s := &http.Server{
-		Addr:    ":8080",
-		Handler: mux,
-	}
-
-	return &Server{s: s}
-}
-
-func (s *Server) Start() error {
-	return s.s.ListenAndServe()
-}
-
-func handler() (string, http.Handler) {
-	route := "/health"
-	h := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "OK")
-	}
-	return route, http.HandlerFunc(h)
-}
-
 func main() {
-	srv := NewServer()
-	log.Println("Starting a service...")
-	log.Fatal(srv.Start())
+	server.Start()
 }
 `
-var srvMainTemplate = template.Must(template.New("srv_main").Parse(_srvMainTemplate))
+
+var srvMain = fnode{
+	name:        "main.go",
+	permissions: fperm,
+	template:    template.Must(template.New("srv_main").Parse(srvMainTemplate)),
+}
+
+var defaultServiceLayout = []Node{
+	dnode{
+		name:        dirAdapter,
+		permissions: dperm,
+	},
+	dnode{
+		name:        dirApp,
+		permissions: dperm,
+	},
+	dnode{
+		name:        dirHandler,
+		permissions: dperm,
+		children: []Node{
+			dnode{
+				name:        dirHTTP,
+				permissions: dperm,
+				children: []Node{
+					httpRouter,
+				},
+			},
+		},
+	},
+	dnode{
+		name:        dirProvider,
+		permissions: dperm,
+	},
+	dnode{
+		name:        dirServer,
+		permissions: dperm,
+		children: []Node{
+			dnode{
+				name:        dirHTTP,
+				permissions: dperm,
+				children: []Node{
+					httpServer,
+				},
+			},
+		},
+	},
+	dnode{
+		name:        dirTest,
+		permissions: dperm,
+	},
+	srvMain,
+}

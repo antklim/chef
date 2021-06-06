@@ -1,42 +1,38 @@
 package layout
 
 import (
+	"io/fs"
 	"os"
 	"path"
+	"text/template"
 )
+
+// TODO: in imports replace chef/... with the project name
 
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
 
-type layoutDir int
+// TODO: use http handler template to add health endpoint (on bootstrap)
+// TODO: make adding health endpoint on bootstrap optional
+// TODO: update server main template
+
+// TODO: support functionality of bring your own templates
+
+// TODO: init project with go.mod
 
 const (
-	dirCmd layoutDir = iota + 1
-	dirAdapter
-	dirApp
-	dirHandler
-	dirInternal
-	dirPkg
-	dirProvider
-	dirTest
-)
+	dirAdapter  = "adapter"
+	dirApp      = "app"
+	dirCmd      = "cmd" // nolint
+	dirHandler  = "handler"
+	dirHTTP     = "http"
+	dirInternal = "internal" // nolint
+	dirPkg      = "pkg"      // nolint
+	dirProvider = "provider"
+	dirServer   = "server"
+	dirTest     = "test"
 
-var dirName = map[layoutDir]string{
-	dirCmd:      "cmd",
-	dirAdapter:  "adapter",
-	dirApp:      "app",
-	dirHandler:  "handler",
-	dirInternal: "internal",
-	dirPkg:      "pkg",
-	dirProvider: "provider",
-	dirTest:     "test",
-}
-
-type node int
-
-const (
-	nodeDir node = iota
-	nodeFile
+	gitkeep = ".gitkeep"
 )
 
 const (
@@ -44,63 +40,109 @@ const (
 	dperm = 0755
 )
 
-var gitkeep []byte
-
-type Node struct {
-	Name     string
-	Type     node
-	Children []Node
+type dirNode interface {
+	Children() []Node
 }
 
-// Default project layout.
-// TODO: make it private
-var Default = []Node{
-	{Name: dirName[dirAdapter]},
-	{Name: dirName[dirApp]},
-	{Name: dirName[dirHandler]},
-	{Name: dirName[dirProvider]},
-	{Name: dirName[dirTest]},
-	{Name: "main.go", Type: nodeFile},
+type fileNode interface {
+	Template() *template.Template
+}
+
+type Node interface {
+	Name() string
+	Permissions() uint32
 }
 
 func Builder(root string, n Node) error {
-	o := path.Join(root, n.Name) // file system object, either file or directory
+	if nn, ok := n.(dirNode); ok {
+		return buildDirNode(root, n, nn.Children())
+	}
 
-	switch n.Type {
-	case nodeFile:
-		f, err := os.Create(o)
-		if err != nil {
+	if nn, ok := n.(fileNode); ok {
+		return buildFileNode(root, n, nn.Template())
+	}
+
+	return nil
+}
+
+func buildDirNode(root string, n Node, children []Node) error {
+	o := path.Join(root, n.Name())
+
+	if err := os.Mkdir(o, fs.FileMode(n.Permissions())); err != nil {
+		return err
+	}
+
+	for _, c := range children {
+		if err := Builder(o, c); err != nil {
 			return err
 		}
-		defer f.Close()
+	}
 
-		// TODO: refactor
-		if n.Name == "main.go" {
-			if err := srvMainTemplate.Execute(f, nil); err != nil {
-				return err
-			}
-		}
-
-		return f.Chmod(fperm)
-	case nodeDir:
-		fallthrough
-	default:
-		if err := os.Mkdir(o, dperm); err != nil {
+	if len(children) == 0 {
+		if err := os.WriteFile(path.Join(o, gitkeep), nil, fperm); err != nil {
 			return err
-		}
-
-		for _, c := range n.Children {
-			if err := Builder(o, c); err != nil {
-				return err
-			}
-		}
-
-		if len(n.Children) == 0 {
-			if err := os.WriteFile(path.Join(o, ".gitkeep"), gitkeep, fperm); err != nil {
-				return err
-			}
 		}
 	}
 
 	return nil
+}
+
+func buildFileNode(root string, n Node, t *template.Template) error {
+	o := path.Join(root, n.Name())
+
+	f, err := os.Create(o)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if err := t.Execute(f, nil); err != nil {
+		return err
+	}
+
+	return f.Chmod(fs.FileMode(n.Permissions()))
+}
+
+type dnode struct {
+	name        string
+	permissions uint32
+	children    []Node
+}
+
+func (n dnode) Name() string {
+	return n.name
+}
+
+func (n dnode) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n dnode) Children() []Node {
+	return n.children
+}
+
+type fnode struct {
+	name        string
+	permissions uint32
+	template    *template.Template
+}
+
+func (n fnode) Name() string {
+	return n.name
+}
+
+func (n fnode) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n fnode) Template() *template.Template {
+	return n.template
+}
+
+func RootNode(name string) Node {
+	return dnode{
+		name:        name,
+		permissions: dperm,
+		children:    defaultServiceLayout,
+	}
 }
