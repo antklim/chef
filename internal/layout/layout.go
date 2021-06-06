@@ -19,33 +19,20 @@ import (
 
 // TODO: init project with go.mod
 
-type layoutDir int
-
 const (
-	dirAdapter layoutDir = iota + 1
-	dirApp
-	dirCmd
-	dirHandler
-	dirHTTP
-	dirInternal
-	dirPkg
-	dirProvider
-	dirServer
-	dirTest
-)
+	dirAdapter  = "adapter"
+	dirApp      = "app"
+	dirCmd      = "cmd" // nolint
+	dirHandler  = "handler"
+	dirHTTP     = "http"
+	dirInternal = "internal" // nolint
+	dirPkg      = "pkg"      // nolint
+	dirProvider = "provider"
+	dirServer   = "server"
+	dirTest     = "test"
 
-var dirName = map[layoutDir]string{
-	dirAdapter:  "adapter",
-	dirApp:      "app",
-	dirCmd:      "cmd",
-	dirHandler:  "handler",
-	dirHTTP:     "http",
-	dirInternal: "internal",
-	dirPkg:      "pkg",
-	dirProvider: "provider",
-	dirServer:   "server",
-	dirTest:     "test",
-}
+	gitkeep = ".gitkeep"
+)
 
 const (
 	fperm = 0644
@@ -93,19 +80,19 @@ func RootNode(name string) Node {
 
 var defaultServiceLayout = []Node{
 	node{
-		name:        dirName[dirAdapter],
+		name:        dirAdapter,
 		permissions: dperm,
 	},
 	node{
-		name:        dirName[dirApp],
+		name:        dirApp,
 		permissions: dperm,
 	},
 	node{
-		name:        dirName[dirHandler],
+		name:        dirHandler,
 		permissions: dperm,
 		children: []Node{
 			node{
-				name:        dirName[dirHTTP],
+				name:        dirHTTP,
 				permissions: dperm,
 				// TODO: add template
 				// children: []Nnode{
@@ -115,15 +102,15 @@ var defaultServiceLayout = []Node{
 		},
 	},
 	node{
-		name:        dirName[dirProvider],
+		name:        dirProvider,
 		permissions: dperm,
 	},
 	node{
-		name:        dirName[dirServer],
+		name:        dirServer,
 		permissions: dperm,
 		children: []Node{
 			node{
-				name:        dirName[dirHTTP],
+				name:        dirHTTP,
 				permissions: dperm,
 				// TODO: add template
 				// children: []Nnode{
@@ -133,7 +120,7 @@ var defaultServiceLayout = []Node{
 		},
 	},
 	node{
-		name:        dirName[dirTest],
+		name:        dirTest,
 		permissions: dperm,
 	},
 	SrvMain,
@@ -165,7 +152,7 @@ func buildDirNode(root string, n Node, children []Node) error {
 	}
 
 	if len(children) == 0 {
-		if err := os.WriteFile(path.Join(o, ".gitkeep"), nil, fperm); err != nil {
+		if err := os.WriteFile(path.Join(o, gitkeep), nil, fperm); err != nil {
 			return err
 		}
 	}
