@@ -7,7 +7,7 @@ import "text/template"
 const srvMainTemplate = `package main
 
 import (
-	server "chef/server/http"
+	server "{{ .Module }}/server/http"
 )
 
 func main() {

@@ -7,7 +7,7 @@ import "text/template"
 const httpServerTemplate = `package http
 
 import (
-	handler "chef/handler/http"
+	handler "{{ .Module }}/handler/http"
 	"log"
 	"net/http"
 )

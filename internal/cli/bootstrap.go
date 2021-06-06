@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO: add commamds tests
+
 var (
 	projName = Flag{
 		LongForm:   "name",
@@ -30,6 +32,12 @@ var (
 			"- srv: service application based on HTTP or gRPC.\n",
 		IsRequired: true,
 	}
+	projModule = Flag{
+		LongForm:   "module",
+		ShortForm:  "m",
+		Help:       "Name of the project module to be used by 'go mod'.",
+		IsRequired: true,
+	}
 	projLayout = Flag{
 		LongForm:   "layout",
 		ShortForm:  "l",
@@ -43,6 +51,7 @@ func bootstrapCmd() *cobra.Command {
 		Name     string
 		Root     string
 		Category string
+		Module   string
 		Layout   string
 	}
 
@@ -70,7 +79,13 @@ chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 				return errors.Wrap(err, "unable to bootstrap project")
 			}
 
-			// TODO: add prompt that the project bootstrapped
+			fmt.Printf("project %s successfully bootrapped\n", p.Name())
+
+			if l, err := p.Location(); err != nil {
+				fmt.Printf("unable to get project location: %+v\n", err)
+			} else {
+				fmt.Printf("project location: %s\n", l)
+			}
 
 			return nil
 		},
@@ -79,6 +94,7 @@ chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 	projName.RegisterString(cmd, &inputs.Name, "")
 	projRoot.RegisterString(cmd, &inputs.Root, "")
 	projCategory.RegisterString(cmd, &inputs.Category, "")
+	projModule.RegisterString(cmd, &inputs.Module, "")
 	projLayout.RegisterString(cmd, &inputs.Layout, "")
 
 	return cmd
