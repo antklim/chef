@@ -4,19 +4,6 @@ import "text/template"
 
 // TODO: in imports replace chef/... with the project name
 
-const _srvMainTemplate = `package main
-
-import (
-	server "chef/server/http"
-)
-
-func main() {
-	server.Start()
-}
-`
-
-var srvMainTemplate = template.Must(template.New("srv_main").Parse(_srvMainTemplate))
-
 const _httpServerTemplate = `package http
 
 import (
