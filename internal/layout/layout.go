@@ -70,60 +70,30 @@ func (n node) Children() []Node {
 	return n.children
 }
 
+type fnode struct {
+	name        string
+	permissions uint32
+	template    *template.Template
+}
+
+func (n fnode) Name() string {
+	return n.name
+}
+
+func (n fnode) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n fnode) Template() *template.Template {
+	return n.template
+}
+
 func RootNode(name string) Node {
 	return node{
 		name:        name,
 		permissions: dperm,
 		children:    defaultServiceLayout,
 	}
-}
-
-var defaultServiceLayout = []Node{
-	node{
-		name:        dirAdapter,
-		permissions: dperm,
-	},
-	node{
-		name:        dirApp,
-		permissions: dperm,
-	},
-	node{
-		name:        dirHandler,
-		permissions: dperm,
-		children: []Node{
-			node{
-				name:        dirHTTP,
-				permissions: dperm,
-				// TODO: add template
-				// children: []Nnode{
-				// 	httpRouter,
-				// },
-			},
-		},
-	},
-	node{
-		name:        dirProvider,
-		permissions: dperm,
-	},
-	node{
-		name:        dirServer,
-		permissions: dperm,
-		children: []Node{
-			node{
-				name:        dirHTTP,
-				permissions: dperm,
-				// TODO: add template
-				// children: []Nnode{
-				// 	httpServer,
-				// },
-			},
-		},
-	},
-	node{
-		name:        dirTest,
-		permissions: dperm,
-	},
-	SrvMain,
 }
 
 func Builder(root string, n Node) error {
