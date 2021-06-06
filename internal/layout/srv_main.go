@@ -20,19 +20,19 @@ var srvMain = fnode{
 }
 
 var defaultServiceLayout = []Node{
-	node{
+	dnode{
 		name:        dirAdapter,
 		permissions: dperm,
 	},
-	node{
+	dnode{
 		name:        dirApp,
 		permissions: dperm,
 	},
-	node{
+	dnode{
 		name:        dirHandler,
 		permissions: dperm,
 		children: []Node{
-			node{
+			dnode{
 				name:        dirHTTP,
 				permissions: dperm,
 				// TODO: add template
@@ -42,15 +42,15 @@ var defaultServiceLayout = []Node{
 			},
 		},
 	},
-	node{
+	dnode{
 		name:        dirProvider,
 		permissions: dperm,
 	},
-	node{
+	dnode{
 		name:        dirServer,
 		permissions: dperm,
 		children: []Node{
-			node{
+			dnode{
 				name:        dirHTTP,
 				permissions: dperm,
 				// TODO: add template
@@ -60,7 +60,7 @@ var defaultServiceLayout = []Node{
 			},
 		},
 	},
-	node{
+	dnode{
 		name:        dirTest,
 		permissions: dperm,
 	},

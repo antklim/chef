@@ -52,50 +52,6 @@ type Node interface {
 	Permissions() uint32
 }
 
-type node struct {
-	name        string
-	permissions uint32
-	children    []Node
-}
-
-func (n node) Name() string {
-	return n.name
-}
-
-func (n node) Permissions() uint32 {
-	return n.permissions
-}
-
-func (n node) Children() []Node {
-	return n.children
-}
-
-type fnode struct {
-	name        string
-	permissions uint32
-	template    *template.Template
-}
-
-func (n fnode) Name() string {
-	return n.name
-}
-
-func (n fnode) Permissions() uint32 {
-	return n.permissions
-}
-
-func (n fnode) Template() *template.Template {
-	return n.template
-}
-
-func RootNode(name string) Node {
-	return node{
-		name:        name,
-		permissions: dperm,
-		children:    defaultServiceLayout,
-	}
-}
-
 func Builder(root string, n Node) error {
 	if nn, ok := n.(dirNode); ok {
 		return buildDirNode(root, n, nn.Children())
@@ -144,4 +100,48 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 	}
 
 	return f.Chmod(fs.FileMode(n.Permissions()))
+}
+
+type dnode struct {
+	name        string
+	permissions uint32
+	children    []Node
+}
+
+func (n dnode) Name() string {
+	return n.name
+}
+
+func (n dnode) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n dnode) Children() []Node {
+	return n.children
+}
+
+type fnode struct {
+	name        string
+	permissions uint32
+	template    *template.Template
+}
+
+func (n fnode) Name() string {
+	return n.name
+}
+
+func (n fnode) Permissions() uint32 {
+	return n.permissions
+}
+
+func (n fnode) Template() *template.Template {
+	return n.template
+}
+
+func RootNode(name string) Node {
+	return dnode{
+		name:        name,
+		permissions: dperm,
+		children:    defaultServiceLayout,
+	}
 }

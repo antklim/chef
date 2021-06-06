@@ -32,12 +32,12 @@ func TestLayoutBuilder(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	var server = node{
+	var server = dnode{
 		name:        "server",
 		permissions: dperm,
 	}
 
-	var root = node{
+	var root = dnode{
 		name:        testProjectName,
 		permissions: dperm,
 		children: []Node{
