@@ -5,8 +5,6 @@ import (
 	"text/template"
 )
 
-// TODO: in imports replace chef/... with the project name
-
 const httpHandlerTemplate = `package http
 
 import (
@@ -27,7 +25,7 @@ func {{ .Name }}Handler() http.Handler {
 }
 `
 
-func httpHandler(name string) fnode { // nolint
+func httpHandler(name string) fnode {
 	return fnode{
 		name:        fmt.Sprintf("%s.go", name),
 		permissions: fperm,
