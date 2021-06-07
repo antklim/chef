@@ -21,17 +21,6 @@ import (
 // TODO: init project with go.mod
 
 const (
-	dirAdapter  = "adapter"
-	dirApp      = "app"
-	dirCmd      = "cmd" // nolint
-	dirHandler  = "handler"
-	dirHTTP     = "http"
-	dirInternal = "internal" // nolint
-	dirPkg      = "pkg"      // nolint
-	dirProvider = "provider"
-	dirServer   = "server"
-	dirTest     = "test"
-
 	gitkeep = ".gitkeep"
 )
 
@@ -103,10 +92,29 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 	return f.Chmod(fs.FileMode(n.Permissions()))
 }
 
+// TODO: embed node to dnode and fnode
+// type node struct {
+// 	name        string
+// 	permissions uint32
+// }
+
 type dnode struct {
 	name        string
 	permissions uint32
 	children    []Node
+}
+
+func newdnode(name string, opts ...dnodeoption) dnode {
+	n := dnode{
+		name:        name,
+		permissions: dperm,
+	}
+
+	for _, o := range opts {
+		o.apply(&n)
+	}
+
+	return n
 }
 
 func (n dnode) Name() string {
@@ -119,6 +127,38 @@ func (n dnode) Permissions() uint32 {
 
 func (n dnode) Children() []Node {
 	return n.children
+}
+
+func (n *dnode) addChildren(children []Node) {
+	n.children = append(n.children, children...)
+}
+
+type dnodeoption interface {
+	apply(*dnode)
+}
+
+type dnodefopt struct {
+	f func(*dnode)
+}
+
+func newdnodefopt(f func(*dnode)) dnodefopt {
+	return dnodefopt{f: f}
+}
+
+func (f dnodefopt) apply(n *dnode) {
+	f.f(n)
+}
+
+func withChildren(children []Node) dnodefopt {
+	return newdnodefopt(func(n *dnode) {
+		n.children = children
+	})
+}
+
+func withPermissions(p uint32) dnodefopt {
+	return newdnodefopt(func(n *dnode) {
+		n.permissions = p
+	})
 }
 
 type fnode struct {
