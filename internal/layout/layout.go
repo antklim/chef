@@ -141,21 +141,21 @@ type dnodefopt struct {
 	f func(*dnode)
 }
 
-func newdnodefopt(f func(*dnode)) dnodefopt {
-	return dnodefopt{f: f}
-}
-
-func (f dnodefopt) apply(n *dnode) {
+func (f *dnodefopt) apply(n *dnode) {
 	f.f(n)
 }
 
-func withChildren(children []Node) dnodefopt {
+func newdnodefopt(f func(*dnode)) *dnodefopt {
+	return &dnodefopt{f}
+}
+
+func withChildren(children []Node) dnodeoption {
 	return newdnodefopt(func(n *dnode) {
 		n.children = children
 	})
 }
 
-func withPermissions(p uint32) dnodefopt {
+func withPermissions(p uint32) dnodeoption {
 	return newdnodefopt(func(n *dnode) {
 		n.permissions = p
 	})
@@ -183,6 +183,6 @@ func RootNode(name string) Node {
 	return dnode{
 		name:        name,
 		permissions: dperm,
-		children:    defaultServiceLayout,
+		children:    defaultHTTPServiceLayout,
 	}
 }

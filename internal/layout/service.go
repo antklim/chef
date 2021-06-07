@@ -1,14 +1,8 @@
 package layout
 
-var defaultServiceLayout = []Node{
-	dnode{
-		name:        dirAdapter,
-		permissions: dperm,
-	},
-	dnode{
-		name:        dirApp,
-		permissions: dperm,
-	},
+var defaultServiceLayout = []Node{ // nolint
+	dirAdapter,
+	dirApp,
 	dnode{
 		name:        dirHandler,
 		permissions: dperm,
@@ -22,10 +16,7 @@ var defaultServiceLayout = []Node{
 			},
 		},
 	},
-	dnode{
-		name:        dirProvider,
-		permissions: dperm,
-	},
+	dirProvider,
 	dnode{
 		name:        dirServer,
 		permissions: dperm,
@@ -39,21 +30,40 @@ var defaultServiceLayout = []Node{
 			},
 		},
 	},
-	dnode{
-		name:        dirTest,
-		permissions: dperm,
-	},
+	dirTest,
 	srvMain,
 }
 
-/*
-var defaultHttpServiceLayout = []Node{
-	// dirAdapter
-	// dirApp
-	// dirHandler(WithHttpRouter, WithHttpHandler(healthHandler))
-	// dirProvider
-	// dirServer(WithHttpServer)
-	// dirTest
-	// srvMain
+var defaultHTTPServiceLayout = []Node{
+	dirAdapter,
+	dirApp,
+	dnode{
+		name:        dirHandler,
+		permissions: dperm,
+		children: []Node{
+			dnode{
+				name:        dirHTTP,
+				permissions: dperm,
+				children: []Node{
+					httpRouter,
+				},
+			},
+		},
+	},
+	dirProvider,
+	dnode{
+		name:        dirServer,
+		permissions: dperm,
+		children: []Node{
+			dnode{
+				name:        dirHTTP,
+				permissions: dperm,
+				children: []Node{
+					httpServer,
+				},
+			},
+		},
+	},
+	dirTest,
+	srvMain,
 }
-*/
