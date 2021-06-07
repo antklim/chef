@@ -30,7 +30,7 @@ const (
 )
 
 type dirNode interface {
-	Children() []Node
+	SubNodes() []Node
 }
 
 type fileNode interface {
@@ -44,7 +44,7 @@ type Node interface {
 
 func Builder(root string, n Node) error {
 	if nn, ok := n.(dirNode); ok {
-		return buildDirNode(root, n, nn.Children())
+		return buildDirNode(root, n, nn.SubNodes())
 	}
 
 	if nn, ok := n.(fileNode); ok {
@@ -101,7 +101,7 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 type dnode struct {
 	name        string
 	permissions uint32
-	children    []Node
+	subnodes    []Node
 }
 
 func newdnode(name string, opts ...dnodeoption) dnode {
@@ -125,12 +125,12 @@ func (n dnode) Permissions() uint32 {
 	return n.permissions
 }
 
-func (n dnode) Children() []Node {
-	return n.children
+func (n dnode) SubNodes() []Node {
+	return n.subnodes
 }
 
-func (n *dnode) addChildren(children []Node) {
-	n.children = append(n.children, children...)
+func (n *dnode) addSubNodes(sn []Node) {
+	n.subnodes = append(n.subnodes, sn...)
 }
 
 type dnodeoption interface {
@@ -149,9 +149,9 @@ func newdnodefopt(f func(*dnode)) *dnodefopt {
 	return &dnodefopt{f}
 }
 
-func withChildren(children []Node) dnodeoption {
+func withSubNodes(sn ...Node) dnodeoption {
 	return newdnodefopt(func(n *dnode) {
-		n.children = children
+		n.subnodes = sn
 	})
 }
 
@@ -179,10 +179,12 @@ func (n fnode) Template() *template.Template {
 	return n.template
 }
 
+// TODO: add options to define what subnodes layout to use
+
 func RootNode(name string) Node {
 	return dnode{
 		name:        name,
 		permissions: dperm,
-		children:    defaultHTTPServiceLayout,
+		subnodes:    defaultHTTPServiceLayout,
 	}
 }

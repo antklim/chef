@@ -33,8 +33,7 @@ func TestLayoutBuilder(t *testing.T) {
 	require.NoError(t, err)
 
 	server := newdnode("server")
-	root := newdnode(testProjectName)
-	root.addChildren([]Node{srvMain, server})
+	root := newdnode(testProjectName, withSubNodes(srvMain, server))
 
 	err = Builder(tmpDir, root)
 	require.NoError(t, err)
@@ -66,11 +65,11 @@ func TestDnode(t *testing.T) {
 	})
 
 	t.Run("has non empty children list when created with children option", func(t *testing.T) {
-		n := newdnode("test_dir", withChildren([]Node{f1, d1}))
+		n := newdnode("test_dir", withSubNodes(f1, d1))
 		expected := dnode{
 			name:        "test_dir",
 			permissions: 0755,
-			children: []Node{
+			subnodes: []Node{
 				fnode{name: "test_file_1", permissions: 0644},
 				dnode{name: "test_dir_1", permissions: 0755},
 			},
@@ -79,10 +78,10 @@ func TestDnode(t *testing.T) {
 	})
 
 	t.Run("adds children using AddChildren", func(t *testing.T) {
-		n := newdnode("test_dir", withChildren([]Node{f1, f2}))
+		n := newdnode("test_dir", withSubNodes(f1, f2))
 
-		n.addChildren([]Node{f3})
-		n.addChildren([]Node{d1})
+		n.addSubNodes([]Node{f3})
+		n.addSubNodes([]Node{d1})
 
 		expected := []Node{
 			fnode{name: "test_file_1", permissions: 0644},
@@ -90,6 +89,6 @@ func TestDnode(t *testing.T) {
 			fnode{name: "test_file_3", permissions: 0644},
 			dnode{name: "test_dir_1", permissions: 0755},
 		}
-		assert.Equal(t, expected, n.Children())
+		assert.Equal(t, expected, n.SubNodes())
 	})
 }

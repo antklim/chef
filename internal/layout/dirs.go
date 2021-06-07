@@ -1,19 +1,14 @@
 package layout
 
-// TODO: finish moving const name to structures
-
 const (
-	dirHandler  = "handler"
-	dirHTTP     = "http"
-	dirInternal = "internal" // nolint
-	dirPkg      = "pkg"      // nolint
+	dirAdapter = "adapter"
+	dirApp     = "app"
+	// dirCmd      = "cmd"
+	dirHandler = "handler"
+	dirHTTP    = "http"
+	// dirInternal = "internal"
+	// dirPkg      = "pkg"
 	dirServer   = "server"
-)
-
-var (
-	dirAdapter = newdnode("adapter")
-	dirApp     = newdnode("app")
-	// dirCmd     = newdnode("cmd")
-	dirProvider = newdnode("provider")
-	dirTest     = newdnode("test")
+	dirProvider = "provider"
+	dirTest     = "test"
 )
