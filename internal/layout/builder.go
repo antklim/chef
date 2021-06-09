@@ -7,6 +7,10 @@ import (
 	"text/template"
 )
 
+// TODO: init/register all possible layouts at start time.
+// 			 When initing a project get one of the layouts and use it to scaffold
+//       project structure.
+
 // TODO: in imports replace chef/... with the project name
 
 // TODO: read layout settings from yaml
@@ -81,11 +85,5 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 // TODO: add options to define what subnodes layout to use
 
 func RootNode(name string) Node {
-	return dnode{
-		node: node{
-			name:        name,
-			permissions: dperm,
-		},
-		subnodes: defaultHTTPServiceLayout,
-	}
+	return newdnode(name, withSubNodes(defaultHTTPServiceLayout...))
 }
