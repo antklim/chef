@@ -21,17 +21,6 @@ import (
 // TODO: init project with go.mod
 
 const (
-	dirAdapter  = "adapter"
-	dirApp      = "app"
-	dirCmd      = "cmd" // nolint
-	dirHandler  = "handler"
-	dirHTTP     = "http"
-	dirInternal = "internal" // nolint
-	dirPkg      = "pkg"      // nolint
-	dirProvider = "provider"
-	dirServer   = "server"
-	dirTest     = "test"
-
 	gitkeep = ".gitkeep"
 )
 
@@ -41,7 +30,7 @@ const (
 )
 
 type dirNode interface {
-	Children() []Node
+	SubNodes() []Node
 }
 
 type fileNode interface {
@@ -55,7 +44,7 @@ type Node interface {
 
 func Builder(root string, n Node) error {
 	if nn, ok := n.(dirNode); ok {
-		return buildDirNode(root, n, nn.Children())
+		return buildDirNode(root, n, nn.SubNodes())
 	}
 
 	if nn, ok := n.(fileNode); ok {
@@ -103,10 +92,29 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 	return f.Chmod(fs.FileMode(n.Permissions()))
 }
 
+// TODO: embed node to dnode and fnode
+// type node struct {
+// 	name        string
+// 	permissions uint32
+// }
+
 type dnode struct {
 	name        string
 	permissions uint32
-	children    []Node
+	subnodes    []Node
+}
+
+func newdnode(name string, opts ...dnodeoption) dnode {
+	n := dnode{
+		name:        name,
+		permissions: dperm,
+	}
+
+	for _, o := range opts {
+		o.apply(&n)
+	}
+
+	return n
 }
 
 func (n dnode) Name() string {
@@ -117,8 +125,40 @@ func (n dnode) Permissions() uint32 {
 	return n.permissions
 }
 
-func (n dnode) Children() []Node {
-	return n.children
+func (n dnode) SubNodes() []Node {
+	return n.subnodes
+}
+
+func (n *dnode) addSubNodes(sn []Node) {
+	n.subnodes = append(n.subnodes, sn...)
+}
+
+type dnodeoption interface {
+	apply(*dnode)
+}
+
+type dnodefopt struct {
+	f func(*dnode)
+}
+
+func (f *dnodefopt) apply(n *dnode) {
+	f.f(n)
+}
+
+func newdnodefopt(f func(*dnode)) *dnodefopt {
+	return &dnodefopt{f}
+}
+
+func withSubNodes(sn ...Node) dnodeoption {
+	return newdnodefopt(func(n *dnode) {
+		n.subnodes = sn
+	})
+}
+
+func withPermissions(p uint32) dnodeoption {
+	return newdnodefopt(func(n *dnode) {
+		n.permissions = p
+	})
 }
 
 type fnode struct {
@@ -139,10 +179,12 @@ func (n fnode) Template() *template.Template {
 	return n.template
 }
 
+// TODO: add options to define what subnodes layout to use
+
 func RootNode(name string) Node {
 	return dnode{
 		name:        name,
 		permissions: dperm,
-		children:    defaultServiceLayout,
+		subnodes:    defaultHTTPServiceLayout,
 	}
 }

@@ -112,6 +112,14 @@ func (p Project) Root() string {
 	return p.opts.root
 }
 
+func (p Project) Location() (string, error) {
+	r, err := p.root()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(r, p.name), nil
+}
+
 func (p Project) Category() Category {
 	return p.opts.cat
 }
