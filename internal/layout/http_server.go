@@ -26,7 +26,9 @@ func Start() {
 `
 
 var httpServer = fnode{
-	name:        "server.go",
-	permissions: fperm,
-	template:    template.Must(template.New("http_server").Parse(httpServerTemplate)),
+	node: node{
+		name:        "server.go",
+		permissions: fperm,
+	},
+	template: template.Must(template.New("http_server").Parse(httpServerTemplate)),
 }

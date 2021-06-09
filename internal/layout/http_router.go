@@ -14,7 +14,9 @@ func Mux() *http.ServeMux {
 `
 
 var httpRouter = fnode{
-	name:        "router.go",
-	permissions: fperm,
-	template:    template.Must(template.New("http_router").Parse(httpRouterTemplate)),
+	node: node{
+		name:        "router.go",
+		permissions: fperm,
+	},
+	template: template.Must(template.New("http_router").Parse(httpRouterTemplate)),
 }

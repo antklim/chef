@@ -92,22 +92,22 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 	return f.Chmod(fs.FileMode(n.Permissions()))
 }
 
-// TODO: embed node to dnode and fnode
-// type node struct {
-// 	name        string
-// 	permissions uint32
-// }
-
-type dnode struct {
+type node struct {
 	name        string
 	permissions uint32
-	subnodes    []Node
+}
+
+type dnode struct {
+	node
+	subnodes []Node
 }
 
 func newdnode(name string, opts ...dnodeoption) dnode {
 	n := dnode{
-		name:        name,
-		permissions: dperm,
+		node: node{
+			name:        name,
+			permissions: dperm,
+		},
 	}
 
 	for _, o := range opts {
@@ -162,9 +162,8 @@ func withPermissions(p uint32) dnodeoption {
 }
 
 type fnode struct {
-	name        string
-	permissions uint32
-	template    *template.Template
+	node
+	template *template.Template
 }
 
 func (n fnode) Name() string {
@@ -183,8 +182,10 @@ func (n fnode) Template() *template.Template {
 
 func RootNode(name string) Node {
 	return dnode{
-		name:        name,
-		permissions: dperm,
-		subnodes:    defaultHTTPServiceLayout,
+		node: node{
+			name:        name,
+			permissions: dperm,
+		},
+		subnodes: defaultHTTPServiceLayout,
 	}
 }
