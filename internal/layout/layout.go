@@ -162,9 +162,8 @@ func withPermissions(p uint32) dnodeoption {
 }
 
 type fnode struct {
-	name        string
-	permissions uint32
-	template    *template.Template
+	node
+	template *template.Template
 }
 
 func (n fnode) Name() string {

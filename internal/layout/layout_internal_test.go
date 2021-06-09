@@ -41,9 +41,9 @@ func TestLayoutBuilder(t *testing.T) {
 }
 
 func TestDnode(t *testing.T) {
-	f1 := fnode{name: "test_file_1", permissions: 0644}
-	f2 := fnode{name: "test_file_2", permissions: 0644}
-	f3 := fnode{name: "test_file_3", permissions: 0644}
+	f1 := fnode{node: node{name: "test_file_1", permissions: 0644}}
+	f2 := fnode{node: node{name: "test_file_2", permissions: 0644}}
+	f3 := fnode{node: node{name: "test_file_3", permissions: 0644}}
 	d1 := dnode{node: node{name: "test_dir_1", permissions: 0755}}
 
 	t.Run("has default directory permissions and no children when created", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestDnode(t *testing.T) {
 				permissions: 0755,
 			},
 			subnodes: []Node{
-				fnode{name: "test_file_1", permissions: 0644},
+				fnode{node: node{name: "test_file_1", permissions: 0644}},
 				dnode{node: node{name: "test_dir_1", permissions: 0755}},
 			},
 		}
@@ -80,9 +80,9 @@ func TestDnode(t *testing.T) {
 		n.addSubNodes([]Node{d1})
 
 		expected := []Node{
-			fnode{name: "test_file_1", permissions: 0644},
-			fnode{name: "test_file_2", permissions: 0644},
-			fnode{name: "test_file_3", permissions: 0644},
+			fnode{node: node{name: "test_file_1", permissions: 0644}},
+			fnode{node: node{name: "test_file_2", permissions: 0644}},
+			fnode{node: node{name: "test_file_3", permissions: 0644}},
 			dnode{node: node{name: "test_dir_1", permissions: 0755}},
 		}
 		assert.Equal(t, expected, n.SubNodes())

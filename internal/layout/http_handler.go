@@ -27,8 +27,10 @@ func {{ .Name }}Handler() http.Handler {
 
 func httpHandler(name string) fnode {
 	return fnode{
-		name:        fmt.Sprintf("%s.go", name),
-		permissions: fperm,
-		template:    template.Must(template.New("http_handler").Parse(httpHandlerTemplate)),
+		node: node{
+			name:        fmt.Sprintf("%s.go", name),
+			permissions: fperm,
+		},
+		template: template.Must(template.New("http_handler").Parse(httpHandlerTemplate)),
 	}
 }
