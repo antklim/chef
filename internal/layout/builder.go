@@ -83,6 +83,7 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 }
 
 // TODO: add options to define what subnodes layout to use
+// TODO: deprecate root node
 
 func RootNode(name string) Node {
 	return newdnode(name, withSubNodes(defaultHTTPServiceLayout...))

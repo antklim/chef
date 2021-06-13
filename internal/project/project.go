@@ -91,6 +91,12 @@ func (p Project) Init() error {
 		return err
 	}
 
+	// TODO:
+	/*
+			layout.Register()/Load() - to prepare layouts templates
+		 	l := layout.Get(<selector>)
+			layout.Builder(root, l.Nodes())
+	*/
 	rn := layout.RootNode(p.name)
 
 	return layout.Builder(root, rn)
