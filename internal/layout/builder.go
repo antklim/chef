@@ -24,21 +24,24 @@ import (
 // TODO: init project with go.mod
 
 const (
-	gitkeep = ".gitkeep"
-)
-
-const (
 	fperm = 0644
 	dperm = 0755
 )
 
-func Builder(root string, n Node) error {
+func Builder(root, name string, l Layout) error {
+	// root is a project root
+	// name is a project name
+	n := newdnode(name, withSubNodes(l.Nodes()...))
+	return buildNode(root, n)
+}
+
+func buildNode(loc string, n Node) error {
 	if nn, ok := n.(dirNode); ok {
-		return buildDirNode(root, n, nn.SubNodes())
+		return buildDirNode(loc, n, nn.SubNodes())
 	}
 
 	if nn, ok := n.(fileNode); ok {
-		return buildFileNode(root, n, nn.Template())
+		return buildFileNode(loc, n, nn.Template())
 	}
 
 	return nil
@@ -52,13 +55,7 @@ func buildDirNode(root string, n Node, children []Node) error {
 	}
 
 	for _, c := range children {
-		if err := Builder(o, c); err != nil {
-			return err
-		}
-	}
-
-	if len(children) == 0 {
-		if err := os.WriteFile(path.Join(o, gitkeep), nil, fperm); err != nil {
+		if err := buildNode(o, c); err != nil {
 			return err
 		}
 	}
@@ -80,11 +77,4 @@ func buildFileNode(root string, n Node, t *template.Template) error {
 	}
 
 	return f.Chmod(fs.FileMode(n.Permissions()))
-}
-
-// TODO: add options to define what subnodes layout to use
-// TODO: deprecate root node
-
-func RootNode(name string) Node {
-	return newdnode(name, withSubNodes(defaultHTTPServiceLayout...))
 }

@@ -100,54 +100,10 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func assertProjectLayout(t *testing.T, root string) {
-	{
-		// root of the project should include: adapter, app, handler, provider, test and main.go
-		de, err := os.ReadDir(path.Join(root, "cheftest"))
-		require.NoError(t, err)
-		assert.Len(t, de, 7)
-	}
-
-	{
-		// root/adapter should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "adapter"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/app should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "app"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/handler should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "handler"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/provider should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "provider"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/server should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "server"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
-
-	{
-		// root/test should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, "cheftest", "test"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
+	// root of the project should include: adapter, app, handler, provider, test and main.go
+	d, err := os.ReadDir(path.Join(root, "cheftest"))
+	require.NoError(t, err)
+	assert.Len(t, d, 7)
 }
 
 func TestProjectInit(t *testing.T) {
