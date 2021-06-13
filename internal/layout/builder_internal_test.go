@@ -9,35 +9,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testProjectName = "XYZ"
-
-func assertLayout(t *testing.T, root string) {
-	{
-		// root of the project should include: server, and main.go
-		de, err := os.ReadDir(path.Join(root, testProjectName))
-		require.NoError(t, err)
-		assert.Len(t, de, 2)
-	}
-
-	{
-		// root/server should include .gitkeep
-		de, err := os.ReadDir(path.Join(root, testProjectName, "server"))
-		require.NoError(t, err)
-		assert.Len(t, de, 1)
-	}
+type testLayout struct {
+	nodes []Node
 }
+
+func (l testLayout) Nodes() []Node {
+	return l.nodes
+}
+
+func (testLayout) Schema() string {
+	return "testLayout"
+}
+
+var _ Layout = testLayout{}
 
 func TestLayoutBuilder(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	server := newdnode("server")
-	root := newdnode(testProjectName, withSubNodes(srvMain, server))
+	l := testLayout{nodes: []Node{newdnode("server"), srvMain}}
 
-	err = Builder(tmpDir, root)
+	err = Builder(tmpDir, "XYZ", l)
 	require.NoError(t, err)
-	assertLayout(t, tmpDir)
+
+	d, err := os.ReadDir(path.Join(tmpDir, "XYZ"))
+	require.NoError(t, err)
+	assert.Len(t, d, 2)
 }
 
 func TestDnode(t *testing.T) {

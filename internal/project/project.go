@@ -10,6 +10,9 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
+// TODO: add default project layout srv.
+// TODO: get default project layout when no options provided (in Project.Init())
+
 type Server string
 
 const (
@@ -91,9 +94,9 @@ func (p Project) Init() error {
 		return err
 	}
 
-	rn := layout.RootNode(p.name)
+	l := layout.Get("srv_http") // TODO: "srv" should be a constant
 
-	return layout.Builder(root, rn)
+	return layout.Builder(root, p.name, l)
 }
 
 // Bootstrap orchestrates project validation and initialization steps.
