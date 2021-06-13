@@ -10,6 +10,9 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
+// TODO: add default project layout srv.
+// TODO: get default project layout when no options provided (in Project.Init())
+
 type Server string
 
 const (
@@ -91,7 +94,7 @@ func (p Project) Init() error {
 		return err
 	}
 
-	l := layout.Get("srv_http") // TODO: "srv_http" should be a constant
+	l := layout.Get("srv_http") // TODO: "srv" should be a constant
 
 	return layout.Builder(root, p.name, l)
 }

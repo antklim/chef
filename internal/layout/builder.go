@@ -7,10 +7,6 @@ import (
 	"text/template"
 )
 
-// TODO: init/register all possible layouts at start time.
-// 			 When initing a project get one of the layouts and use it to scaffold
-//       project structure.
-
 // TODO: in imports replace chef/... with the project name
 
 // TODO: read layout settings from yaml

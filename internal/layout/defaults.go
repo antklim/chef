@@ -5,7 +5,7 @@ func init() { // nolint:gochecknoinits
 	Register(httpServiceLayout{})
 }
 
-var defaultServiceLayout = []Node{
+var serviceNodes = []Node{
 	newdnode(dirAdapter),
 	newdnode(dirApp),
 	newdnode(dirHandler),
@@ -17,22 +17,22 @@ var defaultServiceLayout = []Node{
 type serviceLayout struct{}
 
 func (serviceLayout) Nodes() []Node {
-	return defaultServiceLayout
+	return serviceNodes
 }
 
 func (serviceLayout) Schema() string {
-	return "srv"
+	return "srv" // TODO: should be public constant
 }
 
-var defaultHTTPHandlerLayout = newdnode(dirHTTP, withSubNodes(httpRouter))
-var defaultHTTPServerLayout = newdnode(dirHTTP, withSubNodes(httpServer))
+var httpHandlerNode = newdnode(dirHTTP, withSubNodes(httpRouter))
+var httpServerNode = newdnode(dirHTTP, withSubNodes(httpServer))
 
 var defaultHTTPServiceLayout = []Node{
 	newdnode(dirAdapter),
 	newdnode(dirApp),
-	newdnode(dirHandler, withSubNodes(defaultHTTPHandlerLayout)),
+	newdnode(dirHandler, withSubNodes(httpHandlerNode)),
 	newdnode(dirProvider),
-	newdnode(dirServer, withSubNodes(defaultHTTPServerLayout)),
+	newdnode(dirServer, withSubNodes(httpServerNode)),
 	newdnode(dirTest),
 	srvMain,
 }
@@ -44,5 +44,5 @@ func (httpServiceLayout) Nodes() []Node {
 }
 
 func (httpServiceLayout) Schema() string {
-	return "srv_http"
+	return "srv_http" // TODO: should be public constant
 }
