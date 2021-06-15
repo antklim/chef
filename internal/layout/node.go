@@ -179,9 +179,17 @@ func withFperm(p uint32) fnodeoption {
 	})
 }
 
-// withTemplate adds node template with template name tn and template string ts.
-func withTemplate(tn, ts string) fnodeoption {
+// withNewTemplate adds node template with template name tn and template string
+// ts.
+func withNewTemplate(tn, ts string) fnodeoption {
 	return newfnodefopt(func(n *fnode) {
 		n.template = template.Must(template.New(tn).Parse(ts))
+	})
+}
+
+// withNewTemplate adds node template t.
+func withTemplate(t *template.Template) fnodeoption {
+	return newfnodefopt(func(n *fnode) {
+		n.template = t
 	})
 }

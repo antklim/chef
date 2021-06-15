@@ -11,6 +11,8 @@ import (
 )
 
 func TestFnode(t *testing.T) {
+	tmpl := template.Must(template.New("test").Parse("package foo"))
+
 	testCases := []struct {
 		desc     string
 		opts     []fnodeoption
@@ -26,8 +28,16 @@ func TestFnode(t *testing.T) {
 			expected: fnode{node: node{name: "test_file", permissions: 0600}},
 		},
 		{
+			desc: "has custom template when created with new template option",
+			opts: []fnodeoption{withNewTemplate("test_new", "package foo")},
+			expected: fnode{
+				node:     node{name: "test_file", permissions: 0644},
+				template: template.Must(template.New("test_new").Parse("package foo")),
+			},
+		},
+		{
 			desc: "has custom template when created with template option",
-			opts: []fnodeoption{withTemplate("test", "package foo")},
+			opts: []fnodeoption{withTemplate(tmpl)},
 			expected: fnode{
 				node:     node{name: "test_file", permissions: 0644},
 				template: template.Must(template.New("test").Parse("package foo")),
@@ -57,7 +67,7 @@ func TestFnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file using node template", func(t *testing.T) {
-		f := newfnode("test_file_2", withTemplate("test", "package foo"))
+		f := newfnode("test_file_2", withNewTemplate("test", "package foo"))
 		err := f.Build(tmpDir)
 		require.NoError(t, err)
 
@@ -142,10 +152,7 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file subnode", func(t *testing.T) {
-		sn := fnode{
-			node:     node{name: "test_file_1", permissions: 0644},
-			template: template.Must(template.New("test").Parse("package foo")),
-		}
+		sn := newfnode("test_file_1", withNewTemplate("test", "package foo"))
 		n := newdnode("test_dir_3", withSubNodes(sn))
 		err := n.Build(tmpDir)
 		require.NoError(t, err)

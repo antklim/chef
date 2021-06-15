@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-const httpHandlerTemplate = `package http
+var httpHandlerTemplate = template.Must(template.New("http_handler").Parse(`package http
 
 import (
 	"fmt"
@@ -23,14 +23,8 @@ func {{ .Name }}Handler() http.Handler {
 		fmt.Fprint(w, "OK")
 	})
 }
-`
+`))
 
 func httpHandler(name string) fnode {
-	return fnode{
-		node: node{
-			name:        fmt.Sprintf("%s.go", name),
-			permissions: fperm,
-		},
-		template: template.Must(template.New("http_handler").Parse(httpHandlerTemplate)),
-	}
+	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(httpHandlerTemplate))
 }
