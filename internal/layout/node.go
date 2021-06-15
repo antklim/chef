@@ -137,6 +137,7 @@ func (n fnode) Build(loc string) error {
 		return nil
 	}
 
+	// TODO: writer creation can be moved to a separate method
 	o := path.Join(loc, n.Name())
 
 	f, err := os.Create(o)
@@ -184,5 +185,3 @@ func withTemplate(tn, ts string) fnodeoption {
 		n.template = template.Must(template.New(tn).Parse(ts))
 	})
 }
-
-// TODO: add fnode write method
