@@ -13,6 +13,7 @@ type dirNode interface {
 
 type fileNode interface {
 	Template() *template.Template
+	Build(string) error
 }
 
 type Node interface {
@@ -102,13 +103,13 @@ func (n fnode) Permissions() uint32 {
 	return n.permissions
 }
 
-// Build executes node template and writes it to a file to a provided directory.
-func (n fnode) Build(dir string) error {
+// Build executes node template and writes it to a file to a provided location.
+func (n fnode) Build(loc string) error {
 	if n.template == nil {
 		return nil
 	}
 
-	o := path.Join(dir, n.Name())
+	o := path.Join(loc, n.Name())
 
 	f, err := os.Create(o)
 	if err != nil {

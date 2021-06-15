@@ -4,7 +4,6 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"text/template"
 )
 
 // TODO: in imports replace chef/... with the project name
@@ -36,8 +35,8 @@ func buildNode(loc string, n Node) error {
 		return buildDirNode(loc, n, nn.SubNodes())
 	}
 
-	if nn, ok := n.(fileNode); ok {
-		return buildFileNode(loc, n, nn.Template())
+	if fn, ok := n.(fileNode); ok {
+		return fn.Build(loc)
 	}
 
 	return nil
@@ -57,20 +56,4 @@ func buildDirNode(root string, n Node, children []Node) error {
 	}
 
 	return nil
-}
-
-func buildFileNode(root string, n Node, t *template.Template) error {
-	o := path.Join(root, n.Name())
-
-	f, err := os.Create(o)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	if err := t.Execute(f, nil); err != nil {
-		return err
-	}
-
-	return f.Chmod(fs.FileMode(n.Permissions()))
 }
