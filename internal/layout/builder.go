@@ -12,18 +12,9 @@ package layout
 
 // TODO: init project with go.mod
 
-const (
-	fperm = 0644
-	dperm = 0755
-)
-
 func Builder(root, name string, l Layout) error {
 	// root is a project root
 	// name is a project name
 	n := newdnode(name, withSubNodes(l.Nodes()...))
-	return buildNode(root, n)
-}
-
-func buildNode(loc string, n Node) error {
-	return n.Build(loc)
+	return n.Build(root)
 }

@@ -7,6 +7,11 @@ import (
 	"text/template"
 )
 
+const (
+	fperm = 0644
+	dperm = 0755
+)
+
 type Node interface {
 	Name() string
 	Permissions() uint32
