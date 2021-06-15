@@ -7,18 +7,10 @@ import (
 	"text/template"
 )
 
-type dirNode interface {
-	SubNodes() []Node
-}
-
-type fileNode interface {
-	Template() *template.Template
-	Build(string) error
-}
-
 type Node interface {
 	Name() string
 	Permissions() uint32
+	Build(string) error
 }
 
 type node struct {
@@ -52,6 +44,22 @@ func (n dnode) Name() string {
 
 func (n dnode) Permissions() uint32 {
 	return n.permissions
+}
+
+func (n dnode) Build(loc string) error {
+	o := path.Join(loc, n.Name())
+
+	if err := os.Mkdir(o, fs.FileMode(n.Permissions())); err != nil {
+		return err
+	}
+
+	for _, sn := range n.subnodes {
+		if err := sn.Build(o); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (n dnode) SubNodes() []Node {

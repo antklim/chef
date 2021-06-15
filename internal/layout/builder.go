@@ -1,11 +1,5 @@
 package layout
 
-import (
-	"io/fs"
-	"os"
-	"path"
-)
-
 // TODO: in imports replace chef/... with the project name
 
 // TODO: read layout settings from yaml
@@ -31,29 +25,5 @@ func Builder(root, name string, l Layout) error {
 }
 
 func buildNode(loc string, n Node) error {
-	if nn, ok := n.(dirNode); ok {
-		return buildDirNode(loc, n, nn.SubNodes())
-	}
-
-	if fn, ok := n.(fileNode); ok {
-		return fn.Build(loc)
-	}
-
-	return nil
-}
-
-func buildDirNode(root string, n Node, children []Node) error {
-	o := path.Join(root, n.Name())
-
-	if err := os.Mkdir(o, fs.FileMode(n.Permissions())); err != nil {
-		return err
-	}
-
-	for _, c := range children {
-		if err := buildNode(o, c); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return n.Build(loc)
 }
