@@ -96,7 +96,7 @@ func (p Project) Init() error {
 
 	l := layout.Get("srv_http") // TODO: "srv" should be a constant
 
-	return layout.Builder(root, p.name, l)
+	return layout.Builder(root, p.name, l) // TODO: it should be l.Build(loc)
 }
 
 // Bootstrap orchestrates project validation and initialization steps.
