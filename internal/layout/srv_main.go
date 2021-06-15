@@ -4,7 +4,7 @@ import "text/template"
 
 // TODO: in imports replace chef/... with the project name
 
-const srvMainTemplate = `package main
+var srvMainTemplate = template.Must(template.New("srv_main").Parse(`package main
 
 import (
 	server "{{ .Module }}/server/http"
@@ -13,12 +13,6 @@ import (
 func main() {
 	server.Start()
 }
-`
+`))
 
-var srvMain = fnode{
-	node: node{
-		name:        "main.go",
-		permissions: fperm,
-	},
-	template: template.Must(template.New("srv_main").Parse(srvMainTemplate)),
-}
+var srvMain = newfnode("main.go", withTemplate(srvMainTemplate))

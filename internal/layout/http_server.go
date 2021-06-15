@@ -4,7 +4,7 @@ import "text/template"
 
 // TODO: in imports replace chef/... with the project name
 
-const httpServerTemplate = `package http
+var httpServerTemplate = template.Must(template.New("http_server").Parse(`package http
 
 import (
 	handler "{{ .Module }}/handler/http"
@@ -23,12 +23,6 @@ func Start() {
 	log.Printf("service listening at %s", defaultAddress)
 	log.Fatalf("service stopped: %v", s.ListenAndServe())
 }
-`
+`))
 
-var httpServer = fnode{
-	node: node{
-		name:        "server.go",
-		permissions: fperm,
-	},
-	template: template.Must(template.New("http_server").Parse(httpServerTemplate)),
-}
+var httpServer = newfnode("server.go", withTemplate(httpServerTemplate))

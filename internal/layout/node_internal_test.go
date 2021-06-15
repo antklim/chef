@@ -152,10 +152,7 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file subnode", func(t *testing.T) {
-		sn := fnode{
-			node:     node{name: "test_file_1", permissions: 0644},
-			template: template.Must(template.New("test").Parse("package foo")),
-		}
+		sn := newfnode("test_file_1", withNewTemplate("test", "package foo"))
 		n := newdnode("test_dir_3", withSubNodes(sn))
 		err := n.Build(tmpDir)
 		require.NoError(t, err)
