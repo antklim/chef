@@ -1,6 +1,11 @@
 package layout
 
-import "text/template"
+import (
+	"io/fs"
+	"os"
+	"path"
+	"text/template"
+)
 
 type dirNode interface {
 	SubNodes() []Node
@@ -97,6 +102,30 @@ func (n fnode) Permissions() uint32 {
 	return n.permissions
 }
 
+// Build executes node template and writes it to a file to a provided directory.
+func (n fnode) Build(dir string) error {
+	if n.template == nil {
+		return nil
+	}
+
+	o := path.Join(dir, n.Name())
+
+	f, err := os.Create(o)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if err := n.template.Execute(f, nil); err != nil {
+		return err
+	}
+
+	return f.Chmod(fs.FileMode(n.Permissions()))
+}
+
 func (n fnode) Template() *template.Template {
 	return n.template
 }
+
+// TODO: add newfnode
+// TODO: add fnode write method
