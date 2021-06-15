@@ -10,24 +10,46 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestFnode(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		opts     []fnodeoption
+		expected fnode
+	}{
+		{
+			desc:     "has default file permissions and no template when created",
+			expected: fnode{node: node{name: "test_file", permissions: 0644}},
+		},
+		{
+			desc:     "has custom file permissions when created with permission option",
+			opts:     []fnodeoption{withFperm(0600)},
+			expected: fnode{node: node{name: "test_file", permissions: 0600}},
+		},
+		{
+			desc: "has custom template when created with template option",
+			opts: []fnodeoption{withTemplate("test", "package foo")},
+			expected: fnode{
+				node:     node{name: "test_file", permissions: 0644},
+				template: template.Must(template.New("test").Parse("package foo")),
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			n := newfnode("test_file", tC.opts...)
+			assert.Equal(t, tC.expected, n)
+		})
+	}
+}
+
 func TestFnodeBuild(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "cheftest")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	buildfnode := func(name, t string) (fnode, error) {
-		var tmpl *template.Template
-
-		if t != "" {
-			tmpl = template.Must(template.New("test").Parse(t))
-		}
-
-		f := fnode{node: node{name: name, permissions: 0644}, template: tmpl}
-		return f, f.Build(tmpDir)
-	}
-
 	t.Run("creates nothing when does not have template", func(t *testing.T) {
-		f, err := buildfnode("test_file_1", "")
+		f := newfnode("test_file_1")
+		err := f.Build(tmpDir)
 		require.NoError(t, err)
 
 		_, err = os.ReadFile(path.Join(tmpDir, f.Name()))
@@ -35,7 +57,8 @@ func TestFnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file using node template", func(t *testing.T) {
-		f, err := buildfnode("test_file_2", `package foo`)
+		f := newfnode("test_file_2", withTemplate("test", "package foo"))
+		err := f.Build(tmpDir)
 		require.NoError(t, err)
 
 		expected := "package foo"
@@ -47,11 +70,6 @@ func TestFnodeBuild(t *testing.T) {
 }
 
 func TestDnode(t *testing.T) {
-	f1 := fnode{node: node{name: "test_file_1", permissions: 0644}}
-	f2 := fnode{node: node{name: "test_file_2", permissions: 0644}}
-	f3 := fnode{node: node{name: "test_file_3", permissions: 0644}}
-	d1 := dnode{node: node{name: "test_dir_1", permissions: 0755}}
-
 	t.Run("has default directory permissions and no children when created", func(t *testing.T) {
 		n := newdnode("test_dir")
 		expected := dnode{node: node{name: "test_dir", permissions: 0755}}
@@ -59,12 +77,14 @@ func TestDnode(t *testing.T) {
 	})
 
 	t.Run("has custom directory permissions when created with permission option", func(t *testing.T) {
-		n := newdnode("test_dir", withPermissions(0700))
+		n := newdnode("test_dir", withDperm(0700))
 		expected := dnode{node: node{name: "test_dir", permissions: 0700}}
 		assert.Equal(t, expected, n)
 	})
 
 	t.Run("has non empty children list when created with children option", func(t *testing.T) {
+		f1 := newfnode("test_file_1")
+		d1 := newdnode("test_dir_1")
 		n := newdnode("test_dir", withSubNodes(f1, d1))
 		expected := dnode{
 			node: node{
@@ -80,15 +100,17 @@ func TestDnode(t *testing.T) {
 	})
 
 	t.Run("adds children using AddChildren", func(t *testing.T) {
-		n := newdnode("test_dir", withSubNodes(f1, f2))
+		f1 := newfnode("test_file_1")
+		f2 := newfnode("test_file_2")
+		d1 := newdnode("test_dir_1")
+		n := newdnode("test_dir", withSubNodes(f1))
 
-		n.addSubNodes([]Node{f3})
+		n.addSubNodes([]Node{f2})
 		n.addSubNodes([]Node{d1})
 
 		expected := []Node{
 			fnode{node: node{name: "test_file_1", permissions: 0644}},
 			fnode{node: node{name: "test_file_2", permissions: 0644}},
-			fnode{node: node{name: "test_file_3", permissions: 0644}},
 			dnode{node: node{name: "test_dir_1", permissions: 0755}},
 		}
 		assert.Equal(t, expected, n.SubNodes())

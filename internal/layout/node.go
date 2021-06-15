@@ -97,7 +97,7 @@ func withSubNodes(sn ...Node) dnodeoption {
 	})
 }
 
-func withPermissions(p uint32) dnodeoption {
+func withDperm(p uint32) dnodeoption {
 	return newdnodefopt(func(n *dnode) {
 		n.permissions = p
 	})
@@ -106,6 +106,21 @@ func withPermissions(p uint32) dnodeoption {
 type fnode struct {
 	node
 	template *template.Template
+}
+
+func newfnode(name string, opts ...fnodeoption) fnode {
+	n := fnode{
+		node: node{
+			name:        name,
+			permissions: fperm,
+		},
+	}
+
+	for _, o := range opts {
+		o.apply(&n)
+	}
+
+	return n
 }
 
 func (n fnode) Name() string {
@@ -141,5 +156,33 @@ func (n fnode) Template() *template.Template {
 	return n.template
 }
 
-// TODO: add newfnode
+type fnodeoption interface {
+	apply(*fnode)
+}
+
+type fnodefopt struct {
+	f func(*fnode)
+}
+
+func (f *fnodefopt) apply(n *fnode) {
+	f.f(n)
+}
+
+func newfnodefopt(f func(*fnode)) *fnodefopt {
+	return &fnodefopt{f}
+}
+
+func withFperm(p uint32) fnodeoption {
+	return newfnodefopt(func(n *fnode) {
+		n.permissions = p
+	})
+}
+
+// withTemplate adds node template with template name tn and template string ts.
+func withTemplate(tn, ts string) fnodeoption {
+	return newfnodefopt(func(n *fnode) {
+		n.template = template.Must(template.New(tn).Parse(ts))
+	})
+}
+
 // TODO: add fnode write method
