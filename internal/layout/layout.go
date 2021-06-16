@@ -31,6 +31,7 @@ func (l Layout) Build(loc string) error {
 }
 
 var (
+	// Nil is a nil layout.
 	Nil = Layout{}
 )
 
