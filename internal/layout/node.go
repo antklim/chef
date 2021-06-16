@@ -54,7 +54,7 @@ func (n dnode) Permissions() fs.FileMode {
 func (n dnode) Build(loc string) error {
 	o := path.Join(loc, n.Name())
 
-	if err := os.Mkdir(o, fs.FileMode(n.Permissions())); err != nil {
+	if err := os.Mkdir(o, n.Permissions()); err != nil {
 		return err
 	}
 
@@ -150,7 +150,7 @@ func (n fnode) Build(loc string) error {
 		return err
 	}
 
-	return f.Chmod(fs.FileMode(n.Permissions()))
+	return f.Chmod(n.Permissions())
 }
 
 func (n fnode) Template() *template.Template {
