@@ -1,9 +1,39 @@
 package layout
 
-type Layout interface {
-	Nodes() []Node
-	Schema() string
+type Layout struct {
+	nodes  []Node
+	schema string
 }
+
+// New creates a new layout with schema s and nodes n.
+func New(s string, n []Node) Layout {
+	return Layout{
+		schema: s,
+		nodes:  n,
+	}
+}
+
+func (l Layout) Nodes() []Node {
+	return l.nodes
+}
+
+func (l Layout) Schema() string {
+	return l.schema
+}
+
+func (l Layout) Build(loc string) error {
+	for _, n := range l.nodes {
+		if err := n.Build(loc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var (
+	// Nil is a nil layout.
+	Nil = Layout{}
+)
 
 var (
 	// m is a map from schema to layout.
@@ -21,10 +51,10 @@ func Register(l Layout) {
 
 // Get returns the layout registered with the given schema.
 //
-// If no layout is registered with the schema, nil will be returned.
+// If no layout is registered with the schema, Nil layout will be returned.
 func Get(name string) Layout {
 	if l, ok := m[name]; ok {
 		return l
 	}
-	return nil
+	return Nil
 }

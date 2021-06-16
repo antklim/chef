@@ -1,8 +1,8 @@
 package layout
 
 func init() { // nolint:gochecknoinits
-	Register(serviceLayout{})
-	Register(httpServiceLayout{})
+	Register(serviceLayout)
+	Register(httpServiceLayout)
 }
 
 var serviceNodes = []Node{
@@ -14,20 +14,13 @@ var serviceNodes = []Node{
 	newdnode(dirTest),
 }
 
-type serviceLayout struct{}
-
-func (serviceLayout) Nodes() []Node {
-	return serviceNodes
-}
-
-func (serviceLayout) Schema() string {
-	return "srv" // TODO: should be public constant
-}
+// TODO: srv should be public constant
+var serviceLayout = New("srv", serviceNodes)
 
 var httpHandlerNode = newdnode(dirHTTP, withSubNodes(httpRouter))
 var httpServerNode = newdnode(dirHTTP, withSubNodes(httpServer))
 
-var defaultHTTPServiceLayout = []Node{
+var httpServiceNodes = []Node{
 	newdnode(dirAdapter),
 	newdnode(dirApp),
 	newdnode(dirHandler, withSubNodes(httpHandlerNode)),
@@ -37,12 +30,5 @@ var defaultHTTPServiceLayout = []Node{
 	srvMain,
 }
 
-type httpServiceLayout struct{}
-
-func (httpServiceLayout) Nodes() []Node {
-	return defaultHTTPServiceLayout
-}
-
-func (httpServiceLayout) Schema() string {
-	return "srv_http" // TODO: should be public constant
-}
+// TODO: srv_http should be public constant
+var httpServiceLayout = New("srv_http", httpServiceNodes)
