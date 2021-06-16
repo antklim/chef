@@ -3,6 +3,37 @@ package layout
 type Layout interface {
 	Nodes() []Node
 	Schema() string
+	Build(string) error
+}
+
+type layout struct {
+	nodes  []Node
+	schema string
+}
+
+// New creates a new layout with schema s and nodes n.
+func New(s string, n []Node) Layout {
+	return &layout{
+		schema: s,
+		nodes:  n,
+	}
+}
+
+func (l layout) Nodes() []Node {
+	return l.nodes
+}
+
+func (l layout) Schema() string {
+	return l.schema
+}
+
+func (l layout) Build(loc string) error {
+	for _, n := range l.nodes {
+		if err := n.Build(loc); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 var (
