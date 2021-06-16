@@ -8,19 +8,19 @@ import (
 )
 
 const (
-	fperm = 0644
-	dperm = 0755
+	fperm fs.FileMode = 0644
+	dperm fs.FileMode = 0755
 )
 
 type Node interface {
 	Name() string
-	Permissions() uint32
+	Permissions() fs.FileMode
 	Build(string) error
 }
 
 type node struct {
 	name        string
-	permissions uint32
+	permissions fs.FileMode
 }
 
 type dnode struct {
@@ -47,7 +47,7 @@ func (n dnode) Name() string {
 	return n.name
 }
 
-func (n dnode) Permissions() uint32 {
+func (n dnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
@@ -97,7 +97,7 @@ func withSubNodes(sn ...Node) dnodeoption {
 	})
 }
 
-func withDperm(p uint32) dnodeoption {
+func withDperm(p fs.FileMode) dnodeoption {
 	return newdnodefopt(func(n *dnode) {
 		n.permissions = p
 	})
@@ -127,7 +127,7 @@ func (n fnode) Name() string {
 	return n.name
 }
 
-func (n fnode) Permissions() uint32 {
+func (n fnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
@@ -173,7 +173,7 @@ func newfnodefopt(f func(*fnode)) *fnodefopt {
 	return &fnodefopt{f}
 }
 
-func withFperm(p uint32) fnodeoption {
+func withFperm(p fs.FileMode) fnodeoption {
 	return newfnodefopt(func(n *fnode) {
 		n.permissions = p
 	})

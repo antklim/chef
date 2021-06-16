@@ -2,6 +2,7 @@ package layout_test
 
 import (
 	"errors"
+	"io/fs"
 	"strings"
 	"testing"
 
@@ -30,7 +31,7 @@ func (testNode) Name() string {
 	return "testNode"
 }
 
-func (testNode) Permissions() uint32 {
+func (testNode) Permissions() fs.FileMode {
 	return 0400
 }
 
