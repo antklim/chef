@@ -3,6 +3,7 @@ package project
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"strings"
@@ -107,7 +108,8 @@ func (p Project) Init() error {
 	}
 
 	loc := path.Join(root, p.name)
-	if err := os.Mkdir(loc, 0755); err != nil {
+	var dp fs.FileMode = 0755
+	if err := os.Mkdir(loc, dp); err != nil {
 		return err
 	}
 
