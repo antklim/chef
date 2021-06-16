@@ -1,6 +1,8 @@
 package layout_test
 
 import (
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/antklim/chef/internal/layout"
@@ -10,12 +12,17 @@ import (
 
 type testNode struct {
 	buildCalled bool
+	buildError  error
 	loc         string
 }
 
 func (n *testNode) Build(loc string) error {
 	n.buildCalled = true
 	n.loc = loc
+	if strings.HasPrefix(loc, "/error") {
+		n.buildError = errors.New("node build error")
+		return n.buildError
+	}
 	return nil
 }
 
@@ -63,15 +70,42 @@ func TestNewLayout(t *testing.T) {
 }
 
 func TestLayoutBuild(t *testing.T) {
-	n := &testNode{}
-	l := layout.New("testBuild", []layout.Node{n})
-	assert.False(t, n.WasBuild())
-
-	loc := "/tmp/foo/bar"
-	err := l.Build(loc)
-	require.NoError(t, err)
-	assert.True(t, n.WasBuild())
-	assert.Equal(t, loc, n.BuiltAt())
+	testCases := []struct {
+		desc   string
+		name   string
+		node   *testNode
+		loc    string
+		assert func(*testing.T, error)
+	}{
+		{
+			desc: "builds layout nodes",
+			name: "successBuild",
+			node: &testNode{},
+			loc:  "/tmp/foo/bar",
+			assert: func(t *testing.T, err error) {
+				require.NoError(t, err)
+			},
+		},
+		{
+			desc: "fails to build layout when node build fails",
+			name: "errorBuild",
+			node: &testNode{},
+			loc:  "/error/bar",
+			assert: func(t *testing.T, err error) {
+				assert.EqualError(t, err, "node build error")
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			l := layout.New(tC.name, []layout.Node{tC.node})
+			assert.False(t, tC.node.WasBuild())
+			err := l.Build(tC.loc)
+			tC.assert(t, err)
+			assert.True(t, tC.node.WasBuild())
+			assert.Equal(t, tC.loc, tC.node.BuiltAt())
+		})
+	}
 }
 
 func TestLayoutRegistry(t *testing.T) {
