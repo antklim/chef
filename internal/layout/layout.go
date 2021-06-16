@@ -51,7 +51,7 @@ func Register(l Layout) {
 
 // Get returns the layout registered with the given schema.
 //
-// If no layout is registered with the schema, nil will be returned.
+// If no layout is registered with the schema, Nil layout will be returned.
 func Get(name string) Layout {
 	if l, ok := m[name]; ok {
 		return l

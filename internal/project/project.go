@@ -10,6 +10,18 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
+// TODO: in imports replace chef/... with the project name
+
+// TODO: read layout settings from yaml
+// TODO: test/build generated go code
+
+// TODO: use http handler template to add health endpoint (on bootstrap)
+// TODO: make adding health endpoint on bootstrap optional
+
+// TODO: support functionality of bring your own templates
+
+// TODO: init project with go.mod
+
 // TODO: add default project layout srv.
 // TODO: get default project layout when no options provided (in Project.Init())
 
@@ -94,9 +106,14 @@ func (p Project) Init() error {
 		return err
 	}
 
+	loc := path.Join(root, p.name)
+	if err := os.Mkdir(loc, 0755); err != nil {
+		return err
+	}
+
 	l := layout.Get("srv_http") // TODO: "srv" should be a constant
 
-	return layout.Builder(root, p.name, l) // TODO: it should be l.Build(loc)
+	return l.Build(loc)
 }
 
 // Bootstrap orchestrates project validation and initialization steps.
