@@ -9,6 +9,8 @@ const (
 	HTTPRouter = "http_router"
 	// HTTPServer an http server template name.
 	HTTPServer = "http_server"
+	// HTTPService an http service template name.
+	HTTPService = "http_service"
 )
 
 var rootTemplate = template.New("__chef_root__")

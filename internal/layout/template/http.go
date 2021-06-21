@@ -55,3 +55,14 @@ func Start() {
 	log.Fatalf("service stopped: %v", s.ListenAndServe())
 }
 `))
+
+var _ = template.Must(rootTemplate.New(HTTPService).Parse(`package main
+
+import (
+	server "{{ .Module }}/server/http"
+)
+
+func main() {
+	server.Start()
+}
+`))

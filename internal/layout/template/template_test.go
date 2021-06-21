@@ -24,6 +24,10 @@ func TestTemplateRegistry(t *testing.T) {
 			desc: "has an http server template",
 			name: template.HTTPServer,
 		},
+		{
+			desc: "has an http service template",
+			name: template.HTTPService,
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
