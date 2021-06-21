@@ -121,9 +121,11 @@ func TestLayoutRegistry(t *testing.T) {
 		l := layout.Get("testLayout")
 		assert.Equal(t, tl, l)
 	})
+}
 
-	t.Run("has predefined layouts", func(t *testing.T) {
-		defs := []string{"srv", "srv_http"}
+func TestLayoutInit(t *testing.T) {
+	t.Run("registers predefined layouts", func(t *testing.T) {
+		defs := []string{layout.ServiceLayout, layout.ServiceLayout}
 		for _, s := range defs {
 			l := layout.Get(s)
 			assert.NotNil(t, l)

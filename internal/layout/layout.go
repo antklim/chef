@@ -30,6 +30,13 @@ func (l Layout) Build(loc string) error {
 	return nil
 }
 
+const (
+	// ServiceLayout an abstract service layout name.
+	ServiceLayout = "srv"
+	// HTTPServiceLayout an http service layout name.
+	HTTPServiceLayout = "srv_http"
+)
+
 var (
 	// Nil is a nil layout.
 	Nil = Layout{}

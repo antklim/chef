@@ -113,7 +113,7 @@ func (p Project) Init() error {
 		return err
 	}
 
-	l := layout.Get("srv_http") // TODO: "srv" should be a constant
+	l := layout.Get(layout.HTTPServiceLayout)
 
 	return l.Build(loc)
 }

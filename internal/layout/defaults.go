@@ -20,42 +20,43 @@ const (
 )
 
 func init() { // nolint:gochecknoinits
-	Register(serviceLayout)
-	Register(httpServiceLayout)
+	Register(serviceLayout())
+	Register(httpServiceLayout())
 }
 
 func httpHandler(name string) fnode {
 	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(template.Get(template.HTTPHandler)))
 }
 
-var httpRouter = newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))
-var httpServer = newfnode("server.go", withTemplate(template.Get(template.HTTPServer)))
-var httpSrvMain = newfnode("main.go", withTemplate(template.Get(template.HTTPService)))
+func serviceLayout() Layout {
+	serviceNodes := []Node{
+		newdnode(dirAdapter),
+		newdnode(dirApp),
+		newdnode(dirHandler),
+		newdnode(dirProvider),
+		newdnode(dirServer),
+		newdnode(dirTest),
+	}
 
-var serviceNodes = []Node{
-	newdnode(dirAdapter),
-	newdnode(dirApp),
-	newdnode(dirHandler),
-	newdnode(dirProvider),
-	newdnode(dirServer),
-	newdnode(dirTest),
+	return New(ServiceLayout, serviceNodes)
 }
 
-// TODO: srv should be public constant
-var serviceLayout = New("srv", serviceNodes)
+func httpServiceLayout() Layout {
+	httpRouter := newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))
+	httpHandlerNode := newdnode(dirHTTP, withSubNodes(httpRouter))
+	httpServer := newfnode("server.go", withTemplate(template.Get(template.HTTPServer)))
+	httpServerNode := newdnode(dirHTTP, withSubNodes(httpServer))
+	httpSrvMain := newfnode("main.go", withTemplate(template.Get(template.HTTPService)))
 
-var httpHandlerNode = newdnode(dirHTTP, withSubNodes(httpRouter))
-var httpServerNode = newdnode(dirHTTP, withSubNodes(httpServer))
+	httpServiceNodes := []Node{
+		newdnode(dirAdapter),
+		newdnode(dirApp),
+		newdnode(dirHandler, withSubNodes(httpHandlerNode)),
+		newdnode(dirProvider),
+		newdnode(dirServer, withSubNodes(httpServerNode)),
+		newdnode(dirTest),
+		httpSrvMain,
+	}
 
-var httpServiceNodes = []Node{
-	newdnode(dirAdapter),
-	newdnode(dirApp),
-	newdnode(dirHandler, withSubNodes(httpHandlerNode)),
-	newdnode(dirProvider),
-	newdnode(dirServer, withSubNodes(httpServerNode)),
-	newdnode(dirTest),
-	httpSrvMain,
+	return New(HTTPServiceLayout, httpServiceNodes)
 }
-
-// TODO: srv_http should be public constant
-var httpServiceLayout = New("srv_http", httpServiceNodes)
