@@ -13,6 +13,10 @@ func TestTemplateRegistry(t *testing.T) {
 		name string
 	}{
 		{
+			desc: "has an http handler template",
+			name: template.HTTPHandler,
+		},
+		{
 			desc: "has an http router template",
 			name: template.HTTPRouter,
 		},

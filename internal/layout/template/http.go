@@ -2,6 +2,28 @@ package template
 
 import "text/template"
 
+// TODO: in imports replace chef/... with the project name
+
+var _ = template.Must(rootTemplate.New(HTTPHandler).Parse(`package http
+
+import (
+	"fmt"
+	"net/http"
+)
+
+const {{ .Name }}Route = {{ .Path }}
+
+func init() {
+	router.Handle({{ .Name }}Route, {{ .Name }}Handler())
+}
+
+func {{ .Name }}Handler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "OK")
+	})
+}
+`))
+
 var _ = template.Must(rootTemplate.New(HTTPRouter).Parse(`package http
 
 import "net/http"
@@ -12,8 +34,6 @@ func Mux() *http.ServeMux {
 	return router
 }
 `))
-
-// TODO: in imports replace chef/... with the project name
 
 var _ = template.Must(rootTemplate.New(HTTPServer).Parse(`package http
 
