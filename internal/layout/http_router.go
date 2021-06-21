@@ -1,16 +1,5 @@
 package layout
 
-import "text/template"
+import "github.com/antklim/chef/internal/layout/template"
 
-var httpRouterTemplate = template.Must(template.New("http_router").Parse(`package http
-
-import "net/http"
-
-var router = http.NewServeMux()
-
-func Mux() *http.ServeMux {
-	return router
-}
-`))
-
-var httpRouter = newfnode("router.go", withTemplate(httpRouterTemplate))
+var httpRouter = newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))

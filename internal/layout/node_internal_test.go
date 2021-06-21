@@ -57,10 +57,10 @@ func TestFnodeBuild(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	t.Run("creates nothing when does not have template", func(t *testing.T) {
+	t.Run("returns an error when does not have template", func(t *testing.T) {
 		f := newfnode("test_file_1")
 		err := f.Build(tmpDir)
-		require.NoError(t, err)
+		assert.EqualError(t, err, "node template is nil")
 
 		_, err = os.ReadFile(path.Join(tmpDir, f.Name()))
 		assert.True(t, os.IsNotExist(err))

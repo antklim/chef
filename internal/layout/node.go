@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"path"
@@ -10,6 +11,10 @@ import (
 const (
 	fperm fs.FileMode = 0644
 	dperm fs.FileMode = 0755
+)
+
+var (
+	errNilTemplate = errors.New("node template is nil")
 )
 
 type Node interface {
@@ -134,7 +139,7 @@ func (n fnode) Permissions() fs.FileMode {
 // Build executes node template and writes it to a file to a provided location.
 func (n fnode) Build(loc string) error {
 	if n.template == nil {
-		return nil
+		return errNilTemplate
 	}
 
 	// TODO: writer creation can be moved to a separate method
