@@ -3,7 +3,10 @@ package template
 import "text/template"
 
 const (
+	// HTTPRouter an http router template name.
 	HTTPRouter = "http_router"
+	// HTTPServer an http server template name.
+	HTTPServer = "http_server"
 )
 
 var rootTemplate = template.New("__chef_root__")
