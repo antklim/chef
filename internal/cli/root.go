@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO: add crush report capability
+
 // Execute is the primary entrypoint of the CLI app.
 func Execute() {
 	rootCmd := &cobra.Command{

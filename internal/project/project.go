@@ -23,9 +23,6 @@ import (
 
 // TODO: init project with go.mod
 
-// TODO: add default project layout srv.
-// TODO: get default project layout when no options provided (in Project.Init())
-
 type Server string
 
 const (
