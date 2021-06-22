@@ -123,10 +123,10 @@ func (p Project) Location() (string, error) {
 }
 
 func (p Project) build() error {
-	// l, err := p.layout()
-	// if err != nil {
-	// 	return err
-	// }
+	l, err := p.layout()
+	if err != nil {
+		return err
+	}
 
 	loc, err := p.Location()
 	if err != nil {
@@ -137,8 +137,6 @@ func (p Project) build() error {
 	if err := os.Mkdir(loc, dp); err != nil {
 		return err
 	}
-
-	l := layout.Get(layout.HTTPServiceLayout)
 
 	return l.Build(loc)
 }

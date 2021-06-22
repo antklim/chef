@@ -26,7 +26,7 @@ func TestNewProject(t *testing.T) {
 }
 
 func TestProjectValidate(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
+	tmpDir, err := os.MkdirTemp("", "cheftest123")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
@@ -75,46 +75,48 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
-func assertProjectLayout(t *testing.T, root string) {
-	// root of the project should include: adapter, app, handler, provider, test and main.go
-	d, err := os.ReadDir(path.Join(root, "cheftest"))
-	require.NoError(t, err)
-	assert.Len(t, d, 7)
-}
-
 func TestProjectBootstrap(t *testing.T) {
-	name := "cheftest"
-	tmpDir, err := os.MkdirTemp("", name)
+	tmpDir, err := os.MkdirTemp("", "cheftest456")
 	defer os.RemoveAll(tmpDir)
 	require.NoError(t, err)
 
-	defer os.RemoveAll(name)
-
 	testCases := []struct {
-		desc   string
-		root   string
-		assert func(*testing.T)
+		desc string
+		root string
 	}{
 		{
-			desc: "inits default project in provided directory",
+			desc: "inits project in provided directory",
 			root: tmpDir,
-			assert: func(t *testing.T) {
-				assertProjectLayout(t, tmpDir)
-			},
 		},
 		{
-			desc: "inits default project in current directory",
-			assert: func(t *testing.T) {
-				assertProjectLayout(t, "")
-			},
+			desc: "inits project in current directory",
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			p := project.New(name, project.WithRoot(tC.root))
+			p := project.New("cheftest", project.WithRoot(tC.root))
 			err := p.Bootstrap()
 			require.NoError(t, err)
-			tC.assert(t)
+
+			loc, err := p.Location()
+			require.NoError(t, err)
+
+			_, err = os.ReadDir(loc)
+			require.NoError(t, err)
+
+			os.RemoveAll(loc)
 		})
 	}
+
+	t.Run("fails when unknown layout requested", func(t *testing.T) {
+		p := project.New("test", project.WithCategory("test"))
+		err := p.Bootstrap()
+		assert.EqualError(t, err, "not found layout with name test")
+
+		loc, err := p.Location()
+		require.NoError(t, err)
+
+		_, err = os.ReadDir(loc)
+		assert.True(t, os.IsNotExist(err))
+	})
 }
