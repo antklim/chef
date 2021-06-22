@@ -102,12 +102,11 @@ func (p Project) Validate() error {
 
 // Init initializes the project layout.
 func (p Project) Init() error {
-	root, err := p.root()
+	loc, err := p.Location()
 	if err != nil {
 		return err
 	}
 
-	loc := path.Join(root, p.name)
 	var dp fs.FileMode = 0755
 	if err := os.Mkdir(loc, dp); err != nil {
 		return err
@@ -130,24 +129,12 @@ func (p Project) Name() string {
 	return p.name
 }
 
-func (p Project) Root() string {
-	return p.opts.root
-}
-
 func (p Project) Location() (string, error) {
 	r, err := p.root()
 	if err != nil {
 		return "", err
 	}
 	return path.Join(r, p.name), nil
-}
-
-func (p Project) Category() Category {
-	return p.opts.cat
-}
-
-func (p Project) Server() Server {
-	return p.opts.srv
 }
 
 func (p Project) root() (root string, err error) {
@@ -157,6 +144,10 @@ func (p Project) root() (root string, err error) {
 	}
 	return
 }
+
+// func (p Project) layout() string {
+// 	return ""
+// }
 
 type Option interface {
 	apply(*projectOptions)

@@ -11,42 +11,18 @@ import (
 )
 
 func TestNewProject(t *testing.T) {
-	testCases := []struct {
-		desc string
-		name string
-		opts []project.Option
-		root string
-		cat  project.Category
-		srv  project.Server
-	}{
-		{
-			desc: "returns default project manager when no options provided",
-			name: "ramen",
-			cat:  project.CategoryService,
-			srv:  project.ServerHTTP,
-		},
-		{
-			desc: "returns project with custom options",
-			name: "borsch",
-			opts: []project.Option{
-				project.WithCategory(project.CategoryPackage),
-				project.WithRoot("/r"),
-				project.WithServer(project.ServerGRPC),
-			},
-			root: "/r",
-			cat:  project.CategoryPackage,
-			srv:  project.ServerGRPC,
-		},
+	name := "borsch"
+	opts := []project.Option{
+		project.WithCategory(project.CategoryPackage),
+		project.WithRoot("/r"),
+		project.WithServer(project.ServerGRPC),
 	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p := project.New(tC.name, tC.opts...)
-			assert.Equal(t, tC.name, p.Name())
-			assert.Equal(t, tC.root, p.Root())
-			assert.Equal(t, tC.cat, p.Category())
-			assert.Equal(t, tC.srv, p.Server())
-		})
-	}
+
+	p := project.New(name, opts...)
+	assert.Equal(t, name, p.Name())
+	loc, err := p.Location()
+	require.NoError(t, err)
+	assert.Equal(t, "/r/borsch", loc)
 }
 
 func TestProjectValidate(t *testing.T) {
@@ -72,19 +48,19 @@ func TestProjectValidate(t *testing.T) {
 			err:  "project name required: empty name provided",
 		},
 		{
-			desc: "fails when provided root does not exist",
+			desc: "fails when provided root directory does not exist",
 			name: "cheftempura",
 			opts: []project.Option{project.WithRoot("tempura")},
 			err:  "stat tempura: no such file or directory",
 		},
 		{
-			desc: "fails when provided root is not a directory",
+			desc: "fails when provided root directory is not a directory",
 			name: "chefkarrage",
 			opts: []project.Option{project.WithRoot(karrageFile)},
 			err:  karrageFile + " is not a directory",
 		},
 		{
-			desc: "fails when root contains file or directory with the project name",
+			desc: "fails when root directory contains file or directory with the project name",
 			name: "chefsushi",
 			opts: []project.Option{project.WithRoot(tmpDir)},
 			err:  "file or directory chefsushi already exists",
@@ -117,20 +93,18 @@ func TestProjectInit(t *testing.T) {
 	testCases := []struct {
 		desc   string
 		root   string
-		assert func(*testing.T, error)
+		assert func(*testing.T)
 	}{
 		{
 			desc: "inits default project in provided directory",
 			root: tmpDir,
-			assert: func(t *testing.T, err error) {
-				require.NoError(t, err)
+			assert: func(t *testing.T) {
 				assertProjectLayout(t, tmpDir)
 			},
 		},
 		{
 			desc: "inits default project in current directory",
-			assert: func(t *testing.T, err error) {
-				require.NoError(t, err)
+			assert: func(t *testing.T) {
 				assertProjectLayout(t, "")
 			},
 		},
@@ -142,7 +116,8 @@ func TestProjectInit(t *testing.T) {
 			require.NoError(t, err)
 
 			err = p.Init()
-			tC.assert(t, err)
+			require.NoError(t, err)
+			tC.assert(t)
 		})
 	}
 }
