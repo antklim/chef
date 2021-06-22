@@ -23,21 +23,20 @@ import (
 
 // TODO: init project with go.mod
 
-// TODO: add default project layout srv.
-// TODO: get default project layout when no options provided (in Project.Init())
-
 type Server string
 
 const (
-	// ServerHTTP represents http server
+	// ServerNone represents no server option
+	ServerNone Server = "none"
+	// ServerHTTP represents http server option
 	ServerHTTP Server = "http"
-	// ServerGRPC represents grpc server
+	// ServerGRPC represents grpc server option
 	ServerGRPC Server = "grpc"
 )
 
 const (
 	defaultCategory = CategoryService
-	defaultServer   = ServerHTTP
+	defaultServer   = ServerNone
 )
 
 type projectOptions struct {
@@ -100,38 +99,16 @@ func (p Project) Validate() error {
 	return nil
 }
 
-// Init initializes the project layout.
-func (p Project) Init() error {
-	root, err := p.root()
-	if err != nil {
-		return err
-	}
-
-	loc := path.Join(root, p.name)
-	var dp fs.FileMode = 0755
-	if err := os.Mkdir(loc, dp); err != nil {
-		return err
-	}
-
-	l := layout.Get(layout.HTTPServiceLayout)
-
-	return l.Build(loc)
-}
-
 // Bootstrap orchestrates project validation and initialization steps.
 func (p Project) Bootstrap() error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
-	return p.Init()
+	return p.build()
 }
 
 func (p Project) Name() string {
 	return p.name
-}
-
-func (p Project) Root() string {
-	return p.opts.root
 }
 
 func (p Project) Location() (string, error) {
@@ -142,12 +119,23 @@ func (p Project) Location() (string, error) {
 	return path.Join(r, p.name), nil
 }
 
-func (p Project) Category() Category {
-	return p.opts.cat
-}
+func (p Project) build() error {
+	l, err := p.layout()
+	if err != nil {
+		return err
+	}
 
-func (p Project) Server() Server {
-	return p.opts.srv
+	loc, err := p.Location()
+	if err != nil {
+		return err
+	}
+
+	var dp fs.FileMode = 0755
+	if err := os.Mkdir(loc, dp); err != nil {
+		return err
+	}
+
+	return l.Build(loc)
 }
 
 func (p Project) root() (root string, err error) {
@@ -156,6 +144,21 @@ func (p Project) root() (root string, err error) {
 		root, err = os.Getwd()
 	}
 	return
+}
+
+func (p Project) layout() (*layout.Layout, error) {
+	ln := string(p.opts.cat)
+
+	if p.opts.srv != ServerNone {
+		ln += "_" + string(p.opts.srv)
+	}
+
+	l := layout.Get(ln)
+	if l == nil {
+		return nil, fmt.Errorf("not found layout with name %s", ln)
+	}
+
+	return l, nil
 }
 
 type Option interface {

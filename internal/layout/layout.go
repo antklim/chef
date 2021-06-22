@@ -38,11 +38,6 @@ const (
 )
 
 var (
-	// Nil is a nil layout.
-	Nil = Layout{}
-)
-
-var (
 	// m is a map from schema to layout.
 	m = make(map[string]Layout)
 )
@@ -59,9 +54,9 @@ func Register(l Layout) {
 // Get returns the layout registered with the given schema.
 //
 // If no layout is registered with the schema, Nil layout will be returned.
-func Get(name string) Layout {
+func Get(name string) *Layout {
 	if l, ok := m[name]; ok {
-		return l
+		return &l
 	}
-	return Nil
+	return nil
 }
