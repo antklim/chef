@@ -29,15 +29,17 @@ import (
 type Server string
 
 const (
-	// ServerHTTP represents http server
+	// ServerNone represents no server option
+	ServerNone Server = "none"
+	// ServerHTTP represents http server option
 	ServerHTTP Server = "http"
-	// ServerGRPC represents grpc server
+	// ServerGRPC represents grpc server option
 	ServerGRPC Server = "grpc"
 )
 
 const (
 	defaultCategory = CategoryService
-	defaultServer   = ServerHTTP
+	defaultServer   = ServerNone
 )
 
 type projectOptions struct {
@@ -100,8 +102,32 @@ func (p Project) Validate() error {
 	return nil
 }
 
-// Init initializes the project layout.
-func (p Project) Init() error {
+// Bootstrap orchestrates project validation and initialization steps.
+func (p Project) Bootstrap() error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	return p.build()
+}
+
+func (p Project) Name() string {
+	return p.name
+}
+
+func (p Project) Location() (string, error) {
+	r, err := p.root()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(r, p.name), nil
+}
+
+func (p Project) build() error {
+	// l, err := p.layout()
+	// if err != nil {
+	// 	return err
+	// }
+
 	loc, err := p.Location()
 	if err != nil {
 		return err
@@ -117,26 +143,6 @@ func (p Project) Init() error {
 	return l.Build(loc)
 }
 
-// Bootstrap orchestrates project validation and initialization steps.
-func (p Project) Bootstrap() error {
-	if err := p.Validate(); err != nil {
-		return err
-	}
-	return p.Init()
-}
-
-func (p Project) Name() string {
-	return p.name
-}
-
-func (p Project) Location() (string, error) {
-	r, err := p.root()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(r, p.name), nil
-}
-
 func (p Project) root() (root string, err error) {
 	root = p.opts.root
 	if root == "" {
@@ -145,9 +151,20 @@ func (p Project) root() (root string, err error) {
 	return
 }
 
-// func (p Project) layout() string {
-// 	return ""
-// }
+func (p Project) layout() (*layout.Layout, error) {
+	ln := string(p.opts.cat)
+
+	if p.opts.srv != ServerNone {
+		ln += "_" + string(p.opts.srv)
+	}
+
+	l := layout.Get(ln)
+	if l == nil {
+		return nil, fmt.Errorf("not found layout with name %s", ln)
+	}
+
+	return l, nil
+}
 
 type Option interface {
 	apply(*projectOptions)

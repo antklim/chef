@@ -82,7 +82,7 @@ func assertProjectLayout(t *testing.T, root string) {
 	assert.Len(t, d, 7)
 }
 
-func TestProjectInit(t *testing.T) {
+func TestProjectBootstrap(t *testing.T) {
 	name := "cheftest"
 	tmpDir, err := os.MkdirTemp("", name)
 	defer os.RemoveAll(tmpDir)
@@ -112,10 +112,7 @@ func TestProjectInit(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			p := project.New(name, project.WithRoot(tC.root))
-			err := p.Validate()
-			require.NoError(t, err)
-
-			err = p.Init()
+			err := p.Bootstrap()
 			require.NoError(t, err)
 			tC.assert(t)
 		})
