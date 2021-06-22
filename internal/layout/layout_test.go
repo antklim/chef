@@ -112,14 +112,14 @@ func TestLayoutBuild(t *testing.T) {
 func TestLayoutRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {
 		l := layout.Get("foo")
-		assert.Equal(t, layout.Nil, l)
+		assert.Nil(t, l)
 	})
 
 	t.Run("get returns layout by schema", func(t *testing.T) {
 		tl := layout.New("testLayout", nil)
 		layout.Register(tl)
 		l := layout.Get("testLayout")
-		assert.Equal(t, tl, l)
+		assert.Equal(t, tl, *l)
 	})
 }
 
