@@ -1,68 +1,38 @@
-package project_test
+package project
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewServer(t *testing.T) {
 	testCases := []struct {
 		v        string
-		expected project.Server
+		expected string
 	}{
 		{
 			v:        "",
-			expected: project.ServerNone,
+			expected: serverNone,
 		},
 		{
 			v:        "Http",
-			expected: project.ServerHTTP,
+			expected: serverHTTP,
 		},
 		{
-			v:        "grpc",
-			expected: project.ServerGRPC,
+			v:        "grpC",
+			expected: serverGRPC,
 		},
 		{
 			v:        "foo",
-			expected: project.ServerUnknown,
+			expected: serverUnknown,
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(fmt.Sprintf("returns %s server when %s provided", tC.expected, tC.v), func(t *testing.T) {
-			actual := project.NewServer(tC.v)
+			actual := server(tC.v)
 			assert.Equal(t, tC.expected, actual)
-		})
-	}
-}
-
-func TestServerIsUknown(t *testing.T) {
-	testCases := []struct {
-		v        project.Server
-		expected bool
-	}{
-		{
-			v:        project.ServerGRPC,
-			expected: false,
-		},
-		{
-			v:        project.ServerHTTP,
-			expected: false,
-		},
-		{
-			v:        project.ServerNone,
-			expected: false,
-		},
-		{
-			v:        project.ServerUnknown,
-			expected: true,
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(fmt.Sprintf("returns %t for %s server", tC.expected, tC.v), func(t *testing.T) {
-			assert.Equal(t, tC.expected, tC.v.IsUnknown())
 		})
 	}
 }

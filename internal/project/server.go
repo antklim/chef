@@ -2,32 +2,22 @@ package project
 
 import "strings"
 
-type Server string
-
 const (
-	// ServerUnknown represents unknown server option.
-	ServerUnknown Server = "unknown"
-	// ServerNone represents no server option.
-	ServerNone Server = ""
-	// ServerHTTP represents http server option.
-	ServerHTTP Server = "http"
-	// ServerGRPC represents grpc server option.
-	ServerGRPC Server = "grpc"
+	serverUnknown = "unknown"
+	serverNone    = ""
+	serverHTTP    = "http"
+	serverGRPC    = "grpc"
 )
 
-func NewServer(v string) Server {
+func server(v string) string {
 	switch strings.ToLower(v) {
 	case "":
-		return ServerNone
+		return serverNone
 	case "http":
-		return ServerHTTP
+		return serverHTTP
 	case "grpc":
-		return ServerGRPC
+		return serverGRPC
 	default:
-		return ServerUnknown
+		return serverUnknown
 	}
-}
-
-func (s Server) IsUnknown() bool {
-	return s == ServerUnknown
 }

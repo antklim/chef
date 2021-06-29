@@ -25,7 +25,7 @@ import (
 
 const (
 	defaultCategory = categoryService
-	defaultServer   = ServerNone
+	defaultServer   = serverNone
 )
 
 var (
@@ -74,7 +74,7 @@ func (p Project) Validate() error {
 		return fmt.Errorf("project category %s is unknown", p.opts.cat)
 	}
 
-	if s := NewServer(p.opts.srv); s.IsUnknown() {
+	if s := server(p.opts.srv); s == serverUnknown {
 		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
@@ -150,7 +150,7 @@ func (p Project) root() (root string, err error) {
 func (p Project) layout() (*layout.Layout, error) {
 	ln := category(p.opts.cat)
 
-	if p.opts.srv != string(ServerNone) {
+	if p.opts.srv != serverNone {
 		ln += "_" + p.opts.srv
 	}
 
