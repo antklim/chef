@@ -15,7 +15,7 @@ const (
 	CategoryService Category = "srv"
 )
 
-func CategoryFor(v string) Category {
+func NewCategory(v string) Category {
 	switch strings.ToLower(v) {
 	case "cli":
 		return CategoryCLI

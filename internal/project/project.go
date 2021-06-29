@@ -23,17 +23,6 @@ import (
 
 // TODO: init project with go.mod
 
-type Server string
-
-const (
-	// ServerNone represents no server option
-	ServerNone Server = "none"
-	// ServerHTTP represents http server option
-	ServerHTTP Server = "http"
-	// ServerGRPC represents grpc server option
-	ServerGRPC Server = "grpc"
-)
-
 const (
 	defaultCategory = CategoryService
 	defaultServer   = ServerNone
