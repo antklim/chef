@@ -1,76 +1,46 @@
-package project_test
+package project
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewCategory(t *testing.T) {
 	testCases := []struct {
 		v        string
-		expected project.Category
+		expected string
 	}{
 		{
-			v:        "cli",
-			expected: project.CategoryCLI,
+			v:        "cLi",
+			expected: categoryCLI,
 		},
 		{
 			v:        "pkg",
-			expected: project.CategoryPackage,
+			expected: categoryPackage,
 		},
 		{
 			v:        "package",
-			expected: project.CategoryPackage,
+			expected: categoryPackage,
 		},
 		{
-			v:        "srv",
-			expected: project.CategoryService,
+			v:        "SRV",
+			expected: categoryService,
 		},
 		{
 			v:        "service",
-			expected: project.CategoryService,
+			expected: categoryService,
 		},
 		{
 			v:        "foo",
-			expected: project.CategoryUnknown,
+			expected: categoryUnknown,
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(fmt.Sprintf("returns %s category when %s provided", tC.expected, tC.v), func(t *testing.T) {
-			actual := project.NewCategory(tC.v)
+			actual := category(tC.v)
 			assert.Equal(t, tC.expected, actual)
-		})
-	}
-}
-
-func TestCategoryIsUknown(t *testing.T) {
-	testCases := []struct {
-		v        project.Category
-		expected bool
-	}{
-		{
-			v:        project.CategoryCLI,
-			expected: false,
-		},
-		{
-			v:        project.CategoryPackage,
-			expected: false,
-		},
-		{
-			v:        project.CategoryService,
-			expected: false,
-		},
-		{
-			v:        project.CategoryUnknown,
-			expected: true,
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(fmt.Sprintf("returns %t for %s category", tC.expected, tC.v), func(t *testing.T) {
-			assert.Equal(t, tC.expected, tC.v.IsUnknown())
 		})
 	}
 }

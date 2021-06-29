@@ -2,32 +2,22 @@ package project
 
 import "strings"
 
-type Category string
-
 const (
-	// CategoryUnknown represents unknown category of a project.
-	CategoryUnknown Category = "unknown"
-	// CategoryCLI represents CLI category of a project.
-	CategoryCLI Category = "cli"
-	// CategoryPackage represents package category of a project.
-	CategoryPackage Category = "pkg"
-	// CategoryService represents service category of a project.
-	CategoryService Category = "srv"
+	categoryUnknown = "unknown"
+	categoryCLI     = "cli"
+	categoryPackage = "pkg"
+	categoryService = "srv"
 )
 
-func NewCategory(v string) Category {
+func category(v string) string {
 	switch strings.ToLower(v) {
 	case "cli":
-		return CategoryCLI
+		return categoryCLI
 	case "pkg", "package":
-		return CategoryPackage
+		return categoryPackage
 	case "srv", "service":
-		return CategoryService
+		return categoryService
 	default:
-		return CategoryUnknown
+		return categoryUnknown
 	}
-}
-
-func (c Category) IsUnknown() bool {
-	return c == CategoryUnknown
 }

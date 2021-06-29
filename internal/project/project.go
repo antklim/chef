@@ -24,7 +24,7 @@ import (
 // TODO: init project with go.mod
 
 const (
-	defaultCategory = CategoryService
+	defaultCategory = categoryService
 	defaultServer   = ServerNone
 )
 
@@ -70,7 +70,7 @@ func (p Project) Validate() error {
 		return errEmptyProjectName
 	}
 
-	if c := NewCategory(p.opts.cat); c.IsUnknown() {
+	if c := category(p.opts.cat); c == categoryUnknown {
 		return fmt.Errorf("project category %s is unknown", p.opts.cat)
 	}
 
@@ -148,15 +148,15 @@ func (p Project) root() (root string, err error) {
 }
 
 func (p Project) layout() (*layout.Layout, error) {
-	ln := p.opts.cat
+	ln := category(p.opts.cat)
 
-	if p.opts.srv != "" {
+	if p.opts.srv != string(ServerNone) {
 		ln += "_" + p.opts.srv
 	}
 
 	l := layout.Get(ln)
 	if l == nil {
-		return nil, fmt.Errorf("not found layout with name %s", ln)
+		return nil, fmt.Errorf("not found layout for category %s", p.opts.cat)
 	}
 
 	return l, nil

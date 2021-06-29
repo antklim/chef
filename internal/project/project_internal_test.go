@@ -86,7 +86,7 @@ func TestLayout(t *testing.T) {
 	t.Run("returns error when unknown layout requested", func(t *testing.T) {
 		p := New("test", WithCategory("test"))
 		l, err := p.layout()
-		assert.EqualError(t, err, "not found layout with name test")
+		assert.EqualError(t, err, "not found layout for category test")
 		assert.Nil(t, l)
 	})
 }
