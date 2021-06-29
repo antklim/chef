@@ -190,8 +190,8 @@ func (p Project) root() (root string, err error) {
 func (p Project) layout() (*layout.Layout, error) {
 	ln := category(p.opts.cat)
 
-	if p.opts.srv != serverNone {
-		ln += "_" + server(p.opts.srv)
+	if s := server(p.opts.srv); s != serverNone {
+		ln += "_" + s
 	}
 
 	l := layout.Get(ln)
