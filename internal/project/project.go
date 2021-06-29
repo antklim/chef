@@ -79,8 +79,8 @@ type projectOptions struct {
 }
 
 var defaultProjectOptions = projectOptions{
-	cat: string(defaultCategory),
-	srv: string(defaultServer),
+	cat: defaultCategory,
+	srv: defaultServer,
 }
 
 // Project manager.
