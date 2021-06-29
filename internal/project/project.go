@@ -24,6 +24,46 @@ import (
 // TODO: init project with go.mod
 
 const (
+	categoryUnknown = "unknown"
+	categoryCLI     = "cli"
+	categoryPackage = "pkg"
+	categoryService = "srv"
+)
+
+func category(v string) string {
+	switch strings.ToLower(v) {
+	case "cli":
+		return categoryCLI
+	case "pkg", "package":
+		return categoryPackage
+	case "srv", "service":
+		return categoryService
+	default:
+		return categoryUnknown
+	}
+}
+
+const (
+	serverUnknown = "unknown"
+	serverNone    = ""
+	serverHTTP    = "http"
+	serverGRPC    = "grpc"
+)
+
+func server(v string) string {
+	switch strings.ToLower(v) {
+	case "":
+		return serverNone
+	case "http":
+		return serverHTTP
+	case "grpc":
+		return serverGRPC
+	default:
+		return serverUnknown
+	}
+}
+
+const (
 	defaultCategory = categoryService
 	defaultServer   = serverNone
 )
@@ -151,7 +191,7 @@ func (p Project) layout() (*layout.Layout, error) {
 	ln := category(p.opts.cat)
 
 	if p.opts.srv != serverNone {
-		ln += "_" + p.opts.srv
+		ln += "_" + server(p.opts.srv)
 	}
 
 	l := layout.Get(ln)

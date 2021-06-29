@@ -1,12 +1,81 @@
 package project
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestProjectCategory(t *testing.T) {
+	testCases := []struct {
+		v        string
+		expected string
+	}{
+		{
+			v:        "cLi",
+			expected: categoryCLI,
+		},
+		{
+			v:        "pkg",
+			expected: categoryPackage,
+		},
+		{
+			v:        "package",
+			expected: categoryPackage,
+		},
+		{
+			v:        "SRV",
+			expected: categoryService,
+		},
+		{
+			v:        "service",
+			expected: categoryService,
+		},
+		{
+			v:        "foo",
+			expected: categoryUnknown,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(fmt.Sprintf("returns %s category when %s provided", tC.expected, tC.v), func(t *testing.T) {
+			actual := category(tC.v)
+			assert.Equal(t, tC.expected, actual)
+		})
+	}
+}
+
+func TestProjectServer(t *testing.T) {
+	testCases := []struct {
+		v        string
+		expected string
+	}{
+		{
+			v:        "",
+			expected: serverNone,
+		},
+		{
+			v:        "Http",
+			expected: serverHTTP,
+		},
+		{
+			v:        "grpC",
+			expected: serverGRPC,
+		},
+		{
+			v:        "foo",
+			expected: serverUnknown,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(fmt.Sprintf("returns %s server when %s provided", tC.expected, tC.v), func(t *testing.T) {
+			actual := server(tC.v)
+			assert.Equal(t, tC.expected, actual)
+		})
+	}
+}
 
 func TestProjectOptions(t *testing.T) {
 	testCases := []struct {
