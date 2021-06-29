@@ -35,13 +35,19 @@ var (
 	projModule = Flag{
 		LongForm:   "module",
 		ShortForm:  "m",
-		Help:       "Name of the project module to be used by 'go mod'.",
+		Help:       "Name of the project's module to be used in 'go mod'.",
 		IsRequired: true,
 	}
 	projLayout = Flag{
 		LongForm:   "layout",
 		ShortForm:  "l",
-		Help:       "Location of the project layout configuration.",
+		Help:       "Location of the project's layout configuration.",
+		IsRequired: false,
+	}
+	projServer = Flag{
+		LongForm:   "server",
+		ShortForm:  "s",
+		Help:       "Server type for projects of category service.",
 		IsRequired: false,
 	}
 )
@@ -53,6 +59,7 @@ func bootstrapCmd() *cobra.Command {
 		Category string
 		Module   string
 		Layout   string
+		Server   string
 	}
 
 	cmd := &cobra.Command{
@@ -64,6 +71,7 @@ func bootstrapCmd() *cobra.Command {
 chef boot --category [cli|pkg|srv] --name myproject
 chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// TODO: move validation to project.Validate
 			projCategory := project.CategoryFor(inputs.Category)
 
 			if projCategory.IsUnknown() {
@@ -72,7 +80,10 @@ chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
-				project.WithCategory(project.Category(inputs.Category)),
+				project.WithCategory(projCategory),
+				project.WithServer(project.Server(inputs.Server)),
+				// TODO: layout location
+				// TODO: add module name
 			)
 
 			if err := p.Bootstrap(); err != nil {
@@ -96,6 +107,7 @@ chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 	projCategory.RegisterString(cmd, &inputs.Category, "")
 	projModule.RegisterString(cmd, &inputs.Module, "")
 	projLayout.RegisterString(cmd, &inputs.Layout, "")
+	projServer.RegisterString(cmd, &inputs.Server, "")
 
 	return cmd
 }
