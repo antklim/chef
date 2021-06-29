@@ -71,21 +71,10 @@ func bootstrapCmd() *cobra.Command {
 chef boot --category [cli|pkg|srv] --name myproject
 chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: move validation to project.Validate
-			projCategory := project.NewCategory(inputs.Category)
-			if projCategory.IsUnknown() {
-				return fmt.Errorf("unknown project category: %s", inputs.Category)
-			}
-
-			projServer := project.NewServer(inputs.Server)
-			if projServer.IsUnknown() {
-				return fmt.Errorf("unknown project server: %s", inputs.Server)
-			}
-
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
-				project.WithCategory(projCategory),
-				project.WithServer(projServer),
+				project.WithCategory(inputs.Category),
+				project.WithServer(inputs.Server),
 				// TODO: layout location
 				// TODO: add module name
 			)

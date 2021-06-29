@@ -24,14 +24,58 @@ import (
 // TODO: init project with go.mod
 
 const (
-	defaultCategory = CategoryService
-	defaultServer   = ServerNone
+	categoryUnknown = "unknown"
+	categoryCLI     = "cli"
+	categoryPackage = "pkg"
+	categoryService = "srv"
+)
+
+func category(v string) string {
+	switch strings.ToLower(v) {
+	case "cli":
+		return categoryCLI
+	case "pkg", "package":
+		return categoryPackage
+	case "srv", "service":
+		return categoryService
+	default:
+		return categoryUnknown
+	}
+}
+
+const (
+	serverUnknown = "unknown"
+	serverNone    = ""
+	serverHTTP    = "http"
+	serverGRPC    = "grpc"
+)
+
+func server(v string) string {
+	switch strings.ToLower(v) {
+	case "":
+		return serverNone
+	case "http":
+		return serverHTTP
+	case "grpc":
+		return serverGRPC
+	default:
+		return serverUnknown
+	}
+}
+
+const (
+	defaultCategory = categoryService
+	defaultServer   = serverNone
+)
+
+var (
+	errEmptyProjectName = errors.New("project name required: empty name provided")
 )
 
 type projectOptions struct {
 	root string
-	cat  Category
-	srv  Server
+	cat  string
+	srv  string
 }
 
 var defaultProjectOptions = projectOptions{
@@ -63,7 +107,15 @@ func New(name string, opt ...Option) Project {
 
 func (p Project) Validate() error {
 	if p.name == "" {
-		return errors.New("project name required: empty name provided")
+		return errEmptyProjectName
+	}
+
+	if c := category(p.opts.cat); c == categoryUnknown {
+		return fmt.Errorf("project category %s is unknown", p.opts.cat)
+	}
+
+	if s := server(p.opts.srv); s == serverUnknown {
+		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
 	root, err := p.root()
@@ -136,15 +188,15 @@ func (p Project) root() (root string, err error) {
 }
 
 func (p Project) layout() (*layout.Layout, error) {
-	ln := string(p.opts.cat)
+	ln := category(p.opts.cat)
 
-	if p.opts.srv != ServerNone {
-		ln += "_" + string(p.opts.srv)
+	if s := server(p.opts.srv); s != serverNone {
+		ln += "_" + s
 	}
 
 	l := layout.Get(ln)
 	if l == nil {
-		return nil, fmt.Errorf("not found layout with name %s", ln)
+		return nil, fmt.Errorf("not found layout for category %s", p.opts.cat)
 	}
 
 	return l, nil
@@ -172,13 +224,13 @@ func WithRoot(r string) Option {
 	})
 }
 
-func WithCategory(c Category) Option {
+func WithCategory(c string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.cat = c
 	})
 }
 
-func WithServer(s Server) Option {
+func WithServer(s string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.srv = s
 	})

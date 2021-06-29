@@ -1,12 +1,81 @@
 package project
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestProjectCategory(t *testing.T) {
+	testCases := []struct {
+		v        string
+		expected string
+	}{
+		{
+			v:        "cLi",
+			expected: categoryCLI,
+		},
+		{
+			v:        "pkg",
+			expected: categoryPackage,
+		},
+		{
+			v:        "package",
+			expected: categoryPackage,
+		},
+		{
+			v:        "SRV",
+			expected: categoryService,
+		},
+		{
+			v:        "service",
+			expected: categoryService,
+		},
+		{
+			v:        "foo",
+			expected: categoryUnknown,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(fmt.Sprintf("returns %s category when %s provided", tC.expected, tC.v), func(t *testing.T) {
+			actual := category(tC.v)
+			assert.Equal(t, tC.expected, actual)
+		})
+	}
+}
+
+func TestProjectServer(t *testing.T) {
+	testCases := []struct {
+		v        string
+		expected string
+	}{
+		{
+			v:        "",
+			expected: serverNone,
+		},
+		{
+			v:        "Http",
+			expected: serverHTTP,
+		},
+		{
+			v:        "grpC",
+			expected: serverGRPC,
+		},
+		{
+			v:        "foo",
+			expected: serverUnknown,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(fmt.Sprintf("returns %s server when %s provided", tC.expected, tC.v), func(t *testing.T) {
+			actual := server(tC.v)
+			assert.Equal(t, tC.expected, actual)
+		})
+	}
+}
 
 func TestProjectOptions(t *testing.T) {
 	testCases := []struct {
@@ -18,8 +87,8 @@ func TestProjectOptions(t *testing.T) {
 			desc: "project created with default options",
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryService,
-				srv:  ServerNone,
+				cat:  "srv",
+				srv:  "",
 			},
 		},
 		{
@@ -27,26 +96,26 @@ func TestProjectOptions(t *testing.T) {
 			opts: []Option{WithRoot("/r")},
 			expected: projectOptions{
 				root: "/r",
-				cat:  CategoryService,
-				srv:  ServerNone,
+				cat:  "srv",
+				srv:  "",
 			},
 		},
 		{
 			desc: "project created with custom category",
-			opts: []Option{WithCategory(CategoryCLI)},
+			opts: []Option{WithCategory("cli")},
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryCLI,
-				srv:  ServerNone,
+				cat:  "cli",
+				srv:  "",
 			},
 		},
 		{
 			desc: "project created with custom server",
-			opts: []Option{WithServer(ServerHTTP)},
+			opts: []Option{WithServer("http")},
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryService,
-				srv:  ServerHTTP,
+				cat:  "srv",
+				srv:  "http",
 			},
 		},
 	}
@@ -71,7 +140,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			desc:   "returns http service layout",
-			p:      New("test", WithCategory(CategoryService), WithServer(ServerHTTP)),
+			p:      New("test", WithCategory("srv"), WithServer("http")),
 			schema: layout.HTTPServiceLayout,
 		},
 	}
@@ -86,7 +155,7 @@ func TestLayout(t *testing.T) {
 	t.Run("returns error when unknown layout requested", func(t *testing.T) {
 		p := New("test", WithCategory("test"))
 		l, err := p.layout()
-		assert.EqualError(t, err, "not found layout with name test")
+		assert.EqualError(t, err, "not found layout for category test")
 		assert.Nil(t, l)
 	})
 }
