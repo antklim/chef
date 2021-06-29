@@ -18,8 +18,8 @@ func TestProjectOptions(t *testing.T) {
 			desc: "project created with default options",
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryService,
-				srv:  ServerNone,
+				cat:  "srv",
+				srv:  "",
 			},
 		},
 		{
@@ -27,26 +27,26 @@ func TestProjectOptions(t *testing.T) {
 			opts: []Option{WithRoot("/r")},
 			expected: projectOptions{
 				root: "/r",
-				cat:  CategoryService,
-				srv:  ServerNone,
+				cat:  "srv",
+				srv:  "",
 			},
 		},
 		{
 			desc: "project created with custom category",
-			opts: []Option{WithCategory(CategoryCLI)},
+			opts: []Option{WithCategory("cli")},
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryCLI,
-				srv:  ServerNone,
+				cat:  "cli",
+				srv:  "",
 			},
 		},
 		{
 			desc: "project created with custom server",
-			opts: []Option{WithServer(ServerHTTP)},
+			opts: []Option{WithServer("http")},
 			expected: projectOptions{
 				root: "",
-				cat:  CategoryService,
-				srv:  ServerHTTP,
+				cat:  "srv",
+				srv:  "http",
 			},
 		},
 	}
@@ -71,7 +71,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			desc:   "returns http service layout",
-			p:      New("test", WithCategory(CategoryService), WithServer(ServerHTTP)),
+			p:      New("test", WithCategory("srv"), WithServer("http")),
 			schema: layout.HTTPServiceLayout,
 		},
 	}

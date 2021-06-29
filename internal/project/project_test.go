@@ -13,9 +13,9 @@ import (
 func TestNewProject(t *testing.T) {
 	name := "borsch"
 	opts := []project.Option{
-		project.WithCategory(project.CategoryPackage),
+		project.WithCategory("pkg"),
 		project.WithRoot("/r"),
-		project.WithServer(project.ServerGRPC),
+		project.WithServer("grpc"),
 	}
 
 	p := project.New(name, opts...)
@@ -46,6 +46,18 @@ func TestProjectValidate(t *testing.T) {
 		{
 			desc: "fails when project name is an empty string",
 			err:  "project name required: empty name provided",
+		},
+		{
+			desc: "fails when project category is unknown",
+			name: "cheffoo",
+			opts: []project.Option{project.WithCategory("foo")},
+			err:  "project category foo is unknown",
+		},
+		{
+			desc: "fails when project server is unknown",
+			name: "chefbar",
+			opts: []project.Option{project.WithServer("bar")},
+			err:  "project server bar is unknown",
 		},
 		{
 			desc: "fails when provided root directory does not exist",
@@ -107,16 +119,4 @@ func TestProjectBootstrap(t *testing.T) {
 			os.RemoveAll(loc)
 		})
 	}
-
-	t.Run("fails when unknown layout requested", func(t *testing.T) {
-		p := project.New("test", project.WithCategory("test"))
-		err := p.Bootstrap()
-		assert.EqualError(t, err, "not found layout with name test")
-
-		loc, err := p.Location()
-		require.NoError(t, err)
-
-		_, err = os.ReadDir(loc)
-		assert.True(t, os.IsNotExist(err))
-	})
 }

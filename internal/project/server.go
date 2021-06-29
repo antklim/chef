@@ -8,7 +8,7 @@ const (
 	// ServerUnknown represents unknown server option.
 	ServerUnknown Server = "unknown"
 	// ServerNone represents no server option.
-	ServerNone Server = "none"
+	ServerNone Server = ""
 	// ServerHTTP represents http server option.
 	ServerHTTP Server = "http"
 	// ServerGRPC represents grpc server option.

@@ -28,15 +28,19 @@ const (
 	defaultServer   = ServerNone
 )
 
+var (
+	errEmptyProjectName = errors.New("project name required: empty name provided")
+)
+
 type projectOptions struct {
 	root string
-	cat  Category
-	srv  Server
+	cat  string
+	srv  string
 }
 
 var defaultProjectOptions = projectOptions{
-	cat: defaultCategory,
-	srv: defaultServer,
+	cat: string(defaultCategory),
+	srv: string(defaultServer),
 }
 
 // Project manager.
@@ -63,7 +67,15 @@ func New(name string, opt ...Option) Project {
 
 func (p Project) Validate() error {
 	if p.name == "" {
-		return errors.New("project name required: empty name provided")
+		return errEmptyProjectName
+	}
+
+	if c := NewCategory(p.opts.cat); c.IsUnknown() {
+		return fmt.Errorf("project category %s is unknown", p.opts.cat)
+	}
+
+	if s := NewServer(p.opts.srv); s.IsUnknown() {
+		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
 	root, err := p.root()
@@ -136,10 +148,10 @@ func (p Project) root() (root string, err error) {
 }
 
 func (p Project) layout() (*layout.Layout, error) {
-	ln := string(p.opts.cat)
+	ln := p.opts.cat
 
-	if p.opts.srv != ServerNone {
-		ln += "_" + string(p.opts.srv)
+	if p.opts.srv != "" {
+		ln += "_" + p.opts.srv
 	}
 
 	l := layout.Get(ln)
@@ -172,13 +184,13 @@ func WithRoot(r string) Option {
 	})
 }
 
-func WithCategory(c Category) Option {
+func WithCategory(c string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.cat = c
 	})
 }
 
-func WithServer(s Server) Option {
+func WithServer(s string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.srv = s
 	})
