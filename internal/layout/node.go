@@ -2,6 +2,7 @@ package layout
 
 import (
 	"errors"
+	"io"
 	"io/fs"
 	"os"
 	"path"
@@ -156,6 +157,20 @@ func (n fnode) Build(loc string) error {
 	}
 
 	return f.Chmod(n.Permissions())
+}
+
+func (n fnode) WBuild(w io.Writer, mod string) error {
+	if n.template == nil {
+		return errNilTemplate
+	}
+
+	data := struct {
+		Module string
+	}{
+		Module: mod,
+	}
+
+	return n.template.Execute(w, data)
 }
 
 func (n fnode) Template() *template.Template {

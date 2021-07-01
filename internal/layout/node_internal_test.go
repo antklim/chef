@@ -1,6 +1,8 @@
 package layout
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -76,6 +78,30 @@ func TestFnodeBuild(t *testing.T) {
 		data, err := os.ReadFile(path.Join(tmpDir, f.Name()))
 		require.NoError(t, err)
 		assert.Equal(t, expected, string(data))
+	})
+}
+
+func TestFnodeWBuild(t *testing.T) {
+	t.Run("returns an error when does not have template", func(t *testing.T) {
+		var out bytes.Buffer
+		f := newfnode("test_fnode")
+		err := f.WBuild(&out, "")
+		assert.EqualError(t, err, "node template is nil")
+		assert.Empty(t, out)
+	})
+
+	t.Run("writes module to template", func(t *testing.T) {
+		mod := "cheftest"
+		tmpl := template.Must(template.New("test").Parse(`package foo
+import "{{ .Module }}/test/template"`))
+		expected := fmt.Sprintf(`package foo
+import "%s/test/template"`, mod)
+
+		var out bytes.Buffer
+		f := newfnode("test_fnode", withTemplate(tmpl))
+		err := f.WBuild(&out, mod)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, out.String())
 	})
 }
 
