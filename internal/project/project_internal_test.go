@@ -118,6 +118,16 @@ func TestProjectOptions(t *testing.T) {
 				srv:  "http",
 			},
 		},
+		{
+			desc: "project created with custom module",
+			opts: []Option{WithModule("cheftest")},
+			expected: projectOptions{
+				root: "",
+				cat:  "srv",
+				srv:  "",
+				mod:  "cheftest",
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {

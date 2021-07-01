@@ -76,6 +76,7 @@ type projectOptions struct {
 	root string
 	cat  string
 	srv  string
+	mod  string
 }
 
 var defaultProjectOptions = projectOptions{
@@ -233,5 +234,11 @@ func WithCategory(c string) Option {
 func WithServer(s string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.srv = s
+	})
+}
+
+func WithModule(m string) Option {
+	return newFuncOption(func(o *projectOptions) {
+		o.mod = m
 	})
 }
