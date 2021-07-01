@@ -11,8 +11,6 @@ import (
 	"github.com/antklim/chef/internal/layout"
 )
 
-// TODO: in imports replace chef/... with the project name
-
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
 

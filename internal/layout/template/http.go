@@ -2,8 +2,6 @@ package template
 
 import "text/template"
 
-// TODO: in imports replace chef/... with the project name
-
 var _ = template.Must(rootTemplate.New(HTTPHandler).Parse(`package http
 
 import (
