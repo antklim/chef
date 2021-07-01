@@ -82,14 +82,6 @@ func TestFnodeBuild(t *testing.T) {
 }
 
 func TestFnodeWBuild(t *testing.T) {
-	t.Run("returns an error when does not have template", func(t *testing.T) {
-		var out bytes.Buffer
-		f := newfnode("test_fnode")
-		err := f.WBuild(&out, "")
-		assert.EqualError(t, err, "node template is nil")
-		assert.Empty(t, out)
-	})
-
 	t.Run("writes module to template", func(t *testing.T) {
 		mod := "cheftest"
 		tmpl := template.Must(template.New("test").Parse(`package foo
@@ -99,7 +91,7 @@ import "%s/test/template"`, mod)
 
 		var out bytes.Buffer
 		f := newfnode("test_fnode", withTemplate(tmpl))
-		err := f.WBuild(&out, mod)
+		err := f.wbuild(&out, mod)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, out.String())
 	})

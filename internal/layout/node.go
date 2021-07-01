@@ -143,7 +143,6 @@ func (n fnode) Build(loc, mod string) error {
 		return errNilTemplate
 	}
 
-	// TODO: writer creation can be moved to a separate method
 	o := path.Join(loc, n.Name())
 
 	f, err := os.Create(o)
@@ -152,18 +151,14 @@ func (n fnode) Build(loc, mod string) error {
 	}
 	defer f.Close()
 
-	if err := n.template.Execute(f, nil); err != nil {
+	if err := n.wbuild(f, mod); err != nil {
 		return err
 	}
 
 	return f.Chmod(n.Permissions())
 }
 
-func (n fnode) WBuild(w io.Writer, mod string) error {
-	if n.template == nil {
-		return errNilTemplate
-	}
-
+func (n fnode) wbuild(w io.Writer, mod string) error {
 	data := struct {
 		Module string
 	}{

@@ -52,7 +52,7 @@ func TestHttpServiceNodes(t *testing.T) {
 )`, mod)
 
 		var out bytes.Buffer
-		err := n.WBuild(&out, mod)
+		err := n.wbuild(&out, mod)
 		assert.NoError(t, err)
 		assert.True(t, strings.Contains(out.String(), expected))
 	})
