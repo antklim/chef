@@ -75,8 +75,8 @@ chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
 				project.WithRoot(inputs.Root),
 				project.WithCategory(inputs.Category),
 				project.WithServer(inputs.Server),
+				project.WithModule(inputs.Module),
 				// TODO: layout location
-				// TODO: add module name
 			)
 
 			if err := p.Bootstrap(); err != nil {
