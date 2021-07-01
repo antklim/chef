@@ -7,13 +7,10 @@ import (
 )
 
 const (
-	dirAdapter = "adapter"
-	dirApp     = "app"
-	// dirCmd      = "cmd"
-	dirHandler = "handler"
-	dirHTTP    = "http"
-	// dirInternal = "internal"
-	// dirPkg      = "pkg"
+	dirAdapter  = "adapter"
+	dirApp      = "app"
+	dirHandler  = "handler"
+	dirHTTP     = "http"
 	dirServer   = "server"
 	dirProvider = "provider"
 	dirTest     = "test"

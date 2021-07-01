@@ -15,18 +15,6 @@ func TestProjectCategory(t *testing.T) {
 		expected string
 	}{
 		{
-			v:        "cLi",
-			expected: categoryCLI,
-		},
-		{
-			v:        "pkg",
-			expected: categoryPackage,
-		},
-		{
-			v:        "package",
-			expected: categoryPackage,
-		},
-		{
 			v:        "SRV",
 			expected: categoryService,
 		},
@@ -59,10 +47,6 @@ func TestProjectServer(t *testing.T) {
 		{
 			v:        "Http",
 			expected: serverHTTP,
-		},
-		{
-			v:        "grpC",
-			expected: serverGRPC,
 		},
 		{
 			v:        "foo",
