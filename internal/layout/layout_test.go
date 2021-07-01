@@ -17,7 +17,7 @@ type testNode struct {
 	loc         string
 }
 
-func (n *testNode) Build(loc string) error {
+func (n *testNode) Build(loc, mod string) error {
 	n.buildCalled = true
 	n.loc = loc
 	if strings.HasPrefix(loc, "/error") {

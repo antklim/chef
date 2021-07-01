@@ -23,7 +23,7 @@ func (l Layout) Schema() string {
 
 func (l Layout) Build(loc, mod string) error {
 	for _, n := range l.nodes {
-		if err := n.Build(loc); err != nil {
+		if err := n.Build(loc, mod); err != nil {
 			return err
 		}
 	}

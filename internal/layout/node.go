@@ -21,7 +21,7 @@ var (
 type Node interface {
 	Name() string
 	Permissions() fs.FileMode
-	Build(string) error
+	Build(loc, mod string) error
 }
 
 type node struct {
@@ -57,7 +57,7 @@ func (n dnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
-func (n dnode) Build(loc string) error {
+func (n dnode) Build(loc, mod string) error {
 	o := path.Join(loc, n.Name())
 
 	if err := os.Mkdir(o, n.Permissions()); err != nil {
@@ -65,7 +65,7 @@ func (n dnode) Build(loc string) error {
 	}
 
 	for _, sn := range n.subnodes {
-		if err := sn.Build(o); err != nil {
+		if err := sn.Build(o, mod); err != nil {
 			return err
 		}
 	}
@@ -138,7 +138,7 @@ func (n fnode) Permissions() fs.FileMode {
 }
 
 // Build executes node template and writes it to a file to a provided location.
-func (n fnode) Build(loc string) error {
+func (n fnode) Build(loc, mod string) error {
 	if n.template == nil {
 		return errNilTemplate
 	}

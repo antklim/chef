@@ -61,7 +61,7 @@ func TestFnodeBuild(t *testing.T) {
 
 	t.Run("returns an error when does not have template", func(t *testing.T) {
 		f := newfnode("test_file_1")
-		err := f.Build(tmpDir)
+		err := f.Build(tmpDir, "module_name")
 		assert.EqualError(t, err, "node template is nil")
 
 		_, err = os.ReadFile(path.Join(tmpDir, f.Name()))
@@ -70,7 +70,7 @@ func TestFnodeBuild(t *testing.T) {
 
 	t.Run("creates a file using node template", func(t *testing.T) {
 		f := newfnode("test_file_2", withNewTemplate("test", "package foo"))
-		err := f.Build(tmpDir)
+		err := f.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
 		expected := "package foo"
@@ -160,7 +160,7 @@ func TestDnodeBuild(t *testing.T) {
 
 	t.Run("creates node directory in a provided location", func(t *testing.T) {
 		n := newdnode("test_dir_1")
-		err := n.Build(tmpDir)
+		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
 		_, err = os.ReadDir(path.Join(tmpDir, n.Name()))
@@ -170,7 +170,7 @@ func TestDnodeBuild(t *testing.T) {
 	t.Run("creates a directory subnode", func(t *testing.T) {
 		sn := newdnode("sub_test_dir_2")
 		n := newdnode("test_dir_2", withSubNodes(sn))
-		err := n.Build(tmpDir)
+		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
 		_, err = os.ReadDir(path.Join(tmpDir, n.Name(), sn.Name()))
@@ -180,7 +180,7 @@ func TestDnodeBuild(t *testing.T) {
 	t.Run("creates a file subnode", func(t *testing.T) {
 		sn := newfnode("test_file_1", withNewTemplate("test", "package foo"))
 		n := newdnode("test_dir_3", withSubNodes(sn))
-		err := n.Build(tmpDir)
+		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
 		_, err = os.ReadFile(path.Join(tmpDir, n.Name(), sn.Name()))
