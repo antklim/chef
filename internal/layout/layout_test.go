@@ -101,7 +101,7 @@ func TestLayoutBuild(t *testing.T) {
 		t.Run(tC.desc, func(t *testing.T) {
 			l := layout.New(tC.name, []layout.Node{tC.node})
 			assert.False(t, tC.node.WasBuild())
-			err := l.Build(tC.loc)
+			err := l.Build(tC.loc, "module_name")
 			tC.assert(t, err)
 			assert.True(t, tC.node.WasBuild())
 			assert.Equal(t, tC.loc, tC.node.BuiltAt())

@@ -21,7 +21,7 @@ func (l Layout) Schema() string {
 	return l.schema
 }
 
-func (l Layout) Build(loc string) error {
+func (l Layout) Build(loc, mod string) error {
 	for _, n := range l.nodes {
 		if err := n.Build(loc); err != nil {
 			return err

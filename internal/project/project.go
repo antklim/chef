@@ -177,7 +177,7 @@ func (p Project) build() error {
 		return err
 	}
 
-	return l.Build(loc)
+	return l.Build(loc, p.opts.mod)
 }
 
 func (p Project) root() (root string, err error) {
