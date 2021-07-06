@@ -3,8 +3,8 @@ package template
 import "text/template"
 
 const (
-	// HTTPHandler an http handler template name.
-	HTTPHandler = "http_handler"
+	// HTTPRoute an http route template name.
+	HTTPRoute = "http_route"
 	// HTTPRouter an http router template name.
 	HTTPRouter = "http_router"
 	// HTTPServer an http server template name.
