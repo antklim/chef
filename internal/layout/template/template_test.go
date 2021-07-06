@@ -13,8 +13,8 @@ func TestTemplateRegistry(t *testing.T) {
 		name string
 	}{
 		{
-			desc: "has an http route template",
-			name: template.HTTPRoute,
+			desc: "has an http endpoint template",
+			name: template.HTTPEndpoint,
 		},
 		{
 			desc: "has an http router template",

@@ -22,7 +22,7 @@ func init() { // nolint:gochecknoinits
 }
 
 func httpHandler(name string) fnode {
-	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(template.Get(template.HTTPRoute)))
+	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(template.Get(template.HTTPEndpoint)))
 }
 
 func serviceNodes() []Node {

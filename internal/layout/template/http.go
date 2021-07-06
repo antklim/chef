@@ -2,7 +2,7 @@ package template
 
 import "text/template"
 
-var _ = template.Must(rootTemplate.New(HTTPRoute).Parse(`package http
+var _ = template.Must(rootTemplate.New(HTTPEndpoint).Parse(`package http
 
 import (
 	"fmt"
