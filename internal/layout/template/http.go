@@ -2,6 +2,11 @@ package template
 
 import "text/template"
 
+type HTTPEndpointData struct {
+	Name string
+	Path string
+}
+
 var _ = template.Must(rootTemplate.New(HTTPEndpoint).Parse(`package http
 
 import (
@@ -9,7 +14,7 @@ import (
 	"net/http"
 )
 
-const {{ .Name }}Route = {{ .Path }}
+const {{ .Name }}Route = "{{ .Path }}"
 
 func init() {
 	router.Handle({{ .Name }}Route, {{ .Name }}Handler())
