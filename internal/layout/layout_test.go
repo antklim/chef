@@ -2,6 +2,7 @@ package layout_test
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"strings"
 	"testing"
@@ -125,10 +126,54 @@ func TestLayoutRegistry(t *testing.T) {
 
 func TestLayoutInit(t *testing.T) {
 	t.Run("registers predefined layouts", func(t *testing.T) {
-		defs := []string{layout.ServiceLayout, layout.ServiceLayout}
+		defs := []string{layout.ServiceLayout, layout.HTTPServiceLayout}
 		for _, s := range defs {
 			l := layout.Get(s)
 			assert.NotNil(t, l)
 		}
 	})
 }
+
+func TestLayoutHas(t *testing.T) {
+	t.Skip("not implemented")
+
+	// Prepare l Layout
+	testCases := []struct {
+		node     string
+		loc      string
+		expected bool
+	}{
+		{
+			// is true for top level node
+		},
+		{
+			// is true for nested node
+		},
+		{
+			// is true for file node
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(fmt.Sprintf("is %t for node %s at %s", tC.expected, tC.node, tC.loc), func(t *testing.T) {
+
+		})
+	}
+}
+
+func TestDefaultLayouts(t *testing.T) {
+	t.Run("service layout has correct nodes", func(t *testing.T) {
+		t.Skip("not implemented")
+		// l := layout.Get(layout.ServiceLayout)
+	})
+
+	t.Run("http service layout has correct nodes", func(t *testing.T) {
+		t.Skip("not implemented")
+		// l := layout.Get(layout.HTTPServiceLayout)
+	})
+}
+
+// func TestLayoutAddEndpoint(t *testing.T) {
+// 	l := layout.Get(layout.HTTPServiceLayout)
+// 	l.AddEndpoint(&testNode{})
+// 	assert.True(l.Has("testNode", "handler/http"))
+// }

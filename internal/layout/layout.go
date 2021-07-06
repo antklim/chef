@@ -30,6 +30,17 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
+// // Has returns true if layout has a node at a location.
+// func (l Layout) Has(node, loc string) bool {
+// 	dnames := strings.Split(loc, "/")
+
+// 	for _, n := range l.nodes {
+// 		if n.Name() == dnames[0]
+// 	}
+
+// 	return false
+// }
+
 const (
 	// ServiceLayout an abstract service layout name.
 	ServiceLayout = "srv"
