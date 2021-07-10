@@ -43,7 +43,7 @@ func TestHttpServiceNodes(t *testing.T) {
 	t.Run("main.go has correct imports", func(t *testing.T) {
 		nn := _findNodeByName(nodes, "main.go")
 		require.NotNil(t, nn)
-		n, ok := nn.(fnode)
+		n, ok := nn.(Fnode)
 		require.True(t, ok)
 
 		mod := "cheftest"

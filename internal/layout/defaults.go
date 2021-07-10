@@ -21,8 +21,8 @@ func init() { // nolint:gochecknoinits
 	Register(New(HTTPServiceLayout, httpServiceNodes()))
 }
 
-func httpEndpoint(name string) fnode {
-	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(template.Get(template.HTTPEndpoint)))
+func httpEndpoint(name string) Fnode {
+	return NewFnode(fmt.Sprintf("%s.go", name), WithTemplate(template.Get(template.HTTPEndpoint)))
 }
 
 func serviceNodes() []Node {
@@ -37,11 +37,11 @@ func serviceNodes() []Node {
 }
 
 func httpServiceNodes() []Node {
-	httpRouter := newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))
+	httpRouter := NewFnode("router.go", WithTemplate(template.Get(template.HTTPRouter)))
 	httpHandlerNode := NewDnode(dirHTTP, WithSubNodes(httpRouter))
-	httpServer := newfnode("server.go", withTemplate(template.Get(template.HTTPServer)))
+	httpServer := NewFnode("server.go", WithTemplate(template.Get(template.HTTPServer)))
 	httpServerNode := NewDnode(dirHTTP, WithSubNodes(httpServer))
-	httpSrvMain := newfnode("main.go", withTemplate(template.Get(template.HTTPService)))
+	httpSrvMain := NewFnode("main.go", WithTemplate(template.Get(template.HTTPService)))
 
 	return []Node{
 		NewDnode(dirAdapter),

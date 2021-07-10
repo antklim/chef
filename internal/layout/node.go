@@ -110,13 +110,13 @@ func WithDperm(p fs.FileMode) DnodeOption {
 	})
 }
 
-type fnode struct {
+type Fnode struct {
 	node
 	template *template.Template
 }
 
-func newfnode(name string, opts ...fnodeoption) fnode {
-	n := fnode{
+func NewFnode(name string, opts ...FnodeOption) Fnode {
+	n := Fnode{
 		node: node{
 			name:        name,
 			permissions: fperm,
@@ -130,16 +130,16 @@ func newfnode(name string, opts ...fnodeoption) fnode {
 	return n
 }
 
-func (n fnode) Name() string {
+func (n Fnode) Name() string {
 	return n.name
 }
 
-func (n fnode) Permissions() fs.FileMode {
+func (n Fnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
 // Build executes node template and writes it to a file to a provided location.
-func (n fnode) Build(loc, mod string) error {
+func (n Fnode) Build(loc, mod string) error {
 	if n.template == nil {
 		return errNilTemplate
 	}
@@ -159,7 +159,7 @@ func (n fnode) Build(loc, mod string) error {
 	return f.Chmod(n.Permissions())
 }
 
-func (n fnode) wbuild(w io.Writer, mod string) error {
+func (n Fnode) wbuild(w io.Writer, mod string) error {
 	data := struct {
 		Module string
 	}{
@@ -169,43 +169,43 @@ func (n fnode) wbuild(w io.Writer, mod string) error {
 	return n.template.Execute(w, data)
 }
 
-func (n fnode) Template() *template.Template {
+func (n Fnode) Template() *template.Template {
 	return n.template
 }
 
-type fnodeoption interface {
-	apply(*fnode)
+type FnodeOption interface {
+	apply(*Fnode)
 }
 
 type fnodefopt struct {
-	f func(*fnode)
+	f func(*Fnode)
 }
 
-func (f *fnodefopt) apply(n *fnode) {
+func (f *fnodefopt) apply(n *Fnode) {
 	f.f(n)
 }
 
-func newfnodefopt(f func(*fnode)) *fnodefopt {
+func newfnodefopt(f func(*Fnode)) *fnodefopt {
 	return &fnodefopt{f}
 }
 
-func withFperm(p fs.FileMode) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+func WithFperm(p fs.FileMode) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.permissions = p
 	})
 }
 
-// withNewTemplate adds node template with template name tn and template string
+// WithNewTemplate adds node template with template name tn and template string
 // ts.
-func withNewTemplate(tn, ts string) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+func WithNewTemplate(tn, ts string) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.template = template.Must(template.New(tn).Parse(ts))
 	})
 }
 
-// withNewTemplate adds node template t.
-func withTemplate(t *template.Template) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+// WithNewTemplate adds node template t.
+func WithTemplate(t *template.Template) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.template = t
 	})
 }
