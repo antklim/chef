@@ -30,6 +30,7 @@ type node struct {
 }
 
 // Dnode describes directory nodes.
+// Use NewDnode to initialize Dnode.
 type Dnode struct {
 	node
 	subnodes []Node
@@ -110,6 +111,8 @@ func WithDperm(p fs.FileMode) DnodeOption {
 	})
 }
 
+// Fnode describes file nodes.
+// Use NewFnode to initialize Fnode.
 type Fnode struct {
 	node
 	template *template.Template
@@ -203,7 +206,7 @@ func WithNewTemplate(tn, ts string) FnodeOption {
 	})
 }
 
-// WithNewTemplate adds node template t.
+// WithTemplate adds node template t.
 func WithTemplate(t *template.Template) FnodeOption {
 	return newfnodefopt(func(n *Fnode) {
 		n.template = t
