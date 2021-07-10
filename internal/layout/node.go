@@ -29,13 +29,14 @@ type node struct {
 	permissions fs.FileMode
 }
 
-type dnode struct {
+// DNode describes directory nodes.
+type DNode struct {
 	node
 	subnodes []Node
 }
 
-func newdnode(name string, opts ...dnodeoption) dnode {
-	n := dnode{
+func NewDNode(name string, opts ...dnodeoption) DNode {
+	n := DNode{
 		node: node{
 			name:        name,
 			permissions: dperm,
@@ -49,15 +50,15 @@ func newdnode(name string, opts ...dnodeoption) dnode {
 	return n
 }
 
-func (n dnode) Name() string {
+func (n DNode) Name() string {
 	return n.name
 }
 
-func (n dnode) Permissions() fs.FileMode {
+func (n DNode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
-func (n dnode) Build(loc, mod string) error {
+func (n DNode) Build(loc, mod string) error {
 	o := path.Join(loc, n.Name())
 
 	if err := os.Mkdir(o, n.Permissions()); err != nil {
@@ -73,38 +74,38 @@ func (n dnode) Build(loc, mod string) error {
 	return nil
 }
 
-func (n dnode) SubNodes() []Node {
+func (n DNode) SubNodes() []Node {
 	return n.subnodes
 }
 
-func (n *dnode) addSubNodes(sn []Node) {
+func (n *DNode) addSubNodes(sn []Node) {
 	n.subnodes = append(n.subnodes, sn...)
 }
 
 type dnodeoption interface {
-	apply(*dnode)
+	apply(*DNode)
 }
 
 type dnodefopt struct {
-	f func(*dnode)
+	f func(*DNode)
 }
 
-func (f *dnodefopt) apply(n *dnode) {
+func (f *dnodefopt) apply(n *DNode) {
 	f.f(n)
 }
 
-func newdnodefopt(f func(*dnode)) *dnodefopt {
+func newdnodefopt(f func(*DNode)) *dnodefopt {
 	return &dnodefopt{f}
 }
 
 func withSubNodes(sn ...Node) dnodeoption {
-	return newdnodefopt(func(n *dnode) {
+	return newdnodefopt(func(n *DNode) {
 		n.subnodes = sn
 	})
 }
 
 func withDperm(p fs.FileMode) dnodeoption {
-	return newdnodefopt(func(n *dnode) {
+	return newdnodefopt(func(n *DNode) {
 		n.permissions = p
 	})
 }

@@ -27,29 +27,29 @@ func httpEndpoint(name string) fnode {
 
 func serviceNodes() []Node {
 	return []Node{
-		newdnode(dirAdapter),
-		newdnode(dirApp),
-		newdnode(dirHandler),
-		newdnode(dirProvider),
-		newdnode(dirServer),
-		newdnode(dirTest),
+		NewDNode(dirAdapter),
+		NewDNode(dirApp),
+		NewDNode(dirHandler),
+		NewDNode(dirProvider),
+		NewDNode(dirServer),
+		NewDNode(dirTest),
 	}
 }
 
 func httpServiceNodes() []Node {
 	httpRouter := newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))
-	httpHandlerNode := newdnode(dirHTTP, withSubNodes(httpRouter))
+	httpHandlerNode := NewDNode(dirHTTP, withSubNodes(httpRouter))
 	httpServer := newfnode("server.go", withTemplate(template.Get(template.HTTPServer)))
-	httpServerNode := newdnode(dirHTTP, withSubNodes(httpServer))
+	httpServerNode := NewDNode(dirHTTP, withSubNodes(httpServer))
 	httpSrvMain := newfnode("main.go", withTemplate(template.Get(template.HTTPService)))
 
 	return []Node{
-		newdnode(dirAdapter),
-		newdnode(dirApp),
-		newdnode(dirHandler, withSubNodes(httpHandlerNode)),
-		newdnode(dirProvider),
-		newdnode(dirServer, withSubNodes(httpServerNode)),
-		newdnode(dirTest),
+		NewDNode(dirAdapter),
+		NewDNode(dirApp),
+		NewDNode(dirHandler, withSubNodes(httpHandlerNode)),
+		NewDNode(dirProvider),
+		NewDNode(dirServer, withSubNodes(httpServerNode)),
+		NewDNode(dirTest),
 		httpSrvMain,
 	}
 }

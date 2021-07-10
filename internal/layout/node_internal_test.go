@@ -99,29 +99,29 @@ import "%s/test/template"`, mod)
 
 func TestDnode(t *testing.T) {
 	t.Run("has default directory permissions and no children when created", func(t *testing.T) {
-		n := newdnode("test_dir")
-		expected := dnode{node: node{name: "test_dir", permissions: 0755}}
+		n := NewDNode("test_dir")
+		expected := DNode{node: node{name: "test_dir", permissions: 0755}}
 		assert.Equal(t, expected, n)
 	})
 
 	t.Run("has custom directory permissions when created with permission option", func(t *testing.T) {
-		n := newdnode("test_dir", withDperm(0700))
-		expected := dnode{node: node{name: "test_dir", permissions: 0700}}
+		n := NewDNode("test_dir", withDperm(0700))
+		expected := DNode{node: node{name: "test_dir", permissions: 0700}}
 		assert.Equal(t, expected, n)
 	})
 
 	t.Run("has non empty children list when created with children option", func(t *testing.T) {
 		f1 := newfnode("test_file_1")
-		d1 := newdnode("test_dir_1")
-		n := newdnode("test_dir", withSubNodes(f1, d1))
-		expected := dnode{
+		d1 := NewDNode("test_dir_1")
+		n := NewDNode("test_dir", withSubNodes(f1, d1))
+		expected := DNode{
 			node: node{
 				name:        "test_dir",
 				permissions: 0755,
 			},
 			subnodes: []Node{
 				fnode{node: node{name: "test_file_1", permissions: 0644}},
-				dnode{node: node{name: "test_dir_1", permissions: 0755}},
+				DNode{node: node{name: "test_dir_1", permissions: 0755}},
 			},
 		}
 		assert.Equal(t, expected, n)
@@ -130,8 +130,8 @@ func TestDnode(t *testing.T) {
 	t.Run("adds children using AddChildren", func(t *testing.T) {
 		f1 := newfnode("test_file_1")
 		f2 := newfnode("test_file_2")
-		d1 := newdnode("test_dir_1")
-		n := newdnode("test_dir", withSubNodes(f1))
+		d1 := NewDNode("test_dir_1")
+		n := NewDNode("test_dir", withSubNodes(f1))
 
 		n.addSubNodes([]Node{f2})
 		n.addSubNodes([]Node{d1})
@@ -139,7 +139,7 @@ func TestDnode(t *testing.T) {
 		expected := []Node{
 			fnode{node: node{name: "test_file_1", permissions: 0644}},
 			fnode{node: node{name: "test_file_2", permissions: 0644}},
-			dnode{node: node{name: "test_dir_1", permissions: 0755}},
+			DNode{node: node{name: "test_dir_1", permissions: 0755}},
 		}
 		assert.Equal(t, expected, n.SubNodes())
 	})
@@ -151,7 +151,7 @@ func TestDnodeBuild(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("creates node directory in a provided location", func(t *testing.T) {
-		n := newdnode("test_dir_1")
+		n := NewDNode("test_dir_1")
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
@@ -160,8 +160,8 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a directory subnode", func(t *testing.T) {
-		sn := newdnode("sub_test_dir_2")
-		n := newdnode("test_dir_2", withSubNodes(sn))
+		sn := NewDNode("sub_test_dir_2")
+		n := NewDNode("test_dir_2", withSubNodes(sn))
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
@@ -171,7 +171,7 @@ func TestDnodeBuild(t *testing.T) {
 
 	t.Run("creates a file subnode", func(t *testing.T) {
 		sn := newfnode("test_file_1", withNewTemplate("test", "package foo"))
-		n := newdnode("test_dir_3", withSubNodes(sn))
+		n := NewDNode("test_dir_3", withSubNodes(sn))
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 

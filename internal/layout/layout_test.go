@@ -137,6 +137,9 @@ func TestLayoutInit(t *testing.T) {
 func TestLayoutHas(t *testing.T) {
 	t.Skip("not implemented")
 
+	// l := layout.New("test_layout")
+	// l.AddNodes(NewDNode(), )
+
 	// Prepare l Layout
 	testCases := []struct {
 		node     string
@@ -151,6 +154,9 @@ func TestLayoutHas(t *testing.T) {
 		},
 		{
 			// is true for file node
+		},
+		{
+			// is false when node not found
 		},
 	}
 	for _, tC := range testCases {
