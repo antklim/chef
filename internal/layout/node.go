@@ -35,7 +35,7 @@ type DNode struct {
 	subnodes []Node
 }
 
-func NewDNode(name string, opts ...dnodeoption) DNode {
+func NewDNode(name string, opts ...DNodeOption) DNode {
 	n := DNode{
 		node: node{
 			name:        name,
@@ -78,11 +78,11 @@ func (n DNode) SubNodes() []Node {
 	return n.subnodes
 }
 
-func (n *DNode) addSubNodes(sn []Node) {
+func (n *DNode) AddSubNodes(sn []Node) {
 	n.subnodes = append(n.subnodes, sn...)
 }
 
-type dnodeoption interface {
+type DNodeOption interface {
 	apply(*DNode)
 }
 
@@ -98,13 +98,13 @@ func newdnodefopt(f func(*DNode)) *dnodefopt {
 	return &dnodefopt{f}
 }
 
-func withSubNodes(sn ...Node) dnodeoption {
+func withSubNodes(sn ...Node) DNodeOption {
 	return newdnodefopt(func(n *DNode) {
 		n.subnodes = sn
 	})
 }
 
-func withDperm(p fs.FileMode) dnodeoption {
+func withDperm(p fs.FileMode) DNodeOption {
 	return newdnodefopt(func(n *DNode) {
 		n.permissions = p
 	})

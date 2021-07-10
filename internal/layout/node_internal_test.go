@@ -133,8 +133,8 @@ func TestDnode(t *testing.T) {
 		d1 := NewDNode("test_dir_1")
 		n := NewDNode("test_dir", withSubNodes(f1))
 
-		n.addSubNodes([]Node{f2})
-		n.addSubNodes([]Node{d1})
+		n.AddSubNodes([]Node{f2})
+		n.AddSubNodes([]Node{d1})
 
 		expected := []Node{
 			fnode{node: node{name: "test_file_1", permissions: 0644}},
