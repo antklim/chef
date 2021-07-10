@@ -9,6 +9,8 @@ import (
 	"text/template"
 )
 
+// TODO: add flag wasbuild to nodes to support rebuild operation
+
 const (
 	fperm fs.FileMode = 0644
 	dperm fs.FileMode = 0755

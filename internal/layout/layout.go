@@ -6,15 +6,19 @@ type Layout struct {
 }
 
 // New creates a new layout with schema s and nodes n.
-func New(s string, n []Node) Layout {
+func New(s string, nodes ...Node) Layout {
 	return Layout{
 		schema: s,
-		nodes:  n,
+		nodes:  nodes,
 	}
 }
 
 func (l Layout) Nodes() []Node {
 	return l.nodes
+}
+
+func (l *Layout) AddNodes(nodes ...Node) {
+	l.nodes = append(l.nodes, nodes...)
 }
 
 func (l Layout) Schema() string {

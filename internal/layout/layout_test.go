@@ -64,7 +64,7 @@ func TestNewLayout(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			l := layout.New(tC.schema, tC.nodes)
+			l := layout.New(tC.schema, tC.nodes...)
 			assert.Equal(t, tC.schema, l.Schema())
 			assert.Equal(t, tC.nodes, l.Nodes())
 		})
@@ -100,7 +100,7 @@ func TestLayoutBuild(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			l := layout.New(tC.name, []layout.Node{tC.node})
+			l := layout.New(tC.name, tC.node)
 			assert.False(t, tC.node.WasBuild())
 			err := l.Build(tC.loc, "module_name")
 			tC.assert(t, err)
@@ -110,28 +110,12 @@ func TestLayoutBuild(t *testing.T) {
 	}
 }
 
-func TestLayoutRegistry(t *testing.T) {
-	t.Run("get returns nil when layout not registered", func(t *testing.T) {
-		l := layout.Get("foo")
-		assert.Nil(t, l)
-	})
+func TestLayoutAddNodes(t *testing.T) {
+	l := layout.New("test_layout")
+	assert.Empty(t, l.Nodes())
 
-	t.Run("get returns layout by schema", func(t *testing.T) {
-		tl := layout.New("testLayout", nil)
-		layout.Register(tl)
-		l := layout.Get("testLayout")
-		assert.Equal(t, tl, *l)
-	})
-}
-
-func TestLayoutInit(t *testing.T) {
-	t.Run("registers predefined layouts", func(t *testing.T) {
-		defs := []string{layout.ServiceLayout, layout.HTTPServiceLayout}
-		for _, s := range defs {
-			l := layout.Get(s)
-			assert.NotNil(t, l)
-		}
-	})
+	l.AddNodes(layout.NewDnode("test_dir"), layout.NewFnode("test_file.txt"))
+	assert.Len(t, l.Nodes(), 2)
 }
 
 func TestLayoutHas(t *testing.T) {
@@ -164,6 +148,30 @@ func TestLayoutHas(t *testing.T) {
 
 		})
 	}
+}
+
+func TestLayoutsRegistry(t *testing.T) {
+	t.Run("get returns nil when layout not registered", func(t *testing.T) {
+		l := layout.Get("foo")
+		assert.Nil(t, l)
+	})
+
+	t.Run("get returns layout by schema", func(t *testing.T) {
+		tl := layout.New("testLayout", nil)
+		layout.Register(tl)
+		l := layout.Get("testLayout")
+		assert.Equal(t, tl, *l)
+	})
+}
+
+func TestLayoutsInit(t *testing.T) {
+	t.Run("registers predefined layouts", func(t *testing.T) {
+		defs := []string{layout.ServiceLayout, layout.HTTPServiceLayout}
+		for _, s := range defs {
+			l := layout.Get(s)
+			assert.NotNil(t, l)
+		}
+	})
 }
 
 func TestDefaultLayouts(t *testing.T) {

@@ -17,8 +17,8 @@ const (
 )
 
 func init() { // nolint:gochecknoinits
-	Register(New(ServiceLayout, serviceNodes()))
-	Register(New(HTTPServiceLayout, httpServiceNodes()))
+	Register(New(ServiceLayout, serviceNodes()...))
+	Register(New(HTTPServiceLayout, httpServiceNodes()...))
 }
 
 func httpEndpoint(name string) Fnode {
