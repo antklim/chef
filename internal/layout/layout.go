@@ -1,5 +1,9 @@
 package layout
 
+import (
+	"strings"
+)
+
 type Layout struct {
 	nodes  []Node
 	schema string
@@ -18,6 +22,7 @@ func (l Layout) Nodes() []Node {
 }
 
 func (l *Layout) AddNodes(nodes ...Node) {
+	// TODO: should return error/skip addition when trying to add existing node
 	l.nodes = append(l.nodes, nodes...)
 }
 
@@ -34,16 +39,40 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// // Has returns true if layout has a node at a location.
-// func (l Layout) Has(node, loc string) bool {
-// 	dnames := strings.Split(loc, "/")
+// Has returns true if layout has a node at a location.
+func (l Layout) Has(node, loc string) bool {
+	if loc == "" {
+		_, ok := find(l.nodes, node)
+		return ok
+	}
 
-// 	for _, n := range l.nodes {
-// 		if n.Name() == dnames[0]
-// 	}
+	dirs := strings.Split(loc, "/")
+	d := NewDnode("_", WithSubNodes(l.nodes...))
 
-// 	return false
-// }
+	for _, dir := range dirs {
+		n, ok := find(d.SubNodes(), dir)
+		if !ok {
+			return false
+		}
+
+		if d, ok = n.(Dnode); !ok {
+			return false
+		}
+	}
+
+	_, ok := find(d.SubNodes(), node)
+
+	return ok
+}
+
+func find(nodes []Node, node string) (Node, bool) {
+	for _, n := range nodes {
+		if n.Name() == node {
+			return n, true
+		}
+	}
+	return nil, false
+}
 
 const (
 	// ServiceLayout an abstract service layout name.

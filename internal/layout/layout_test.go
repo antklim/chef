@@ -119,10 +119,14 @@ func TestLayoutAddNodes(t *testing.T) {
 }
 
 func TestLayoutHas(t *testing.T) {
-	t.Skip("not implemented")
-
-	// l := layout.New("test_layout")
-	// l.AddNodes(NewDNode(), )
+	l := layout.New("test_layout")
+	l.AddNodes(
+		layout.NewDnode("root", layout.WithSubNodes(
+			layout.NewDnode("subdir", layout.WithSubNodes(
+				layout.NewFnode("file.txt"),
+			)),
+		)),
+	)
 
 	// Prepare l Layout
 	testCases := []struct {
@@ -131,21 +135,33 @@ func TestLayoutHas(t *testing.T) {
 		expected bool
 	}{
 		{
-			// is true for top level node
+			// is true for top level dir node
+			node:     "root",
+			loc:      "",
+			expected: true,
 		},
 		{
 			// is true for nested node
+			node:     "subdir",
+			loc:      "root",
+			expected: true,
 		},
 		{
-			// is true for file node
+			// is true for deep nested node
+			node:     "file.txt",
+			loc:      "root/subdir",
+			expected: true,
 		},
 		{
-			// is false when node not found
+			// is true for top level dir node
+			node:     "file.txt",
+			loc:      "",
+			expected: false,
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(fmt.Sprintf("is %t for node %s at %s", tC.expected, tC.node, tC.loc), func(t *testing.T) {
-
+			assert.Equal(t, tC.expected, l.Has(tC.node, tC.loc))
 		})
 	}
 }
@@ -164,7 +180,7 @@ func TestLayoutsRegistry(t *testing.T) {
 	})
 }
 
-func TestLayoutsInit(t *testing.T) {
+func TestLayoutsRegistryInit(t *testing.T) {
 	t.Run("registers predefined layouts", func(t *testing.T) {
 		defs := []string{layout.ServiceLayout, layout.HTTPServiceLayout}
 		for _, s := range defs {
