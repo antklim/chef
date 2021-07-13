@@ -23,7 +23,7 @@ func (l Layout) Nodes() []Node {
 	return l.nodes
 }
 
-// AddTo adds a node to a layout location.
+// Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
 	if loc == Root {
 		l.nodes = append(l.nodes, n)
