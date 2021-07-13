@@ -110,50 +110,62 @@ func TestLayoutBuild(t *testing.T) {
 	}
 }
 
-func TestLayoutAddNodes(t *testing.T) {
-	l := layout.New("test_layout")
-	assert.Empty(t, l.Nodes())
+func TestLayoutAddTo(t *testing.T) {
+	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
+		l := layout.New("test_layout")
+		assert.Empty(t, l.Nodes())
 
-	l.AddNodes(layout.NewDnode("test_dir"), layout.NewFnode("test_file.txt"))
-	assert.Len(t, l.Nodes(), 2)
+		nodes := []layout.Node{layout.NewDnode("test_dir"), layout.NewFnode("test_file.txt")}
+		for _, n := range nodes {
+			err := l.Add(n, layout.Root)
+			assert.NoError(t, err)
+		}
+
+		assert.Len(t, l.Nodes(), 2)
+	})
+
+	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {})
+
+	t.Run("returns error when nested level is a file", func(t *testing.T) {})
+
+	t.Run("returns error when nested level not found in layout", func(t *testing.T) {})
+
+	t.Run("returns error when adding existing node", func(t *testing.T) {})
 }
 
 func TestLayoutHas(t *testing.T) {
 	l := layout.New("test_layout")
-	l.AddNodes(
-		layout.NewDnode("root", layout.WithSubNodes(
+	err := l.Add(
+		layout.NewDnode("base", layout.WithSubNodes(
 			layout.NewDnode("subdir", layout.WithSubNodes(
 				layout.NewFnode("file.txt"),
 			)),
 		)),
+		layout.Root,
 	)
+	require.NoError(t, err)
 
-	// Prepare l Layout
 	testCases := []struct {
 		node     string
 		loc      string
 		expected bool
 	}{
 		{
-			// is true for top level dir node
-			node:     "root",
+			node:     "base",
 			loc:      "",
 			expected: true,
 		},
 		{
-			// is true for nested node
 			node:     "subdir",
-			loc:      "root",
+			loc:      "base",
 			expected: true,
 		},
 		{
-			// is true for deep nested node
 			node:     "file.txt",
-			loc:      "root/subdir",
+			loc:      "base/subdir",
 			expected: true,
 		},
 		{
-			// is true for top level dir node
 			node:     "file.txt",
 			loc:      "",
 			expected: false,

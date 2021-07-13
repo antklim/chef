@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+const Root = ""
+
 type Layout struct {
 	nodes  []Node
 	schema string
@@ -21,9 +23,12 @@ func (l Layout) Nodes() []Node {
 	return l.nodes
 }
 
-func (l *Layout) AddNodes(nodes ...Node) {
-	// TODO: should return error/skip addition when trying to add existing node
-	l.nodes = append(l.nodes, nodes...)
+// AddTo adds a node to a layout location.
+func (l *Layout) Add(n Node, loc string) error {
+	if loc == Root {
+		l.nodes = append(l.nodes, n)
+	}
+	return nil
 }
 
 func (l Layout) Schema() string {
