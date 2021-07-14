@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -25,9 +26,15 @@ func (l Layout) Nodes() []Node {
 
 // Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
+	if l.Has(n.Name(), loc) {
+		return fmt.Errorf("node %s already exists at '%s'", n.Name(), loc)
+	}
+
 	if loc == Root {
 		l.nodes = append(l.nodes, n)
+		return nil
 	}
+
 	return nil
 }
 

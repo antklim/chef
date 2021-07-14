@@ -110,12 +110,13 @@ func TestLayoutBuild(t *testing.T) {
 	}
 }
 
-func TestLayoutAddTo(t *testing.T) {
+func TestLayoutAdd(t *testing.T) {
+	nodes := []layout.Node{layout.NewDnode("subdir"), layout.NewFnode("file.txt")}
+
 	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
-		l := layout.New("test_layout")
+		l := layout.New("layout")
 		assert.Empty(t, l.Nodes())
 
-		nodes := []layout.Node{layout.NewDnode("test_dir"), layout.NewFnode("test_file.txt")}
 		for _, n := range nodes {
 			err := l.Add(n, layout.Root)
 			assert.NoError(t, err)
@@ -128,13 +129,27 @@ func TestLayoutAddTo(t *testing.T) {
 
 	t.Run("returns error when nested level is a file", func(t *testing.T) {})
 
-	t.Run("returns error when nested level not found in layout", func(t *testing.T) {})
+	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
+		// l := layout.New("layout", nodes...)
 
-	t.Run("returns error when adding existing node", func(t *testing.T) {})
+		// err := l.Add(layout.NewFnode("new_file.txt"), "other")
+		// assert.EqualError(t, err, "path 'other' not found in layout")
+
+		// assert.Len(t, l.Nodes(), len(nodes))
+	})
+
+	t.Run("returns error when adding existing node", func(t *testing.T) {
+		l := layout.New("layout", nodes...)
+
+		err := l.Add(layout.NewFnode("file.txt"), layout.Root)
+		assert.EqualError(t, err, "node file.txt already exists at ''")
+
+		assert.Len(t, l.Nodes(), len(nodes))
+	})
 }
 
 func TestLayoutHas(t *testing.T) {
-	l := layout.New("test_layout")
+	l := layout.New("layout")
 	err := l.Add(
 		layout.NewDnode("base", layout.WithSubNodes(
 			layout.NewDnode("subdir", layout.WithSubNodes(
