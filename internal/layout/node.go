@@ -81,8 +81,14 @@ func (n Dnode) SubNodes() []Node {
 	return n.subnodes
 }
 
-func (n *Dnode) AddSubNodes(sn []Node) {
-	n.subnodes = append(n.subnodes, sn...)
+func (n Dnode) GetSubNode(name string) Node {
+	for _, subnode := range n.subnodes {
+		if subnode.Name() == name {
+			return subnode
+		}
+	}
+
+	return nil
 }
 
 type DnodeOption interface {

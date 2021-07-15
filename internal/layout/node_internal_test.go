@@ -126,23 +126,6 @@ func TestDnode(t *testing.T) {
 		}
 		assert.Equal(t, expected, n)
 	})
-
-	t.Run("adds children using AddChildren", func(t *testing.T) {
-		f1 := NewFnode("test_file_1")
-		f2 := NewFnode("test_file_2")
-		d1 := NewDnode("test_dir_1")
-		n := NewDnode("test_dir", WithSubNodes(f1))
-
-		n.AddSubNodes([]Node{f2})
-		n.AddSubNodes([]Node{d1})
-
-		expected := []Node{
-			Fnode{node: node{name: "test_file_1", permissions: 0644}},
-			Fnode{node: node{name: "test_file_2", permissions: 0644}},
-			Dnode{node: node{name: "test_dir_1", permissions: 0755}},
-		}
-		assert.Equal(t, expected, n.SubNodes())
-	})
 }
 
 func TestDnodeBuild(t *testing.T) {
