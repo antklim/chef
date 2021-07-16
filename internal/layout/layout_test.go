@@ -149,16 +149,10 @@ func TestLayoutAdd(t *testing.T) {
 }
 
 func TestLayoutHas(t *testing.T) {
-	l := layout.New("layout")
-	err := l.Add(
-		layout.NewDnode("base", layout.WithSubNodes(
-			layout.NewDnode("subdir", layout.WithSubNodes(
-				layout.NewFnode("file.txt"),
-			)),
-		)),
-		layout.Root,
-	)
-	require.NoError(t, err)
+	node := layout.NewDnode("base", layout.WithSubNodes(
+		layout.NewDnode("subdir", layout.WithSubNodes(
+			layout.NewFnode("file.txt")))))
+	l := layout.New("layout", node)
 
 	testCases := []struct {
 		node     string
@@ -192,6 +186,19 @@ func TestLayoutHas(t *testing.T) {
 		})
 	}
 }
+
+// func TestLayoutGet(t *testing.T) {
+// 	fnode := layout.NewFnode("file.txt")
+// 	lnode := layout.NewDnode("base", layout.WithSubNodes(
+// 		layout.NewDnode("subdir", layout.WithSubNodes(fnode))))
+// 	l := layout.New("layout", lnode)
+
+// 	t.Run("returns node by absolute path", func(t *testing.T) {
+// 		n, ok := l.Get("base/subdir/file.txt")
+// 		assert.True(t, ok)
+// 		assert.Equal(t, n, fnode)
+// 	})
+// }
 
 func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {

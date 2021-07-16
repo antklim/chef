@@ -53,7 +53,7 @@ func (l Layout) Build(loc, mod string) error {
 
 // Has returns true if layout has a node at a location.
 func (l Layout) Has(node, loc string) bool {
-	if loc == "" {
+	if loc == Root {
 		_, ok := find(l.nodes, node)
 		return ok
 	}
@@ -62,19 +62,21 @@ func (l Layout) Has(node, loc string) bool {
 	d := NewDnode("_", WithSubNodes(l.nodes...))
 
 	for _, dir := range dirs {
-		n, ok := find(d.SubNodes(), dir)
+		n := d.GetSubNode(dir)
+		if n == nil {
+			return false
+		}
+
+		dnode, ok := n.(Dnode)
 		if !ok {
 			return false
 		}
-
-		if d, ok = n.(Dnode); !ok {
-			return false
-		}
+		d = dnode
 	}
 
-	_, ok := find(d.SubNodes(), node)
+	n := d.GetSubNode(node)
 
-	return ok
+	return n != nil
 }
 
 func find(nodes []Node, node string) (Node, bool) {
