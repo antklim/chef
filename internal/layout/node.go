@@ -2,6 +2,7 @@ package layout
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -82,12 +83,23 @@ func (n Dnode) SubNodes() []Node {
 }
 
 func (n Dnode) GetSubNode(name string) Node {
-	for _, subnode := range n.subnodes {
-		if subnode.Name() == name {
-			return subnode
+	return findByName(n.subnodes, name)
+}
+
+func (n *Dnode) AddSubNode(newNode Node) error {
+	if subnode := findByName(n.subnodes, newNode.Name()); subnode != nil {
+		return fmt.Errorf("subnode %s already exists", newNode.Name())
+	}
+	n.subnodes = append(n.subnodes, newNode)
+	return nil
+}
+
+func findByName(nodes []Node, n string) Node {
+	for _, node := range nodes {
+		if node.Name() == n {
+			return node
 		}
 	}
-
 	return nil
 }
 

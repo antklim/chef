@@ -34,3 +34,30 @@ func TestDnodeGetSubNode(t *testing.T) {
 		})
 	}
 }
+
+func TestDnodeAddSubNode(t *testing.T) {
+	fnode := layout.NewFnode("file.txt")
+	dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+
+	t.Run("returns an error when existing sub node has same name as the new", func(t *testing.T) {
+		subnodesBefore := len(dnode.SubNodes())
+
+		newNode := layout.NewDnode("file.txt")
+		err := dnode.AddSubNode(newNode)
+		assert.Error(t, err, "subnode file.txt already exists")
+
+		subnodesAfter := len(dnode.SubNodes())
+		assert.Equal(t, subnodesBefore, subnodesAfter)
+	})
+
+	t.Run("adds a new subnode", func(t *testing.T) {
+		subnodesBefore := len(dnode.SubNodes())
+
+		newNode := layout.NewFnode("file2.txt")
+		err := dnode.AddSubNode(newNode)
+		assert.NoError(t, err)
+
+		subnodesAfter := len(dnode.SubNodes())
+		assert.Equal(t, subnodesBefore+1, subnodesAfter)
+	})
+}
