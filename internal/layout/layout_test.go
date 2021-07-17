@@ -2,7 +2,6 @@ package layout_test
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"strings"
 	"testing"
@@ -131,41 +130,47 @@ func TestLayoutAdd(t *testing.T) {
 	})
 }
 
-func TestLayoutHas(t *testing.T) {
-	node := layout.NewDnode("base", layout.WithSubNodes(
-		layout.NewDnode("subdir", layout.WithSubNodes(
-			layout.NewFnode("file.txt")))))
-	l := layout.New("layout", node)
+func TestLayoutGet(t *testing.T) {
+	fileNode := layout.NewFnode("file.txt")
+	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
+	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
+	l := layout.New("layout", baseNode)
 
 	testCases := []struct {
+		desc     string
 		node     string
 		loc      string
-		expected bool
+		expected layout.Node
 	}{
 		{
+			desc:     "returns node from root location",
 			node:     "base",
 			loc:      "",
-			expected: true,
+			expected: baseNode,
 		},
 		{
+			desc:     "returns node from subdirectory",
 			node:     "subdir",
 			loc:      "base",
-			expected: true,
+			expected: subdNode,
 		},
 		{
+			desc:     "returns node from nested subdirectory",
 			node:     "file.txt",
 			loc:      "base/subdir",
-			expected: true,
+			expected: fileNode,
 		},
 		{
+			desc:     "returns nil when no node found",
 			node:     "file.txt",
 			loc:      "",
-			expected: false,
+			expected: nil,
 		},
 	}
 	for _, tC := range testCases {
-		t.Run(fmt.Sprintf("is %t for node %s at %s", tC.expected, tC.node, tC.loc), func(t *testing.T) {
-			assert.Equal(t, tC.expected, l.Has(tC.node, tC.loc))
+		t.Run(tC.desc, func(t *testing.T) {
+			node := l.Get(tC.node, tC.loc)
+			assert.Equal(t, tC.expected, node)
 		})
 	}
 }

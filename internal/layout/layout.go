@@ -27,7 +27,7 @@ func (l Layout) Nodes() []Node {
 
 // Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
-	if l.Has(n.Name(), loc) {
+	if node := l.Get(n.Name(), loc); node != nil {
 		return fmt.Errorf("node %s already exists at '%s'", n.Name(), loc)
 	}
 
@@ -51,11 +51,10 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// Has returns true if layout has a node at a location.
-func (l Layout) Has(node, loc string) bool {
+// Get returns a node with the given name at a location.
+func (l Layout) Get(node, loc string) Node {
 	if loc == Root {
-		_, ok := find(l.root.SubNodes(), node)
-		return ok
+		return l.root.GetSubNode(node)
 	}
 
 	dirs := strings.Split(loc, "/")
@@ -64,28 +63,17 @@ func (l Layout) Has(node, loc string) bool {
 	for _, dir := range dirs {
 		n := d.GetSubNode(dir)
 		if n == nil {
-			return false
+			return nil
 		}
 
 		dnode, ok := n.(Dnode)
 		if !ok {
-			return false
+			return nil
 		}
 		d = dnode
 	}
 
-	n := d.GetSubNode(node)
-
-	return n != nil
-}
-
-func find(nodes []Node, node string) (Node, bool) {
-	for _, n := range nodes {
-		if n.Name() == node {
-			return n, true
-		}
-	}
-	return nil, false
+	return d.GetSubNode(node)
 }
 
 const (
