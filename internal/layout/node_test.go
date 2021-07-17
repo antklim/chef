@@ -44,7 +44,7 @@ func TestDnodeAddSubNode(t *testing.T) {
 
 		newNode := layout.NewDnode("file.txt")
 		err := dnode.AddSubNode(newNode)
-		assert.Error(t, err, "subnode file.txt already exists")
+		assert.EqualError(t, err, "node file.txt already exists")
 
 		subnodesAfter := len(dnode.SubNodes())
 		assert.Equal(t, subnodesBefore, subnodesAfter)

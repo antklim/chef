@@ -89,7 +89,7 @@ func (n Dnode) GetSubNode(name string) Node {
 
 func (n *Dnode) AddSubNode(newNode Node) error {
 	if subnode := findByName(n.subnodes, newNode.Name()); subnode != nil {
-		return fmt.Errorf("subnode %s already exists", newNode.Name())
+		return fmt.Errorf("node %s already exists", newNode.Name())
 	}
 	n.subnodes = append(n.subnodes, newNode)
 	return nil
