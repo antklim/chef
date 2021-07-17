@@ -107,24 +107,40 @@ func TestLayoutAdd(t *testing.T) {
 		assert.Len(t, l.Nodes(), 2)
 	})
 
-	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {})
+	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
+		t.Skip("not implemented")
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
 
-	t.Run("returns error when nested level is a file", func(t *testing.T) {})
+		err := l.Add(layout.NewFnode("new_file.txt"), "dnode")
+		assert.NoError(t, err)
+		assert.Len(t, dnode.SubNodes(), 2)
+	})
+
+	t.Run("returns error when nested level is a file", func(t *testing.T) {
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
+
+		err := l.Add(layout.NewFnode("new_file.txt"), "dnode/file.txt")
+		assert.EqualError(t, err, "node 'dnode/file.txt' not a directory")
+	})
 
 	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
-		// l := layout.New("layout", nodes...)
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
 
-		// err := l.Add(layout.NewFnode("new_file.txt"), "other")
-		// assert.EqualError(t, err, "path 'other' not found in layout")
-
-		// assert.Len(t, l.Nodes(), len(nodes))
+		err := l.Add(layout.NewFnode("new_file.txt"), "other")
+		assert.EqualError(t, err, "path 'other' not found in layout")
 	})
 
 	t.Run("returns error when adding existing node", func(t *testing.T) {
 		l := layout.New("layout", nodes...)
 
 		err := l.Add(layout.NewFnode("file.txt"), layout.Root)
-		assert.EqualError(t, err, "node file.txt already exists at ''")
+		assert.EqualError(t, err, "node file.txt already exists at '.'")
 
 		assert.Len(t, l.Nodes(), len(nodes))
 	})
@@ -145,7 +161,7 @@ func TestLayoutGet(t *testing.T) {
 		{
 			desc:     "returns node from root location",
 			node:     "base",
-			loc:      "",
+			loc:      ".",
 			expected: baseNode,
 		},
 		{
@@ -163,7 +179,7 @@ func TestLayoutGet(t *testing.T) {
 		{
 			desc:     "returns nil when no node found",
 			node:     "file.txt",
-			loc:      "",
+			loc:      ".",
 			expected: nil,
 		},
 	}
@@ -174,19 +190,6 @@ func TestLayoutGet(t *testing.T) {
 		})
 	}
 }
-
-// func TestLayoutGet(t *testing.T) {
-// 	fnode := layout.NewFnode("file.txt")
-// 	lnode := layout.NewDnode("base", layout.WithSubNodes(
-// 		layout.NewDnode("subdir", layout.WithSubNodes(fnode))))
-// 	l := layout.New("layout", lnode)
-
-// 	t.Run("returns node by absolute path", func(t *testing.T) {
-// 		n, ok := l.Get("base/subdir/file.txt")
-// 		assert.True(t, ok)
-// 		assert.Equal(t, n, fnode)
-// 	})
-// }
 
 func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {

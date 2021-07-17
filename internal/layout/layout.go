@@ -2,10 +2,11 @@ package layout
 
 import (
 	"fmt"
+	"path"
 	"strings"
 )
 
-const Root = ""
+const Root = "."
 
 type Layout struct {
 	root   Dnode
@@ -35,7 +36,17 @@ func (l *Layout) Add(n Node, loc string) error {
 		return l.root.AddSubNode(n)
 	}
 
-	return nil
+	locNode := l.Get(path.Base(loc), path.Dir(loc))
+	if locNode == nil {
+		return fmt.Errorf("path '%s' not found in layout", loc)
+	}
+
+	locDir, ok := locNode.(Dnode)
+	if !ok {
+		return fmt.Errorf("node '%s' not a directory", loc)
+	}
+
+	return locDir.AddSubNode(n)
 }
 
 func (l Layout) Schema() string {
