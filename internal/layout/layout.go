@@ -8,20 +8,21 @@ import (
 const Root = ""
 
 type Layout struct {
-	nodes  []Node
+	root   Dnode
 	schema string
 }
 
 // New creates a new layout with schema s and nodes n.
 func New(s string, nodes ...Node) Layout {
+	root := NewDnode(Root, WithSubNodes(nodes...))
 	return Layout{
+		root:   root,
 		schema: s,
-		nodes:  nodes,
 	}
 }
 
 func (l Layout) Nodes() []Node {
-	return l.nodes
+	return l.root.SubNodes()
 }
 
 // Add adds a node to a layout location.
@@ -31,8 +32,7 @@ func (l *Layout) Add(n Node, loc string) error {
 	}
 
 	if loc == Root {
-		l.nodes = append(l.nodes, n)
-		return nil
+		return l.root.AddSubNode(n)
 	}
 
 	return nil
@@ -43,7 +43,7 @@ func (l Layout) Schema() string {
 }
 
 func (l Layout) Build(loc, mod string) error {
-	for _, n := range l.nodes {
+	for _, n := range l.root.SubNodes() {
 		if err := n.Build(loc, mod); err != nil {
 			return err
 		}
@@ -54,12 +54,12 @@ func (l Layout) Build(loc, mod string) error {
 // Has returns true if layout has a node at a location.
 func (l Layout) Has(node, loc string) bool {
 	if loc == Root {
-		_, ok := find(l.nodes, node)
+		_, ok := find(l.root.SubNodes(), node)
 		return ok
 	}
 
 	dirs := strings.Split(loc, "/")
-	d := NewDnode("_", WithSubNodes(l.nodes...))
+	d := l.root
 
 	for _, dir := range dirs {
 		n := d.GetSubNode(dir)

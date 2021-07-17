@@ -11,6 +11,7 @@ import (
 )
 
 // TODO: add flag wasbuild to nodes to support rebuild operation
+// TODO: Dnode and Fnode should be interfaces
 
 const (
 	fperm fs.FileMode = 0644

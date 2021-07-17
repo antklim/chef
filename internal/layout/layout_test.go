@@ -47,28 +47,11 @@ func (n testNode) BuiltAt() string {
 var _ layout.Node = (*testNode)(nil)
 
 func TestNewLayout(t *testing.T) {
-	testCases := []struct {
-		desc   string
-		schema string
-		nodes  []layout.Node
-	}{
-		{
-			desc:   "creates layout with defined schema",
-			schema: "testLayout",
-		},
-		{
-			desc:   "creates layout with nodes",
-			schema: "testLayoutWNodes",
-			nodes:  []layout.Node{&testNode{}},
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			l := layout.New(tC.schema, tC.nodes...)
-			assert.Equal(t, tC.schema, l.Schema())
-			assert.Equal(t, tC.nodes, l.Nodes())
-		})
-	}
+	schema := "testLayout"
+	nodes := []layout.Node{&testNode{}}
+	l := layout.New(schema, nodes...)
+	assert.Equal(t, schema, l.Schema())
+	assert.Equal(t, nodes, l.Nodes())
 }
 
 func TestLayoutBuild(t *testing.T) {
