@@ -1,20 +1,56 @@
 package layout
 
+import (
+	"fmt"
+	"path"
+	"strings"
+)
+
+const Root = "."
+
+type Adder interface {
+	Add(n Node) error
+}
+
 type Layout struct {
-	nodes  []Node
+	root   *Dnode
 	schema string
 }
 
 // New creates a new layout with schema s and nodes n.
-func New(s string, n []Node) Layout {
+func New(s string, nodes ...Node) Layout {
+	root := NewDnode(Root, WithSubNodes(nodes...))
 	return Layout{
+		root:   root,
 		schema: s,
-		nodes:  n,
 	}
 }
 
 func (l Layout) Nodes() []Node {
-	return l.nodes
+	return l.root.SubNodes()
+}
+
+// Add adds a node to a layout location.
+func (l *Layout) Add(n Node, loc string) error {
+	if node := l.Get(n.Name(), loc); node != nil {
+		return fmt.Errorf("node %s already exists at '%s'", n.Name(), loc)
+	}
+
+	if loc == Root {
+		return l.root.Add(n)
+	}
+
+	locNode := l.Get(path.Base(loc), path.Dir(loc))
+	if locNode == nil {
+		return fmt.Errorf("path '%s' not found in layout", loc)
+	}
+
+	locDir, ok := locNode.(Adder)
+	if !ok {
+		return fmt.Errorf("node '%s' does not support adding subnodes", loc)
+	}
+
+	return locDir.Add(n)
 }
 
 func (l Layout) Schema() string {
@@ -22,7 +58,7 @@ func (l Layout) Schema() string {
 }
 
 func (l Layout) Build(loc, mod string) error {
-	for _, n := range l.nodes {
+	for _, n := range l.root.SubNodes() {
 		if err := n.Build(loc, mod); err != nil {
 			return err
 		}
@@ -30,16 +66,30 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// // Has returns true if layout has a node at a location.
-// func (l Layout) Has(node, loc string) bool {
-// 	dnames := strings.Split(loc, "/")
+// Get returns a node with the given name at a location.
+func (l Layout) Get(node, loc string) Node {
+	if loc == Root {
+		return l.root.GetSubNode(node)
+	}
 
-// 	for _, n := range l.nodes {
-// 		if n.Name() == dnames[0]
-// 	}
+	dirs := strings.Split(loc, "/")
+	d := l.root
 
-// 	return false
-// }
+	for _, dir := range dirs {
+		n := d.GetSubNode(dir)
+		if n == nil {
+			return nil
+		}
+
+		dnode, ok := n.(*Dnode)
+		if !ok {
+			return nil
+		}
+		d = dnode
+	}
+
+	return d.GetSubNode(node)
+}
 
 const (
 	// ServiceLayout an abstract service layout name.

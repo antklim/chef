@@ -17,39 +17,39 @@ const (
 )
 
 func init() { // nolint:gochecknoinits
-	Register(New(ServiceLayout, serviceNodes()))
-	Register(New(HTTPServiceLayout, httpServiceNodes()))
+	Register(New(ServiceLayout, serviceNodes()...))
+	Register(New(HTTPServiceLayout, httpServiceNodes()...))
 }
 
-func httpEndpoint(name string) fnode {
-	return newfnode(fmt.Sprintf("%s.go", name), withTemplate(template.Get(template.HTTPEndpoint)))
+func httpEndpoint(name string) *Fnode {
+	return NewFnode(fmt.Sprintf("%s.go", name), WithTemplate(template.Get(template.HTTPEndpoint)))
 }
 
 func serviceNodes() []Node {
 	return []Node{
-		newdnode(dirAdapter),
-		newdnode(dirApp),
-		newdnode(dirHandler),
-		newdnode(dirProvider),
-		newdnode(dirServer),
-		newdnode(dirTest),
+		NewDnode(dirAdapter),
+		NewDnode(dirApp),
+		NewDnode(dirHandler),
+		NewDnode(dirProvider),
+		NewDnode(dirServer),
+		NewDnode(dirTest),
 	}
 }
 
 func httpServiceNodes() []Node {
-	httpRouter := newfnode("router.go", withTemplate(template.Get(template.HTTPRouter)))
-	httpHandlerNode := newdnode(dirHTTP, withSubNodes(httpRouter))
-	httpServer := newfnode("server.go", withTemplate(template.Get(template.HTTPServer)))
-	httpServerNode := newdnode(dirHTTP, withSubNodes(httpServer))
-	httpSrvMain := newfnode("main.go", withTemplate(template.Get(template.HTTPService)))
+	httpRouter := NewFnode("router.go", WithTemplate(template.Get(template.HTTPRouter)))
+	httpHandlerNode := NewDnode(dirHTTP, WithSubNodes(httpRouter))
+	httpServer := NewFnode("server.go", WithTemplate(template.Get(template.HTTPServer)))
+	httpServerNode := NewDnode(dirHTTP, WithSubNodes(httpServer))
+	httpSrvMain := NewFnode("main.go", WithTemplate(template.Get(template.HTTPService)))
 
 	return []Node{
-		newdnode(dirAdapter),
-		newdnode(dirApp),
-		newdnode(dirHandler, withSubNodes(httpHandlerNode)),
-		newdnode(dirProvider),
-		newdnode(dirServer, withSubNodes(httpServerNode)),
-		newdnode(dirTest),
+		NewDnode(dirAdapter),
+		NewDnode(dirApp),
+		NewDnode(dirHandler, WithSubNodes(httpHandlerNode)),
+		NewDnode(dirProvider),
+		NewDnode(dirServer, WithSubNodes(httpServerNode)),
+		NewDnode(dirTest),
 		httpSrvMain,
 	}
 }

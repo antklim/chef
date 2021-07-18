@@ -2,7 +2,6 @@ package layout_test
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"strings"
 	"testing"
@@ -47,28 +46,11 @@ func (n testNode) BuiltAt() string {
 var _ layout.Node = (*testNode)(nil)
 
 func TestNewLayout(t *testing.T) {
-	testCases := []struct {
-		desc   string
-		schema string
-		nodes  []layout.Node
-	}{
-		{
-			desc:   "creates layout with defined schema",
-			schema: "testLayout",
-		},
-		{
-			desc:   "creates layout with nodes",
-			schema: "testLayoutWNodes",
-			nodes:  []layout.Node{&testNode{}},
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			l := layout.New(tC.schema, tC.nodes)
-			assert.Equal(t, tC.schema, l.Schema())
-			assert.Equal(t, tC.nodes, l.Nodes())
-		})
-	}
+	schema := "testLayout"
+	nodes := []layout.Node{&testNode{}}
+	l := layout.New(schema, nodes...)
+	assert.Equal(t, schema, l.Schema())
+	assert.Equal(t, nodes, l.Nodes())
 }
 
 func TestLayoutBuild(t *testing.T) {
@@ -100,7 +82,7 @@ func TestLayoutBuild(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			l := layout.New(tC.name, []layout.Node{tC.node})
+			l := layout.New(tC.name, tC.node)
 			assert.False(t, tC.node.WasBuild())
 			err := l.Build(tC.loc, "module_name")
 			tC.assert(t, err)
@@ -110,7 +92,105 @@ func TestLayoutBuild(t *testing.T) {
 	}
 }
 
-func TestLayoutRegistry(t *testing.T) {
+func TestLayoutAdd(t *testing.T) {
+	nodes := []layout.Node{layout.NewDnode("subdir"), layout.NewFnode("file.txt")}
+
+	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
+		l := layout.New("layout")
+		assert.Empty(t, l.Nodes())
+
+		for _, n := range nodes {
+			err := l.Add(n, layout.Root)
+			assert.NoError(t, err)
+		}
+
+		assert.Len(t, l.Nodes(), 2)
+	})
+
+	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
+
+		err := l.Add(layout.NewFnode("new_file.txt"), "dnode")
+		assert.NoError(t, err)
+		assert.Len(t, dnode.SubNodes(), 2)
+	})
+
+	t.Run("returns error when nested level is a file", func(t *testing.T) {
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
+
+		err := l.Add(layout.NewFnode("new_file.txt"), "dnode/file.txt")
+		assert.EqualError(t, err, "node 'dnode/file.txt' does not support adding subnodes")
+	})
+
+	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
+		fnode := layout.NewFnode("file.txt")
+		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
+
+		err := l.Add(layout.NewFnode("new_file.txt"), "other")
+		assert.EqualError(t, err, "path 'other' not found in layout")
+	})
+
+	t.Run("returns error when adding existing node", func(t *testing.T) {
+		l := layout.New("layout", nodes...)
+
+		err := l.Add(layout.NewFnode("file.txt"), layout.Root)
+		assert.EqualError(t, err, "node file.txt already exists at '.'")
+
+		assert.Len(t, l.Nodes(), len(nodes))
+	})
+}
+
+func TestLayoutGet(t *testing.T) {
+	fileNode := layout.NewFnode("file.txt")
+	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
+	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
+	l := layout.New("layout", baseNode)
+
+	testCases := []struct {
+		desc     string
+		node     string
+		loc      string
+		expected layout.Node
+	}{
+		{
+			desc:     "returns node from root location",
+			node:     "base",
+			loc:      ".",
+			expected: baseNode,
+		},
+		{
+			desc:     "returns node from subdirectory",
+			node:     "subdir",
+			loc:      "base",
+			expected: subdNode,
+		},
+		{
+			desc:     "returns node from nested subdirectory",
+			node:     "file.txt",
+			loc:      "base/subdir",
+			expected: fileNode,
+		},
+		{
+			desc:     "returns nil when no node found",
+			node:     "file.txt",
+			loc:      ".",
+			expected: nil,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			node := l.Get(tC.node, tC.loc)
+			assert.Equal(t, tC.expected, node)
+		})
+	}
+}
+
+func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {
 		l := layout.Get("foo")
 		assert.Nil(t, l)
@@ -124,7 +204,7 @@ func TestLayoutRegistry(t *testing.T) {
 	})
 }
 
-func TestLayoutInit(t *testing.T) {
+func TestLayoutsRegistryInit(t *testing.T) {
 	t.Run("registers predefined layouts", func(t *testing.T) {
 		defs := []string{layout.ServiceLayout, layout.HTTPServiceLayout}
 		for _, s := range defs {
@@ -132,32 +212,6 @@ func TestLayoutInit(t *testing.T) {
 			assert.NotNil(t, l)
 		}
 	})
-}
-
-func TestLayoutHas(t *testing.T) {
-	t.Skip("not implemented")
-
-	// Prepare l Layout
-	testCases := []struct {
-		node     string
-		loc      string
-		expected bool
-	}{
-		{
-			// is true for top level node
-		},
-		{
-			// is true for nested node
-		},
-		{
-			// is true for file node
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(fmt.Sprintf("is %t for node %s at %s", tC.expected, tC.node, tC.loc), func(t *testing.T) {
-
-		})
-	}
 }
 
 func TestDefaultLayouts(t *testing.T) {

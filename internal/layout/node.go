@@ -2,12 +2,16 @@ package layout
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path"
 	"text/template"
 )
+
+// TODO: add flag wasbuild to nodes to support rebuild operation
+// TODO: Dnode and Fnode should be interfaces
 
 const (
 	fperm fs.FileMode = 0644
@@ -29,13 +33,15 @@ type node struct {
 	permissions fs.FileMode
 }
 
-type dnode struct {
+// Dnode describes directory nodes.
+// Use NewDnode to initialize Dnode.
+type Dnode struct {
 	node
 	subnodes []Node
 }
 
-func newdnode(name string, opts ...dnodeoption) dnode {
-	n := dnode{
+func NewDnode(name string, opts ...DnodeOption) *Dnode {
+	n := &Dnode{
 		node: node{
 			name:        name,
 			permissions: dperm,
@@ -43,21 +49,21 @@ func newdnode(name string, opts ...dnodeoption) dnode {
 	}
 
 	for _, o := range opts {
-		o.apply(&n)
+		o.apply(n)
 	}
 
 	return n
 }
 
-func (n dnode) Name() string {
+func (n Dnode) Name() string {
 	return n.name
 }
 
-func (n dnode) Permissions() fs.FileMode {
+func (n Dnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
-func (n dnode) Build(loc, mod string) error {
+func (n Dnode) Build(loc, mod string) error {
 	o := path.Join(loc, n.Name())
 
 	if err := os.Mkdir(o, n.Permissions()); err != nil {
@@ -73,49 +79,68 @@ func (n dnode) Build(loc, mod string) error {
 	return nil
 }
 
-func (n dnode) SubNodes() []Node {
+func (n Dnode) SubNodes() []Node {
 	return n.subnodes
 }
 
-func (n *dnode) addSubNodes(sn []Node) {
-	n.subnodes = append(n.subnodes, sn...)
+func (n Dnode) GetSubNode(name string) Node {
+	return findByName(n.subnodes, name)
 }
 
-type dnodeoption interface {
-	apply(*dnode)
+func (n *Dnode) Add(newNode Node) error {
+	if subnode := findByName(n.subnodes, newNode.Name()); subnode != nil {
+		return fmt.Errorf("node %s already exists", newNode.Name())
+	}
+	n.subnodes = append(n.subnodes, newNode)
+	return nil
+}
+
+func findByName(nodes []Node, n string) Node {
+	for _, node := range nodes {
+		if node.Name() == n {
+			return node
+		}
+	}
+	return nil
+}
+
+type DnodeOption interface {
+	apply(*Dnode)
 }
 
 type dnodefopt struct {
-	f func(*dnode)
+	f func(*Dnode)
 }
 
-func (f *dnodefopt) apply(n *dnode) {
+func (f *dnodefopt) apply(n *Dnode) {
 	f.f(n)
 }
 
-func newdnodefopt(f func(*dnode)) *dnodefopt {
+func newdnodefopt(f func(*Dnode)) *dnodefopt {
 	return &dnodefopt{f}
 }
 
-func withSubNodes(sn ...Node) dnodeoption {
-	return newdnodefopt(func(n *dnode) {
+func WithSubNodes(sn ...Node) DnodeOption {
+	return newdnodefopt(func(n *Dnode) {
 		n.subnodes = sn
 	})
 }
 
-func withDperm(p fs.FileMode) dnodeoption {
-	return newdnodefopt(func(n *dnode) {
+func WithDperm(p fs.FileMode) DnodeOption {
+	return newdnodefopt(func(n *Dnode) {
 		n.permissions = p
 	})
 }
 
-type fnode struct {
+// Fnode describes file nodes.
+// Use NewFnode to initialize Fnode.
+type Fnode struct {
 	node
 	template *template.Template
 }
 
-func newfnode(name string, opts ...fnodeoption) fnode {
-	n := fnode{
+func NewFnode(name string, opts ...FnodeOption) *Fnode {
+	n := &Fnode{
 		node: node{
 			name:        name,
 			permissions: fperm,
@@ -123,22 +148,22 @@ func newfnode(name string, opts ...fnodeoption) fnode {
 	}
 
 	for _, o := range opts {
-		o.apply(&n)
+		o.apply(n)
 	}
 
 	return n
 }
 
-func (n fnode) Name() string {
+func (n Fnode) Name() string {
 	return n.name
 }
 
-func (n fnode) Permissions() fs.FileMode {
+func (n Fnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
 // Build executes node template and writes it to a file to a provided location.
-func (n fnode) Build(loc, mod string) error {
+func (n Fnode) Build(loc, mod string) error {
 	if n.template == nil {
 		return errNilTemplate
 	}
@@ -158,7 +183,7 @@ func (n fnode) Build(loc, mod string) error {
 	return f.Chmod(n.Permissions())
 }
 
-func (n fnode) wbuild(w io.Writer, mod string) error {
+func (n Fnode) wbuild(w io.Writer, mod string) error {
 	data := struct {
 		Module string
 	}{
@@ -168,43 +193,43 @@ func (n fnode) wbuild(w io.Writer, mod string) error {
 	return n.template.Execute(w, data)
 }
 
-func (n fnode) Template() *template.Template {
+func (n Fnode) Template() *template.Template {
 	return n.template
 }
 
-type fnodeoption interface {
-	apply(*fnode)
+type FnodeOption interface {
+	apply(*Fnode)
 }
 
 type fnodefopt struct {
-	f func(*fnode)
+	f func(*Fnode)
 }
 
-func (f *fnodefopt) apply(n *fnode) {
+func (f *fnodefopt) apply(n *Fnode) {
 	f.f(n)
 }
 
-func newfnodefopt(f func(*fnode)) *fnodefopt {
+func newfnodefopt(f func(*Fnode)) *fnodefopt {
 	return &fnodefopt{f}
 }
 
-func withFperm(p fs.FileMode) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+func WithFperm(p fs.FileMode) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.permissions = p
 	})
 }
 
-// withNewTemplate adds node template with template name tn and template string
+// WithNewTemplate adds node template with template name tn and template string
 // ts.
-func withNewTemplate(tn, ts string) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+func WithNewTemplate(tn, ts string) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.template = template.Must(template.New(tn).Parse(ts))
 	})
 }
 
-// withNewTemplate adds node template t.
-func withTemplate(t *template.Template) fnodeoption {
-	return newfnodefopt(func(n *fnode) {
+// WithTemplate adds node template t.
+func WithTemplate(t *template.Template) FnodeOption {
+	return newfnodefopt(func(n *Fnode) {
 		n.template = t
 	})
 }
