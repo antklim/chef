@@ -124,7 +124,7 @@ func TestLayoutAdd(t *testing.T) {
 		l := layout.New("layout", dnode)
 
 		err := l.Add(layout.NewFnode("new_file.txt"), "dnode/file.txt")
-		assert.EqualError(t, err, "node 'dnode/file.txt' not a directory")
+		assert.EqualError(t, err, "node 'dnode/file.txt' does not support adding subnodes")
 	})
 
 	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
