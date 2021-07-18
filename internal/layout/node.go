@@ -40,8 +40,8 @@ type Dnode struct {
 	subnodes []Node
 }
 
-func NewDnode(name string, opts ...DnodeOption) Dnode {
-	n := Dnode{
+func NewDnode(name string, opts ...DnodeOption) *Dnode {
+	n := &Dnode{
 		node: node{
 			name:        name,
 			permissions: dperm,
@@ -49,7 +49,7 @@ func NewDnode(name string, opts ...DnodeOption) Dnode {
 	}
 
 	for _, o := range opts {
-		o.apply(&n)
+		o.apply(n)
 	}
 
 	return n
@@ -139,8 +139,8 @@ type Fnode struct {
 	template *template.Template
 }
 
-func NewFnode(name string, opts ...FnodeOption) Fnode {
-	n := Fnode{
+func NewFnode(name string, opts ...FnodeOption) *Fnode {
+	n := &Fnode{
 		node: node{
 			name:        name,
 			permissions: fperm,
@@ -148,7 +148,7 @@ func NewFnode(name string, opts ...FnodeOption) Fnode {
 	}
 
 	for _, o := range opts {
-		o.apply(&n)
+		o.apply(n)
 	}
 
 	return n

@@ -21,7 +21,7 @@ func init() { // nolint:gochecknoinits
 	Register(New(HTTPServiceLayout, httpServiceNodes()...))
 }
 
-func httpEndpoint(name string) Fnode {
+func httpEndpoint(name string) *Fnode {
 	return NewFnode(fmt.Sprintf("%s.go", name), WithTemplate(template.Get(template.HTTPEndpoint)))
 }
 

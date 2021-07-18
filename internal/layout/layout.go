@@ -13,7 +13,7 @@ type Adder interface {
 }
 
 type Layout struct {
-	root   Dnode
+	root   *Dnode
 	schema string
 }
 
@@ -81,7 +81,7 @@ func (l Layout) Get(node, loc string) Node {
 			return nil
 		}
 
-		dnode, ok := n.(Dnode)
+		dnode, ok := n.(*Dnode)
 		if !ok {
 			return nil
 		}

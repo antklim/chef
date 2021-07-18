@@ -108,7 +108,6 @@ func TestLayoutAdd(t *testing.T) {
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
-		t.Skip("not implemented")
 		fnode := layout.NewFnode("file.txt")
 		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
 		l := layout.New("layout", dnode)
