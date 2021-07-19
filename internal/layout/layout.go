@@ -8,18 +8,14 @@ import (
 
 const Root = "."
 
-type Adder interface {
+type Dir interface {
 	Add(n Node) error
+	GetSubNode(string) Node
+	SubNodes() []Node
 }
 
-// TODO: use it
-// type Dir interface {
-// 	Add(n Node) error
-// 	SubNodes() []Node
-// }
-
 type Layout struct {
-	root   *Dnode // TODO: Should be interface
+	root   Dir
 	schema string
 }
 
@@ -52,7 +48,7 @@ func (l *Layout) Add(n Node, loc string) error {
 		return fmt.Errorf("path '%s' not found in layout", loc)
 	}
 
-	locDir, ok := locNode.(Adder)
+	locDir, ok := locNode.(Dir)
 	if !ok {
 		return fmt.Errorf("node '%s' does not support adding subnodes", loc)
 	}
@@ -89,8 +85,7 @@ func (l Layout) Get(node, loc string) Node {
 			return nil
 		}
 
-		// TODO: replace with interface
-		dnode, ok := n.(*Dnode)
+		dnode, ok := n.(Dir)
 		if !ok {
 			return nil
 		}
