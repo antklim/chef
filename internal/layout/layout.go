@@ -12,8 +12,14 @@ type Adder interface {
 	Add(n Node) error
 }
 
+// TODO: use it
+// type Dir interface {
+// 	Add(n Node) error
+// 	SubNodes() []Node
+// }
+
 type Layout struct {
-	root   *Dnode
+	root   *Dnode // TODO: Should be interface
 	schema string
 }
 
@@ -26,6 +32,7 @@ func New(s string, nodes ...Node) Layout {
 	}
 }
 
+// TODO: deprecate
 func (l Layout) Nodes() []Node {
 	return l.root.SubNodes()
 }
@@ -58,6 +65,7 @@ func (l Layout) Schema() string {
 }
 
 func (l Layout) Build(loc, mod string) error {
+	// TODO: replace with l.root.Build()
 	for _, n := range l.root.SubNodes() {
 		if err := n.Build(loc, mod); err != nil {
 			return err
@@ -81,6 +89,7 @@ func (l Layout) Get(node, loc string) Node {
 			return nil
 		}
 
+		// TODO: replace with interface
 		dnode, ok := n.(*Dnode)
 		if !ok {
 			return nil

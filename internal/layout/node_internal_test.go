@@ -55,9 +55,7 @@ func TestFnode(t *testing.T) {
 }
 
 func TestFnodeBuild(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
 	t.Run("returns an error when does not have template", func(t *testing.T) {
 		f := NewFnode("test_file_1")
@@ -129,9 +127,7 @@ func TestDnode(t *testing.T) {
 }
 
 func TestDnodeBuild(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
 	t.Run("creates node directory in a provided location", func(t *testing.T) {
 		n := NewDnode("test_dir_1")

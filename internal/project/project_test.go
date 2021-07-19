@@ -26,11 +26,9 @@ func TestNewProject(t *testing.T) {
 }
 
 func TestProjectValidate(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest123")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 
-	err = os.Mkdir(path.Join(tmpDir, "chefsushi"), 0755)
+	err := os.Mkdir(path.Join(tmpDir, "chefsushi"), 0755)
 	require.NoError(t, err)
 
 	karrageFile := path.Join(tmpDir, "karrage")
@@ -88,17 +86,13 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func TestProjectBootstrap(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cheftest456")
-	defer os.RemoveAll(tmpDir)
-	require.NoError(t, err)
-
 	testCases := []struct {
 		desc string
 		root string
 	}{
 		{
 			desc: "inits project in provided directory",
-			root: tmpDir,
+			root: t.TempDir(),
 		},
 		{
 			desc: "inits project in current directory",
