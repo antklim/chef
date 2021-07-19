@@ -10,8 +10,8 @@ const Root = "."
 
 type Dir interface {
 	Add(n Node) error
-	GetSubNode(string) Node
-	SubNodes() []Node
+	Get(string) Node
+	Nodes() []Node
 }
 
 type Layout struct {
@@ -30,7 +30,7 @@ func New(s string, nodes ...Node) Layout {
 
 // TODO: deprecate
 func (l Layout) Nodes() []Node {
-	return l.root.SubNodes()
+	return l.root.Nodes()
 }
 
 // Add adds a node to a layout location.
@@ -61,8 +61,7 @@ func (l Layout) Schema() string {
 }
 
 func (l Layout) Build(loc, mod string) error {
-	// TODO: replace with l.root.Build()
-	for _, n := range l.root.SubNodes() {
+	for _, n := range l.root.Nodes() {
 		if err := n.Build(loc, mod); err != nil {
 			return err
 		}
@@ -73,14 +72,14 @@ func (l Layout) Build(loc, mod string) error {
 // Get returns a node with the given name at a location.
 func (l Layout) Get(node, loc string) Node {
 	if loc == Root {
-		return l.root.GetSubNode(node)
+		return l.root.Get(node)
 	}
 
 	dirs := strings.Split(loc, "/")
 	d := l.root
 
 	for _, dir := range dirs {
-		n := d.GetSubNode(dir)
+		n := d.Get(dir)
 		if n == nil {
 			return nil
 		}
@@ -92,7 +91,7 @@ func (l Layout) Get(node, loc string) Node {
 		d = dnode
 	}
 
-	return d.GetSubNode(node)
+	return d.Get(node)
 }
 
 const (

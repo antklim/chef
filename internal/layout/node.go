@@ -11,7 +11,6 @@ import (
 )
 
 // TODO: add flag wasbuild to nodes to support rebuild operation
-// TODO: Dnode and Fnode should be interfaces
 
 const (
 	fperm fs.FileMode = 0644
@@ -79,11 +78,11 @@ func (n Dnode) Build(loc, mod string) error {
 	return nil
 }
 
-func (n Dnode) SubNodes() []Node {
+func (n Dnode) Nodes() []Node {
 	return n.subnodes
 }
 
-func (n Dnode) GetSubNode(name string) Node {
+func (n Dnode) Get(name string) Node {
 	return findByName(n.subnodes, name)
 }
 
