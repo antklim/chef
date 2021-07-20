@@ -8,7 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO: add commamds tests
+// TODO: add commamds tests, use https://github.com/commander-cli/commander
+// TODO: layout/chef.yml location
 
 var (
 	projName = Flag{
@@ -67,29 +68,15 @@ func bootstrapCmd() *cobra.Command {
 		Long:  "Bootstrap a new project",
 		Example: `chef boot --name myproject
 chef boot --category [srv] --name myproject
-chef boot -c [srv] -n myproject --root /usr/local --layout chef.yml`,
+chef boot -c [srv] -n myproject --root /usr/local`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
 				project.WithCategory(inputs.Category),
 				project.WithServer(inputs.Server),
 				project.WithModule(inputs.Module),
-				// TODO: layout/chef.yml location
 			)
-
-			if err := p.Bootstrap(); err != nil {
-				return errors.Wrap(err, "unable to bootstrap project")
-			}
-
-			fmt.Printf("project %s successfully bootrapped\n", p.Name())
-
-			if l, err := p.Location(); err != nil {
-				fmt.Printf("unable to get project location: %+v\n", err)
-			} else {
-				fmt.Printf("project location: %s\n", l)
-			}
-
-			return nil
+			return bootstrapCmdRunner(p)
 		},
 	}
 
@@ -101,4 +88,20 @@ chef boot -c [srv] -n myproject --root /usr/local --layout chef.yml`,
 	projServer.RegisterString(cmd, &inputs.Server, "")
 
 	return cmd
+}
+
+func bootstrapCmdRunner(p project.Project) error {
+	if err := p.Bootstrap(); err != nil {
+		return errors.Wrap(err, "unable to bootstrap project")
+	}
+
+	fmt.Printf("project %s successfully bootrapped\n", p.Name())
+
+	if l, err := p.Location(); err != nil {
+		fmt.Printf("unable to get project location: %+v\n", err)
+	} else {
+		fmt.Printf("project location: %s\n", l)
+	}
+
+	return nil
 }
