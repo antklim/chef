@@ -28,11 +28,6 @@ func New(s string, nodes ...Node) Layout {
 	}
 }
 
-// TODO: deprecate
-func (l Layout) Nodes() []Node {
-	return l.root.Nodes()
-}
-
 // Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
 	if node := l.Get(n.Name(), loc); node != nil {
