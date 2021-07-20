@@ -89,6 +89,7 @@ func (l Layout) Get(node, loc string) Node {
 	return d.Get(node)
 }
 
+// TODO: move to lower-level
 const (
 	// ServiceLayout an abstract service layout name.
 	ServiceLayout = "srv"
