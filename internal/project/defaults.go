@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/antklim/chef/internal/layout"
-	"github.com/antklim/chef/internal/layout/template"
+	"github.com/antklim/chef/internal/project/template"
 )
 
 // TODO: validate executed templates content

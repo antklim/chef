@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/antklim/chef/internal/layout/template"
+	"github.com/antklim/chef/internal/project/template"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
