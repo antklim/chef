@@ -215,21 +215,17 @@ func TestLayoutsRegistryInit(t *testing.T) {
 }
 
 func TestDefaultLayouts(t *testing.T) {
-	t.Run("service layout has correct nodes", func(t *testing.T) {
-		l := layout.Get(layout.ServiceLayout)
-		expectedNodes := []string{"adapter", "app", "handler", "provider", "server", "test"}
-		for _, n := range expectedNodes {
-			node := l.Get(n, layout.Root)
-			assert.NotNil(t, node)
-		}
-	})
+	defLayouts := map[string][]string{
+		layout.ServiceLayout:     {"adapter", "app", "handler", "provider", "server", "test"},
+		layout.HTTPServiceLayout: {"adapter", "app", "handler", "provider", "server", "test", "main.go"},
+	}
 
-	t.Run("http service layout has correct nodes", func(t *testing.T) {
-		l := layout.Get(layout.HTTPServiceLayout)
-		expectedNodes := []string{"adapter", "app", "handler", "provider", "server", "test", "main.go"}
-		for _, n := range expectedNodes {
+	for layoutName, layoutNodes := range defLayouts {
+		l := layout.Get(layoutName)
+		require.NotNil(t, l)
+		for _, n := range layoutNodes {
 			node := l.Get(n, layout.Root)
 			assert.NotNil(t, node)
 		}
-	})
+	}
 }
