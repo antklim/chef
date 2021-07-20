@@ -28,7 +28,6 @@ func New(s string, nodes ...Node) Layout {
 	}
 }
 
-// TODO: deprecate
 func (l Layout) Nodes() []Node {
 	return l.root.Nodes()
 }
