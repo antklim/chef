@@ -89,14 +89,6 @@ func (l Layout) Get(node, loc string) Node {
 	return d.Get(node)
 }
 
-// TODO: move to lower-level
-const (
-	// ServiceLayout an abstract service layout name.
-	ServiceLayout = "srv"
-	// HTTPServiceLayout an http service layout name.
-	HTTPServiceLayout = "srv_http"
-)
-
 var (
 	// m is a map from schema to layout.
 	m = make(map[string]Layout)

@@ -20,8 +20,8 @@ const (
 )
 
 func init() { // nolint:gochecknoinits
-	layout.Register(layout.New(layout.ServiceLayout, serviceNodes()...))
-	layout.Register(layout.New(layout.HTTPServiceLayout, httpServiceNodes()...))
+	layout.Register(layout.New(ServiceLayout, serviceNodes()...))
+	layout.Register(layout.New(HTTPServiceLayout, httpServiceNodes()...))
 }
 
 func httpEndpoint(name string) *layout.Fnode {

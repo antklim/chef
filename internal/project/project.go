@@ -54,6 +54,13 @@ const (
 	defaultServer   = serverNone
 )
 
+const (
+	// ServiceLayout an abstract service layout name.
+	ServiceLayout = "srv"
+	// HTTPServiceLayout an http service layout name.
+	HTTPServiceLayout = "srv_http"
+)
+
 var (
 	errEmptyProjectName = errors.New("project name required: empty name provided")
 )

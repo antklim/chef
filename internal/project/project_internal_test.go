@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -130,12 +129,12 @@ func TestLayout(t *testing.T) {
 		{
 			desc:   "returns default project layout",
 			p:      New("test"),
-			schema: layout.ServiceLayout,
+			schema: ServiceLayout,
 		},
 		{
 			desc:   "returns http service layout",
 			p:      New("test", WithCategory("srv"), WithServer("http")),
-			schema: layout.HTTPServiceLayout,
+			schema: HTTPServiceLayout,
 		},
 	}
 	for _, tC := range testCases {
