@@ -47,10 +47,11 @@ var _ layout.Node = (*testNode)(nil)
 
 func TestNewLayout(t *testing.T) {
 	schema := "testLayout"
-	nodes := []layout.Node{&testNode{}}
+	node := &testNode{}
+	nodes := []layout.Node{node}
 	l := layout.New(schema, nodes...)
 	assert.Equal(t, schema, l.Schema())
-	assert.Equal(t, nodes, l.Nodes())
+	assert.Equal(t, node, l.Get("testNode", layout.Root))
 }
 
 func TestLayoutBuild(t *testing.T) {
