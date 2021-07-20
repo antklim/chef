@@ -27,8 +27,6 @@ var (
 		LongForm:  "category",
 		ShortForm: "c",
 		Help: "Category of project:\n" +
-			"- cli: CLI application.\n" +
-			"- pkg: package.\n" +
 			"- srv: service application based on HTTP or gRPC.\n",
 		IsRequired: true,
 	}
@@ -68,15 +66,15 @@ func bootstrapCmd() *cobra.Command {
 		Short: "Bootstrap a new project",
 		Long:  "Bootstrap a new project",
 		Example: `chef boot --name myproject
-chef boot --category [cli|pkg|srv] --name myproject
-chef boot -c [cli|pkg|srv] -n myproject --root /usr/local --layout chef.yml`,
+chef boot --category [srv] --name myproject
+chef boot -c [srv] -n myproject --root /usr/local --layout chef.yml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
 				project.WithCategory(inputs.Category),
 				project.WithServer(inputs.Server),
 				project.WithModule(inputs.Module),
-				// TODO: layout location
+				// TODO: layout/chef.yml location
 			)
 
 			if err := p.Bootstrap(); err != nil {

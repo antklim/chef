@@ -6,6 +6,8 @@ import (
 	"github.com/antklim/chef/internal/layout/template"
 )
 
+// TODO: move to lower level (project level)
+
 const (
 	dirAdapter  = "adapter"
 	dirApp      = "app"
