@@ -18,6 +18,17 @@ import (
 
 // TODO: init project with go.mod
 
+// TODO: split project into different project types, move concrete types to subdirectories
+// type API interface {
+// 	Bootstrap() error
+// 	Add(Component) error // add component
+
+// 	Location() (string, error)
+// 	Name() string
+// }
+
+type Component struct{}
+
 const (
 	categoryUnknown = "unknown"
 	categoryService = "srv"
@@ -142,7 +153,8 @@ func (p Project) Bootstrap() error {
 	return p.build()
 }
 
-func (p Project) Add() error {
+// TODO: implement add component
+func (p Project) Add(c Component) error {
 	return errors.New("not implemented")
 }
 

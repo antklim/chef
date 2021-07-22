@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,7 @@ func addCmd() *cobra.Command { // nolint
 }
 
 func AddCmdRunner(p Project) error {
-	if err := p.Add(); err != nil {
+	if err := p.Add(project.Component{}); err != nil {
 		return errors.Wrap(err, "unable to add to a project")
 	}
 	return nil

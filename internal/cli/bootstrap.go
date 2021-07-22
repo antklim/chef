@@ -90,6 +90,7 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 	return cmd
 }
 
+// TODO: update to project.API
 func BootstrapCmdRunner(p Project) error {
 	if err := p.Bootstrap(); err != nil {
 		return errors.Wrap(err, "unable to bootstrap project")
