@@ -11,7 +11,7 @@ import (
 
 func TestBootstrapCmdRunner(t *testing.T) {
 	t.Run("returns an error when bootstrap failed", func(t *testing.T) {
-		p := mocks.FailedBootProject(errors.New("some bootstrap error"))
+		p := mocks.FailedProject(errors.New("some bootstrap error"))
 		err := cli.BootstrapCmdRunner(p)
 		assert.EqualError(t, err, "unable to bootstrap project: some bootstrap error")
 	})

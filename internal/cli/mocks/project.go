@@ -1,11 +1,15 @@
 package mocks
 
 type Project struct {
-	bootError error
+	e error
+}
+
+func (p Project) Add() error {
+	return p.e
 }
 
 func (p Project) Bootstrap() error {
-	return p.bootError
+	return p.e
 }
 
 func (p Project) Location() (string, error) {
@@ -16,6 +20,6 @@ func (p Project) Name() string {
 	return "ProjectMock"
 }
 
-func FailedBootProject(err error) Project {
+func FailedProject(err error) Project {
 	return Project{err}
 }

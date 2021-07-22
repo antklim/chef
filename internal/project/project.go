@@ -142,6 +142,10 @@ func (p Project) Bootstrap() error {
 	return p.build()
 }
 
+func (p Project) Add() error {
+	return errors.New("not implemented")
+}
+
 func (p Project) Name() string {
 	return p.name
 }
