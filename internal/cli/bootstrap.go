@@ -76,7 +76,7 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 				project.WithServer(inputs.Server),
 				project.WithModule(inputs.Module),
 			)
-			return bootstrapCmdRunner(p)
+			return BootstrapCmdRunner(p)
 		},
 	}
 
@@ -90,12 +90,12 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 	return cmd
 }
 
-func bootstrapCmdRunner(p project.Project) error {
+func BootstrapCmdRunner(p Project) error {
 	if err := p.Bootstrap(); err != nil {
 		return errors.Wrap(err, "unable to bootstrap project")
 	}
 
-	fmt.Printf("project %s successfully bootrapped\n", p.Name())
+	fmt.Printf("project %s successfully created\n", p.Name())
 
 	if l, err := p.Location(); err != nil {
 		fmt.Printf("unable to get project location: %+v\n", err)
