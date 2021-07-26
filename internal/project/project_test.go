@@ -115,6 +115,27 @@ func TestProjectBootstrap(t *testing.T) {
 	}
 }
 
+func TestProjectAdd(t *testing.T) {
+	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p := project.New("cheftest")
+		err := p.Add(project.Component{})
+		assert.EqualError(t, err, "unknown component foo")
+	})
+
+	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		// t.Log("not implemented")
+		// t.Fail()
+	})
+
+	t.Run("adds new component node to a project layout", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		// t.Log("not implemented")
+		// t.Fail()
+	})
+}
+
 // TODO: test default layouts
 // func TestDefaultLayouts(t *testing.T) {
 // 	defLayouts := map[string][]string{

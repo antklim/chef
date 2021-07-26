@@ -1,7 +1,6 @@
 package project
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/antklim/chef/internal/layout"
+	"github.com/pkg/errors"
 )
 
 // TODO: read layout settings from yaml
@@ -28,6 +28,10 @@ import (
 // }
 
 type Component struct{}
+
+func (c Component) String() string {
+	return "foo"
+}
 
 const (
 	categoryUnknown = "unknown"
@@ -148,13 +152,19 @@ func (p Project) Validate() error {
 // Bootstrap orchestrates project validation and initialization steps.
 func (p Project) Bootstrap() error {
 	if err := p.Validate(); err != nil {
-		return err
+		return errors.Wrap(err, "validation failed")
 	}
-	return p.build()
+	if err := p.build(); err != nil {
+		return errors.Wrap(err, "build failed")
+	}
+	return nil
 }
 
 // TODO: implement add component
 func (p Project) Add(c Component) error {
+	if !p.knows(c) {
+		return fmt.Errorf("unknown component %s", c.String())
+	}
 	return errors.New("not implemented")
 }
 
@@ -210,6 +220,10 @@ func (p Project) layout() (*layout.Layout, error) {
 	}
 
 	return l, nil
+}
+
+func (p Project) knows(c Component) bool {
+	return false
 }
 
 type Option interface {
