@@ -96,6 +96,7 @@ var defaultProjectOptions = projectOptions{
 type Project struct {
 	name string
 	opts projectOptions
+	lout layout.Layout
 }
 
 // New project.
@@ -161,9 +162,9 @@ func (p Project) Bootstrap() error {
 }
 
 // TODO: implement add component
-func (p Project) Add(c Component) error {
-	if !p.knows(c) {
-		return fmt.Errorf("unknown component %s", c.String())
+func (p Project) Add(component, name string) error {
+	if err := p.lout.AddComponent(component, name); err != nil {
+		return errors.Wrap(err, "could not add layout component")
 	}
 	return errors.New("not implemented")
 }

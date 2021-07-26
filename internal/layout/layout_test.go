@@ -185,6 +185,27 @@ func TestLayoutGet(t *testing.T) {
 	}
 }
 
+func TestAddComponent(t *testing.T) {
+	t.Run("returns error when adding unknown component", func(t *testing.T) {
+		l := layout.New("layout")
+
+		err := l.AddComponent("handler", "health")
+		assert.EqualError(t, err, `unknown component "handler"`)
+	})
+
+	t.Run("returns error when component with the provided name already exists", func(t *testing.T) {
+		t.Skip("WIP")
+		fnode := layout.NewFnode("health.go")
+		dnode := layout.NewDnode("handler", layout.WithSubNodes(fnode))
+		l := layout.New("layout", dnode)
+
+		err := l.AddComponent("handler", "health")
+		assert.EqualError(t, err, `"health" handler already exists`)
+	})
+
+	t.Run("adds component node", func(t *testing.T) {})
+}
+
 func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {
 		l := layout.Get("foo")

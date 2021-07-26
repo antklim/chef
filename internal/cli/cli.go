@@ -1,10 +1,8 @@
 package cli
 
-import "github.com/antklim/chef/internal/project"
-
 type Project interface {
 	Bootstrap() error
-	Add(project.Component) error
+	Add(string, string) error
 	Location() (string, error)
 	Name() string
 }

@@ -1,12 +1,10 @@
 package mocks
 
-import "github.com/antklim/chef/internal/project"
-
 type Project struct {
 	e error
 }
 
-func (p Project) Add(c project.Component) error {
+func (p Project) Add(component, name string) error {
 	return p.e
 }
 

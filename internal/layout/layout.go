@@ -14,9 +14,12 @@ type Dir interface {
 	Nodes() []Node
 }
 
+type Component struct{}
+
 type Layout struct {
-	root   Dir
-	schema string
+	root       Dir
+	schema     string
+	components map[string]Component
 }
 
 // New creates a new layout with schema s and nodes n.
@@ -87,6 +90,15 @@ func (l Layout) Get(node, loc string) Node {
 	}
 
 	return d.Get(node)
+}
+
+// AddComponent adds component node to the layout.
+func (l *Layout) AddComponent(componentType, nodeName string) error {
+	_, ok := l.components[componentType]
+	if !ok {
+		return fmt.Errorf("unknown component %q", componentType)
+	}
+	return nil
 }
 
 var (
