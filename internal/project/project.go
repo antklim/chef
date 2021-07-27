@@ -162,6 +162,8 @@ func (p Project) Bootstrap() error {
 }
 
 // TODO: implement add component
+
+// Add adds a new component node to a project
 func (p Project) Add(component, name string) error {
 	if err := p.lout.AddComponent(component, name); err != nil {
 		return errors.Wrap(err, "could not add layout component")
@@ -221,10 +223,6 @@ func (p Project) layout() (*layout.Layout, error) {
 	}
 
 	return l, nil
-}
-
-func (p Project) knows(c Component) bool {
-	return false
 }
 
 type Option interface {

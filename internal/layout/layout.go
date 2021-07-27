@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"text/template"
 )
 
 const Root = "."
@@ -14,12 +15,16 @@ type Dir interface {
 	Nodes() []Node
 }
 
-type Component struct{}
+type component struct {
+	// loc      string
+	// name     string
+	// template *template.Template
+}
 
 type Layout struct {
 	root       Dir
 	schema     string
-	components map[string]Component
+	components map[string]component
 }
 
 // New creates a new layout with schema s and nodes n.
@@ -34,7 +39,7 @@ func New(s string, nodes ...Node) Layout {
 // Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
 	if node := l.Get(n.Name(), loc); node != nil {
-		return fmt.Errorf("node %s already exists at '%s'", n.Name(), loc)
+		return fmt.Errorf("node %s already exists at %q", n.Name(), loc)
 	}
 
 	if loc == Root {
@@ -43,12 +48,12 @@ func (l *Layout) Add(n Node, loc string) error {
 
 	locNode := l.Get(path.Base(loc), path.Dir(loc))
 	if locNode == nil {
-		return fmt.Errorf("path '%s' not found in layout", loc)
+		return fmt.Errorf("path %q not found in layout", loc)
 	}
 
 	locDir, ok := locNode.(Dir)
 	if !ok {
-		return fmt.Errorf("node '%s' does not support adding subnodes", loc)
+		return fmt.Errorf("node %q does not support adding subnodes", loc)
 	}
 
 	return locDir.Add(n)
@@ -92,6 +97,13 @@ func (l Layout) Get(node, loc string) Node {
 	return d.Get(node)
 }
 
+func (l *Layout) RegisterComponent(componentType, loc string, t *template.Template) error {
+	if !l.find(loc) {
+		return fmt.Errorf("component location %q does not exist", loc)
+	}
+	return nil
+}
+
 // AddComponent adds component node to the layout.
 func (l *Layout) AddComponent(componentType, nodeName string) error {
 	_, ok := l.components[componentType]
@@ -101,6 +113,17 @@ func (l *Layout) AddComponent(componentType, nodeName string) error {
 	return nil
 }
 
+// HasComponent returns true if layout registered the component.
+func (l Layout) HasComponent(componentType string) bool {
+	_, ok := l.components[componentType]
+	return ok
+}
+
+func (l Layout) find(loc string) bool {
+	return false
+}
+
+// TODO: consider deprecation of layout registry
 var (
 	// m is a map from schema to layout.
 	m = make(map[string]Layout)

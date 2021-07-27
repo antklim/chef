@@ -119,7 +119,7 @@ func TestLayoutAdd(t *testing.T) {
 		l := layout.New("layout", dnode)
 
 		err := l.Add(layout.NewFnode("new_file.txt"), "dnode/file.txt")
-		assert.EqualError(t, err, "node 'dnode/file.txt' does not support adding subnodes")
+		assert.EqualError(t, err, `node "dnode/file.txt" does not support adding subnodes`)
 	})
 
 	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestLayoutAdd(t *testing.T) {
 		l := layout.New("layout", dnode)
 
 		err := l.Add(layout.NewFnode("new_file.txt"), "other")
-		assert.EqualError(t, err, "path 'other' not found in layout")
+		assert.EqualError(t, err, `path "other" not found in layout`)
 	})
 
 	t.Run("returns error when adding existing node", func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestLayoutAdd(t *testing.T) {
 		l := layout.New("layout", nodes...)
 
 		err := l.Add(layout.NewFnode("file.txt"), layout.Root)
-		assert.EqualError(t, err, "node file.txt already exists at '.'")
+		assert.EqualError(t, err, `node file.txt already exists at "."`)
 	})
 }
 
@@ -193,7 +193,7 @@ func TestAddComponent(t *testing.T) {
 		assert.EqualError(t, err, `unknown component "handler"`)
 	})
 
-	t.Run("returns error when component with the provided name already exists", func(t *testing.T) {
+	t.Run("returns error when component node with the provided name already exists", func(t *testing.T) {
 		t.Skip("WIP")
 		fnode := layout.NewFnode("health.go")
 		dnode := layout.NewDnode("handler", layout.WithSubNodes(fnode))
@@ -203,7 +203,31 @@ func TestAddComponent(t *testing.T) {
 		assert.EqualError(t, err, `"health" handler already exists`)
 	})
 
-	t.Run("adds component node", func(t *testing.T) {})
+	t.Run("adds a component node", func(t *testing.T) {})
+}
+
+func TestRegisterComponent(t *testing.T) {
+	t.Run("returns error when provided location does not exist", func(t *testing.T) {
+		dnode := layout.NewDnode("handler")
+		l := layout.New("layout", dnode)
+		err := l.RegisterComponent("hander", "other/handler", nil)
+		assert.EqualError(t, err, `component location "other/handler" does not exist`)
+		assert.False(t, l.HasComponent("handler"))
+	})
+
+	t.Run("returns error when provided location is not a directory", func(t *testing.T) {
+
+	})
+
+	t.Run("registers component", func(t *testing.T) {
+		// dnode := layout.NewDnode("handler")
+		// l := layout.New("layout", dnode)
+		// l.RegisterComponent("hander", "", nil)
+	})
+
+	t.Run("registers other component to the same location", func(t *testing.T) {})
+
+	t.Run("overrides an existing component", func(t *testing.T) {})
 }
 
 func TestLayoutsRegistry(t *testing.T) {
