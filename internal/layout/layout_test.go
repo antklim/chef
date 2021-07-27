@@ -228,6 +228,8 @@ func TestRegisterComponent(t *testing.T) {
 	t.Run("registers other component to the same location", func(t *testing.T) {})
 
 	t.Run("overrides an existing component", func(t *testing.T) {})
+
+	t.Run("registers component at the root of layout", func(t *testing.T) {})
 }
 
 func TestLayoutsRegistry(t *testing.T) {

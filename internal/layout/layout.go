@@ -98,7 +98,8 @@ func (l Layout) Get(node, loc string) Node {
 }
 
 func (l *Layout) RegisterComponent(componentType, loc string, t *template.Template) error {
-	if !l.find(loc) {
+	locNode := l.findNode(loc)
+	if locNode == nil {
 		return fmt.Errorf("component location %q does not exist", loc)
 	}
 	return nil
@@ -119,8 +120,32 @@ func (l Layout) HasComponent(componentType string) bool {
 	return ok
 }
 
-func (l Layout) find(loc string) bool {
-	return false
+// TODO: format comment bellow for better documentation help
+
+// find searches for a node at provided location.
+// For example:
+// - find("server/http") returns directory node associated with "server/http" location
+// - find("server/http/handler.go") returns file node associated with the handler.go
+// - find(".") returns nil for root location
+// - find("") returns nil when no associated node found
+func (l Layout) findNode(loc string) Node {
+	dirs := strings.Split(loc, "/")
+	d := l.root
+
+	for _, dir := range dirs[:len(dirs)-1] {
+		n := d.Get(dir)
+		if n == nil {
+			return nil
+		}
+
+		dnode, ok := n.(Dir)
+		if !ok {
+			return nil
+		}
+		d = dnode
+	}
+
+	return d.Get(dirs[len(dirs)-1])
 }
 
 // TODO: consider deprecation of layout registry
