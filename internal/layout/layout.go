@@ -16,9 +16,9 @@ type Dir interface {
 }
 
 type component struct {
-	// loc      string
-	// name     string
-	// template *template.Template
+	loc      string
+	name     string
+	template *template.Template
 }
 
 type Layout struct {
@@ -27,12 +27,15 @@ type Layout struct {
 	components map[string]component
 }
 
+// TODO: refactor root nodes in a way that Get and findNode does not consider root as a separate use-case.
+
 // New creates a new layout with schema s and nodes n.
 func New(s string, nodes ...Node) Layout {
 	root := NewDnode(Root, WithSubNodes(nodes...))
 	return Layout{
-		root:   root,
-		schema: s,
+		root:       root,
+		schema:     s,
+		components: make(map[string]component),
 	}
 }
 
@@ -78,46 +81,40 @@ func (l Layout) Get(node, loc string) Node {
 		return l.root.Get(node)
 	}
 
-	dirs := strings.Split(loc, "/")
-	d := l.root
-
-	for _, dir := range dirs {
-		n := d.Get(dir)
-		if n == nil {
-			return nil
-		}
-
-		dnode, ok := n.(Dir)
-		if !ok {
-			return nil
-		}
-		d = dnode
+	n := l.findNode(loc)
+	d, ok := n.(Dir)
+	if !ok {
+		return nil
 	}
-
 	return d.Get(node)
 }
 
-func (l *Layout) RegisterComponent(componentType, loc string, t *template.Template) error {
+func (l *Layout) RegisterComponent(componentName, loc string, t *template.Template) error {
 	locNode := l.findNode(loc)
 	if locNode == nil {
-		return fmt.Errorf("component location %q does not exist", loc)
+		return fmt.Errorf("%q does not exist", loc)
 	}
+
+	if _, ok := locNode.(Dir); !ok {
+		return fmt.Errorf("%q not a directory", loc)
+	}
+
+	l.components[componentName] = component{
+		loc:      loc,
+		name:     componentName,
+		template: t,
+	}
+
 	return nil
 }
 
 // AddComponent adds component node to the layout.
-func (l *Layout) AddComponent(componentType, nodeName string) error {
-	_, ok := l.components[componentType]
+func (l *Layout) AddComponent(componentName, nodeName string) error {
+	_, ok := l.components[componentName]
 	if !ok {
-		return fmt.Errorf("unknown component %q", componentType)
+		return fmt.Errorf("unknown component %q", componentName)
 	}
 	return nil
-}
-
-// HasComponent returns true if layout registered the component.
-func (l Layout) HasComponent(componentType string) bool {
-	_, ok := l.components[componentType]
-	return ok
 }
 
 // TODO: format comment bellow for better documentation help

@@ -206,32 +206,6 @@ func TestAddComponent(t *testing.T) {
 	t.Run("adds a component node", func(t *testing.T) {})
 }
 
-func TestRegisterComponent(t *testing.T) {
-	t.Run("returns error when provided location does not exist", func(t *testing.T) {
-		dnode := layout.NewDnode("handler")
-		l := layout.New("layout", dnode)
-		err := l.RegisterComponent("hander", "other/handler", nil)
-		assert.EqualError(t, err, `component location "other/handler" does not exist`)
-		assert.False(t, l.HasComponent("handler"))
-	})
-
-	t.Run("returns error when provided location is not a directory", func(t *testing.T) {
-
-	})
-
-	t.Run("registers component", func(t *testing.T) {
-		// dnode := layout.NewDnode("handler")
-		// l := layout.New("layout", dnode)
-		// l.RegisterComponent("hander", "", nil)
-	})
-
-	t.Run("registers other component to the same location", func(t *testing.T) {})
-
-	t.Run("overrides an existing component", func(t *testing.T) {})
-
-	t.Run("registers component at the root of layout", func(t *testing.T) {})
-}
-
 func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {
 		l := layout.Get("foo")
