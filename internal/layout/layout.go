@@ -134,7 +134,8 @@ func (l *Layout) AddComponent(componentName, nodeName string) error {
 		return fmt.Errorf("%s %q already exists", componentName, nodeName)
 	}
 
-	return nil
+	node := NewFnode(nodeName, WithTemplate(component.template))
+	return l.Add(node, component.loc)
 }
 
 // TODO: refactor - unify Get and findNode
