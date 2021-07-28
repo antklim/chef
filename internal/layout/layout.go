@@ -1,10 +1,15 @@
 package layout
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"strings"
 	"text/template"
+)
+
+var (
+	errComponentTemplateNil = errors.New("component template is nil")
 )
 
 const Root = "."
@@ -27,7 +32,7 @@ type Layout struct {
 	components map[string]component
 }
 
-// TODO: refactor root nodes in a way that Get and findNode does not consider root as a separate use-case.
+// TODO: refactor root node in a way that Get and findNode does not consider root as a separate use-case.
 
 // New creates a new layout with schema s and nodes n.
 func New(s string, nodes ...Node) Layout {
@@ -38,6 +43,9 @@ func New(s string, nodes ...Node) Layout {
 		components: make(map[string]component),
 	}
 }
+
+// TODO: Rename to AddNode
+// TODO: Consider making it private
 
 // Add adds a node to a layout location.
 func (l *Layout) Add(n Node, loc string) error {
@@ -90,13 +98,20 @@ func (l Layout) Get(node, loc string) Node {
 }
 
 func (l *Layout) RegisterComponent(componentName, loc string, t *template.Template) error {
-	locNode := l.findNode(loc)
-	if locNode == nil {
-		return fmt.Errorf("%q does not exist", loc)
+	if t == nil {
+		return errComponentTemplateNil
 	}
 
-	if _, ok := locNode.(Dir); !ok {
-		return fmt.Errorf("%q not a directory", loc)
+	// TODO: refactor, root should not be a special case
+	if loc != Root {
+		locNode := l.findNode(loc)
+		if locNode == nil {
+			return fmt.Errorf("%q does not exist", loc)
+		}
+
+		if _, ok := locNode.(Dir); !ok {
+			return fmt.Errorf("%q not a directory", loc)
+		}
 	}
 
 	l.components[componentName] = component{

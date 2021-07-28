@@ -62,3 +62,4 @@ issues:
     - path: _test\.go
       linters:
         - dupl
+        - goconst
