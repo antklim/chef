@@ -125,13 +125,19 @@ func (l *Layout) RegisterComponent(componentName, loc string, t *template.Templa
 
 // AddComponent adds component node to the layout.
 func (l *Layout) AddComponent(componentName, nodeName string) error {
-	_, ok := l.components[componentName]
+	component, ok := l.components[componentName]
 	if !ok {
 		return fmt.Errorf("unknown component %q", componentName)
 	}
+
+	if node := l.Get(nodeName, component.loc); node != nil {
+		return fmt.Errorf("%s %q already exists", componentName, nodeName)
+	}
+
 	return nil
 }
 
+// TODO: refactor - unify Get and findNode
 // TODO: format comment bellow for better documentation help
 
 // find searches for a node at provided location.

@@ -165,6 +165,8 @@ func (p Project) Bootstrap() error {
 
 // Add adds a new component node to a project
 func (p Project) Add(component, name string) error {
+	// TODO: add node name extension based on project language preferences
+
 	if err := p.lout.AddComponent(component, name); err != nil {
 		return errors.Wrap(err, "could not add layout component")
 	}

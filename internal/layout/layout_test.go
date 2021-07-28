@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"strings"
 	"testing"
+	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
@@ -194,13 +195,18 @@ func TestAddComponent(t *testing.T) {
 	})
 
 	t.Run("returns error when component node with the provided name already exists", func(t *testing.T) {
-		t.Skip("WIP")
+		tmpl := template.Must(template.New("test").Parse("package foo"))
+		loc := "handler"
+		componentName := "http_handler"
 		fnode := layout.NewFnode("health.go")
-		dnode := layout.NewDnode("handler", layout.WithSubNodes(fnode))
-		l := layout.New("layout", dnode)
+		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
 
-		err := l.AddComponent("handler", "health")
-		assert.EqualError(t, err, `"health" handler already exists`)
+		l := layout.New("layout", dnode)
+		err := l.RegisterComponent(componentName, loc, tmpl)
+		require.NoError(t, err)
+
+		err = l.AddComponent(componentName, "health.go")
+		assert.EqualError(t, err, `http_handler "health.go" already exists`)
 	})
 
 	t.Run("adds a component node", func(t *testing.T) {})
