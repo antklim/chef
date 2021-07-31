@@ -12,7 +12,7 @@ func addCmd() *cobra.Command { // nolint
 
 func AddCmdRunner(p Project, component, name string) error {
 	if err := p.Add(component, name); err != nil {
-		return errors.Wrap(err, "unable to add to a project")
+		return errors.Wrap(err, "could not add project component")
 	}
 	return nil
 }

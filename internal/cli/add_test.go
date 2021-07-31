@@ -13,7 +13,7 @@ func TestAddCmdRunner(t *testing.T) {
 	t.Run("returns an error when failed to add component to a project", func(t *testing.T) {
 		p := mocks.FailedProject(errors.New("some add component error"))
 		err := cli.AddCmdRunner(p, "handler", "health")
-		assert.EqualError(t, err, "unable to add to a project: some add component error")
+		assert.EqualError(t, err, "could not add project component: some add component error")
 	})
 
 	t.Run("returns no errors when when successfully added a component to a project", func(t *testing.T) {
