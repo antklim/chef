@@ -23,6 +23,7 @@ func Execute() {
 	}
 
 	rootCmd.AddCommand(bootstrapCmd())
+	rootCmd.AddCommand(componentsCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Printf("%+v\n", err)

@@ -76,7 +76,7 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 				project.WithServer(inputs.Server),
 				project.WithModule(inputs.Module),
 			)
-			return BootstrapCmdRunner(p)
+			return bootstrapCmdRunner(p)
 		},
 	}
 
@@ -90,7 +90,7 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 	return cmd
 }
 
-func BootstrapCmdRunner(p Project) error {
+func bootstrapCmdRunner(p Project) error {
 	if err := p.Bootstrap(); err != nil {
 		return errors.Wrap(err, "unable to bootstrap project")
 	}
