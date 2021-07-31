@@ -20,8 +20,8 @@ import (
 
 // TODO: split project into different project types, move concrete types to subdirectories
 // type API interface {
-// 	Bootstrap() error
-// 	Add(Component) error // add component
+// 	Init() error
+// 	Employ(Component) error // employ component
 
 // 	Location() (string, error)
 // 	Name() string
@@ -150,8 +150,8 @@ func (p Project) Validate() error {
 	return nil
 }
 
-// Bootstrap orchestrates project validation and initialization steps.
-func (p Project) Bootstrap() error {
+// Init orchestrates project validation and build steps.
+func (p Project) Init() error {
 	if err := p.Validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
 	}

@@ -51,7 +51,7 @@ var (
 	}
 )
 
-func bootstrapCmd() *cobra.Command {
+func initCmd() *cobra.Command {
 	var inputs struct {
 		Name     string
 		Root     string
@@ -62,13 +62,13 @@ func bootstrapCmd() *cobra.Command {
 	}
 
 	cmd := &cobra.Command{
-		Use:   "boot",
+		Use:   "init",
 		Args:  cobra.NoArgs,
-		Short: "Bootstrap a new project",
-		Long:  "Bootstrap a new project",
-		Example: `chef boot --name myproject
-chef boot --category [srv] --name myproject
-chef boot -c [srv] -n myproject --root /usr/local`,
+		Short: "Initialize a new project",
+		Long:  "initialize a new project",
+		Example: `chef init --name myproject
+chef init --category [srv] --name myproject
+chef init -c [srv] -n myproject --root /usr/local`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
@@ -76,7 +76,7 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 				project.WithServer(inputs.Server),
 				project.WithModule(inputs.Module),
 			)
-			return bootstrapCmdRunner(p)
+			return initCmdRunner(p)
 		},
 	}
 
@@ -90,15 +90,15 @@ chef boot -c [srv] -n myproject --root /usr/local`,
 	return cmd
 }
 
-func bootstrapCmdRunner(p Project) error {
-	if err := p.Bootstrap(); err != nil {
-		return errors.Wrap(err, "unable to bootstrap project")
+func initCmdRunner(p Project) error {
+	if err := p.Init(); err != nil {
+		return errors.Wrap(err, "init project failed")
 	}
 
-	fmt.Printf("project %s successfully created\n", p.Name())
+	fmt.Printf("project %s successfully inited\n", p.Name())
 
 	if l, err := p.Location(); err != nil {
-		fmt.Printf("unable to get project location: %+v\n", err)
+		fmt.Printf("get project location failed: %+v\n", err)
 	} else {
 		fmt.Printf("project location: %s\n", l)
 	}

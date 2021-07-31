@@ -101,7 +101,7 @@ func TestProjectBootstrap(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			p := project.New("cheftest", project.WithRoot(tC.root))
-			err := p.Bootstrap()
+			err := p.Init()
 			require.NoError(t, err)
 
 			loc, err := p.Location()

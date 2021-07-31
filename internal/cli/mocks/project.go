@@ -8,7 +8,7 @@ func (p Project) Add(component, name string) error {
 	return p.e
 }
 
-func (p Project) Bootstrap() error {
+func (p Project) Init() error {
 	return p.e
 }
 

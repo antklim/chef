@@ -22,7 +22,7 @@ func Execute() {
 		Version: "v0.1.0", // TODO: add build info and version
 	}
 
-	rootCmd.AddCommand(bootstrapCmd())
+	rootCmd.AddCommand(initCmd())
 	rootCmd.AddCommand(componentsCmd())
 
 	if err := rootCmd.Execute(); err != nil {
