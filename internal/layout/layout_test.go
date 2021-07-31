@@ -52,7 +52,7 @@ func TestNewLayout(t *testing.T) {
 	nodes := []layout.Node{node}
 	l := layout.New(schema, nodes...)
 	assert.Equal(t, schema, l.Schema())
-	assert.Equal(t, node, l.Get("testNode", layout.Root))
+	assert.Equal(t, node, l.GetNode("testNode", layout.Root))
 }
 
 func TestLayoutBuild(t *testing.T) {
@@ -94,14 +94,14 @@ func TestLayoutBuild(t *testing.T) {
 	}
 }
 
-func TestLayoutAdd(t *testing.T) {
+func TestLayoutAddNode(t *testing.T) {
 	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
 		dnode := layout.NewDnode("subdir")
 		l := layout.New("layout")
 
-		err := l.Add(dnode, layout.Root)
+		err := l.AddNode(dnode, layout.Root)
 		assert.NoError(t, err)
-		assert.NotNil(t, l.Get("subdir", layout.Root))
+		assert.NotNil(t, l.GetNode("subdir", layout.Root))
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
@@ -109,7 +109,7 @@ func TestLayoutAdd(t *testing.T) {
 		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
 		l := layout.New("layout", dnode)
 
-		err := l.Add(layout.NewFnode("new_file.txt"), "dnode")
+		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode")
 		assert.NoError(t, err)
 		assert.Len(t, dnode.Nodes(), 2)
 	})
@@ -119,7 +119,7 @@ func TestLayoutAdd(t *testing.T) {
 		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
 		l := layout.New("layout", dnode)
 
-		err := l.Add(layout.NewFnode("new_file.txt"), "dnode/file.txt")
+		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode/file.txt")
 		assert.EqualError(t, err, `node "dnode/file.txt" does not support adding subnodes`)
 	})
 
@@ -128,7 +128,7 @@ func TestLayoutAdd(t *testing.T) {
 		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
 		l := layout.New("layout", dnode)
 
-		err := l.Add(layout.NewFnode("new_file.txt"), "other")
+		err := l.AddNode(layout.NewFnode("new_file.txt"), "other")
 		assert.EqualError(t, err, `path "other" not found in layout`)
 	})
 
@@ -136,12 +136,12 @@ func TestLayoutAdd(t *testing.T) {
 		nodes := []layout.Node{layout.NewDnode("subdir"), layout.NewFnode("file.txt")}
 		l := layout.New("layout", nodes...)
 
-		err := l.Add(layout.NewFnode("file.txt"), layout.Root)
+		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
 		assert.EqualError(t, err, `node file.txt already exists at "."`)
 	})
 }
 
-func TestLayoutGet(t *testing.T) {
+func TestLayoutGetNode(t *testing.T) {
 	fileNode := layout.NewFnode("file.txt")
 	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
 	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
@@ -180,7 +180,7 @@ func TestLayoutGet(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			node := l.Get(tC.node, tC.loc)
+			node := l.GetNode(tC.node, tC.loc)
 			assert.Equal(t, tC.expected, node)
 		})
 	}
@@ -221,7 +221,7 @@ func TestAddComponent(t *testing.T) {
 		nodeName := "info.go"
 		err = l.AddComponent(componentName, nodeName)
 		require.NoError(t, err)
-		assert.NotNil(t, l.Get(nodeName, loc))
+		assert.NotNil(t, l.GetNode(nodeName, loc))
 	})
 }
 

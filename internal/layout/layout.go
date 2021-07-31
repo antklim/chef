@@ -44,12 +44,11 @@ func New(s string, nodes ...Node) Layout {
 	}
 }
 
-// TODO: Rename to AddNode
 // TODO: Consider making it private
 
 // Add adds a node to a layout location.
-func (l *Layout) Add(n Node, loc string) error {
-	if node := l.Get(n.Name(), loc); node != nil {
+func (l *Layout) AddNode(n Node, loc string) error {
+	if node := l.GetNode(n.Name(), loc); node != nil {
 		return fmt.Errorf("node %s already exists at %q", n.Name(), loc)
 	}
 
@@ -57,7 +56,7 @@ func (l *Layout) Add(n Node, loc string) error {
 		return l.root.Add(n)
 	}
 
-	locNode := l.Get(path.Base(loc), path.Dir(loc))
+	locNode := l.GetNode(path.Base(loc), path.Dir(loc))
 	if locNode == nil {
 		return fmt.Errorf("path %q not found in layout", loc)
 	}
@@ -84,7 +83,7 @@ func (l Layout) Build(loc, mod string) error {
 }
 
 // Get returns a node with the given name at a location.
-func (l Layout) Get(node, loc string) Node {
+func (l Layout) GetNode(node, loc string) Node {
 	if loc == Root {
 		return l.root.Get(node)
 	}
@@ -130,12 +129,12 @@ func (l *Layout) AddComponent(componentName, nodeName string) error {
 		return fmt.Errorf("unknown component %q", componentName)
 	}
 
-	if node := l.Get(nodeName, component.loc); node != nil {
+	if node := l.GetNode(nodeName, component.loc); node != nil {
 		return fmt.Errorf("%s %q already exists", componentName, nodeName)
 	}
 
 	node := NewFnode(nodeName, WithTemplate(component.template))
-	return l.Add(node, component.loc)
+	return l.AddNode(node, component.loc)
 }
 
 // TODO: refactor - unify Get and findNode
