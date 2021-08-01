@@ -46,7 +46,7 @@ func New(s string, nodes ...Node) Layout {
 
 // TODO: Consider making it private
 
-// Add adds a node to a layout location.
+// AddNode adds a node to a layout location.
 func (l *Layout) AddNode(n Node, loc string) error {
 	if node := l.GetNode(n.Name(), loc); node != nil {
 		return fmt.Errorf("node %s already exists at %q", n.Name(), loc)
@@ -82,7 +82,7 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// Get returns a node with the given name at a location.
+// GetNode returns a node with the given name at a location.
 func (l Layout) GetNode(node, loc string) Node {
 	if loc == Root {
 		return l.root.Get(node)
