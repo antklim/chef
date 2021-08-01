@@ -7,6 +7,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	component = Flag{
+		LongForm:   "component",
+		ShortForm:  "c",
+		Help:       "The component to employ.",
+		IsRequired: true,
+	}
+	componentName = Flag{
+		LongForm:   "name",
+		ShortForm:  "n",
+		Help:       "Name of the node to be created employing the component.",
+		IsRequired: true,
+	}
+)
+
 func componentsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "components",
@@ -40,10 +55,10 @@ chef components ls`,
 }
 
 func employComponentCmd() *cobra.Command {
-	// var inputs struct {
-	// 	Component string // component name
-	// 	Name      string // project layout node name to be created using the component
-	// }
+	var inputs struct {
+		Component string // component name
+		Name      string // node name to be created using the component
+	}
 
 	cmd := &cobra.Command{
 		Use:   "employ",
@@ -53,18 +68,21 @@ func employComponentCmd() *cobra.Command {
 		Example: `chef components employ --component http_handler --name foo 
 chef components employ -c http_handler -n bar`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: implement list registered components
+			// TODO: implement employ component
 			fmt.Println("not implemented")
 			return nil
 		},
 	}
+
+	component.RegisterString(cmd, &inputs.Component, "")
+	componentName.RegisterString(cmd, &inputs.Name, "")
 
 	return cmd
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
 	if err := p.Add(component, name); err != nil {
-		return errors.Wrap(err, "could not add project component")
+		return errors.Wrap(err, "project employ component failed")
 	}
 	return nil
 }
