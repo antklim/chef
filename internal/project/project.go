@@ -93,6 +93,7 @@ type projectOptions struct {
 	cat  string
 	srv  string
 	mod  string
+	lout *layout.Layout
 }
 
 var defaultProjectOptions = projectOptions{
@@ -104,7 +105,7 @@ var defaultProjectOptions = projectOptions{
 type Project struct {
 	name       string
 	opts       projectOptions
-	lout       layout.Layout
+	lout       *layout.Layout
 	components map[string]component
 }
 
@@ -153,7 +154,7 @@ func (p Project) Validate() error {
 
 	fi, _ = os.Stat(path.Join(root, p.name))
 	if fi != nil {
-		return fmt.Errorf("file or directory %s already exists", p.name)
+		return fmt.Errorf("file or directory %q already exists", p.name)
 	}
 
 	return nil
@@ -163,6 +164,9 @@ func (p Project) Validate() error {
 func (p Project) Init() error {
 	if err := p.Validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
+	}
+	if err := p.setLayout(); err != nil {
+		return errors.Wrap(err, "set layout failed")
 	}
 	if err := p.build(); err != nil {
 		return errors.Wrap(err, "build failed")
@@ -217,11 +221,6 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 }
 
 func (p Project) build() error {
-	l, err := p.layout()
-	if err != nil {
-		return err
-	}
-
 	loc, err := p.Location()
 	if err != nil {
 		return err
@@ -232,7 +231,7 @@ func (p Project) build() error {
 		return err
 	}
 
-	return l.Build(loc, p.opts.mod)
+	return p.lout.Build(loc, p.opts.mod)
 }
 
 func (p Project) root() (root string, err error) {
@@ -243,7 +242,12 @@ func (p Project) root() (root string, err error) {
 	return
 }
 
-func (p Project) layout() (*layout.Layout, error) {
+func (p *Project) setLayout() error {
+	if p.opts.lout != nil {
+		p.lout = p.opts.lout
+		return nil
+	}
+
 	ln := category(p.opts.cat)
 
 	if s := server(p.opts.srv); s != serverNone {
@@ -252,10 +256,12 @@ func (p Project) layout() (*layout.Layout, error) {
 
 	l := layout.Get(ln)
 	if l == nil {
-		return nil, fmt.Errorf("not found layout for category %s", p.opts.cat)
+		return fmt.Errorf("layout for %q category not found", p.opts.cat)
 	}
 
-	return l, nil
+	p.lout = l
+
+	return nil
 }
 
 type Option interface {
@@ -295,5 +301,11 @@ func WithServer(s string) Option {
 func WithModule(m string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.mod = m
+	})
+}
+
+func WithLayout(l layout.Layout) Option {
+	return newFuncOption(func(o *projectOptions) {
+		o.lout = &l
 	})
 }

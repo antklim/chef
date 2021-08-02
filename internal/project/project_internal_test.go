@@ -5,6 +5,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -62,6 +63,7 @@ func TestProjectServer(t *testing.T) {
 }
 
 func TestProjectOptions(t *testing.T) {
+	tl := layout.New("testLayout")
 	testCases := []struct {
 		desc     string
 		opts     []Option
@@ -112,6 +114,16 @@ func TestProjectOptions(t *testing.T) {
 				mod:  "cheftest",
 			},
 		},
+		{
+			desc: "project created with custom layout",
+			opts: []Option{WithLayout(tl)},
+			expected: projectOptions{
+				root: "",
+				cat:  "srv",
+				srv:  "",
+				lout: &tl,
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -121,7 +133,8 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
-func TestLayout(t *testing.T) {
+func TestSetLayout(t *testing.T) {
+	tl := layout.New("testLayout")
 	testCases := []struct {
 		desc   string
 		p      Project
@@ -134,23 +147,29 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			desc:   "returns http service layout",
-			p:      New("test", WithCategory("srv"), WithServer("http")),
+			p:      New("test1", WithCategory("srv"), WithServer("http")),
 			schema: HTTPServiceLayout,
+		},
+		{
+			desc:   "returns custom layout",
+			p:      New("test2", WithLayout(tl)),
+			schema: "testLayout",
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			l, err := tC.p.layout()
+			assert.Nil(t, tC.p.lout)
+			err := tC.p.setLayout()
 			require.NoError(t, err)
-			assert.Equal(t, tC.schema, l.Schema())
+			assert.Equal(t, tC.schema, tC.p.lout.Schema())
 		})
 	}
 
 	t.Run("returns error when unknown layout requested", func(t *testing.T) {
 		p := New("test", WithCategory("test"))
-		l, err := p.layout()
-		assert.EqualError(t, err, "not found layout for category test")
-		assert.Nil(t, l)
+		err := p.setLayout()
+		assert.EqualError(t, err, `layout for "test" category not found`)
+		assert.Nil(t, p.lout)
 	})
 }
 
@@ -171,6 +190,7 @@ func TestRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("returns error when location does not exist", func(t *testing.T) {
+		t.Skip("WIP")
 		p := New("project")
 		componentName := "handler"
 		err := p.RegisterComponent(componentName, "other/handler", tmpl)
@@ -178,13 +198,14 @@ func TestRegisterComponent(t *testing.T) {
 		assert.NotContains(t, p.components, componentName)
 	})
 
-	// t.Run("returns error when location is not a directory", func(t *testing.T) {
-	// 	l := New("layout", NewFnode("handler"))
-	// 	componentName := "handler"
-	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
-	// 	assert.EqualError(t, err, `"handler" not a directory`)
-	// 	assert.NotContains(t, l.components, componentName)
-	// })
+	t.Run("returns error when location is not a directory", func(t *testing.T) {
+		t.Skip("WIP")
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "handler", tmpl)
+		assert.EqualError(t, err, `"handler" not a directory`)
+		assert.NotContains(t, p.components, componentName)
+	})
 
 	// t.Run("adds component to the list of components", func(t *testing.T) {
 	// 	l := New("layout", NewDnode("handler"))

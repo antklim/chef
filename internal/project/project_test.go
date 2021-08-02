@@ -73,7 +73,7 @@ func TestProjectValidate(t *testing.T) {
 			desc: "fails when root directory contains file or directory with the project name",
 			name: "chefsushi",
 			opts: []project.Option{project.WithRoot(tmpDir)},
-			err:  "file or directory chefsushi already exists",
+			err:  `file or directory "chefsushi" already exists`,
 		},
 	}
 	for _, tC := range testCases {
@@ -85,7 +85,7 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
-func TestProjectBootstrap(t *testing.T) {
+func TestProjectInit(t *testing.T) {
 	testCases := []struct {
 		desc string
 		root string

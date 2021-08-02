@@ -89,7 +89,7 @@ func (l Layout) GetNode(node, loc string) Node {
 
 // Find returns a node referenced by location.
 func (l Layout) Find(loc string) Node {
-	return nil
+	return l.findNode(loc)
 }
 
 // AddComponent adds component node to the layout.
