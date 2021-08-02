@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"testing"
+	"text/template"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -154,12 +155,36 @@ func TestLayout(t *testing.T) {
 }
 
 func TestRegisterComponent(t *testing.T) {
-	// tmpl := template.Must(template.New("test").Parse("package foo"))
+	tmpl := template.Must(template.New("test").Parse("package foo"))
 
 	t.Run("new project does not have registered components", func(t *testing.T) {
 		p := New("project")
 		assert.Empty(t, p.components)
 	})
+
+	t.Run("returns error when template is nil", func(t *testing.T) {
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "handler", nil)
+		require.EqualError(t, err, "nil component template")
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("returns error when location does not exist", func(t *testing.T) {
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "other/handler", tmpl)
+		assert.EqualError(t, err, `"other/handler" does not exist`)
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	// t.Run("returns error when location is not a directory", func(t *testing.T) {
+	// 	l := New("layout", NewFnode("handler"))
+	// 	componentName := "handler"
+	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
+	// 	assert.EqualError(t, err, `"handler" not a directory`)
+	// 	assert.NotContains(t, l.components, componentName)
+	// })
 
 	// t.Run("adds component to the list of components", func(t *testing.T) {
 	// 	l := New("layout", NewDnode("handler"))
@@ -173,30 +198,6 @@ func TestRegisterComponent(t *testing.T) {
 	// 	err = l.RegisterComponent(componentName, Root, tmpl)
 	// 	require.NoError(t, err)
 	// 	assert.Contains(t, l.components, componentName)
-	// })
-
-	// t.Run("returns error when location does not exist", func(t *testing.T) {
-	// 	l := New("layout", NewDnode("handler"))
-	// 	componentName := "handler"
-	// 	err := l.RegisterComponent(componentName, "other/handler", tmpl)
-	// 	assert.EqualError(t, err, `"other/handler" does not exist`)
-	// 	assert.NotContains(t, l.components, componentName)
-	// })
-
-	// t.Run("returns error when location is not a directory", func(t *testing.T) {
-	// 	l := New("layout", NewFnode("handler"))
-	// 	componentName := "handler"
-	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
-	// 	assert.EqualError(t, err, `"handler" not a directory`)
-	// 	assert.NotContains(t, l.components, componentName)
-	// })
-
-	// t.Run("returns error when template is nil", func(t *testing.T) {
-	// 	l := New("layout", NewDnode("handler"))
-	// 	componentName := "handler"
-	// 	err := l.RegisterComponent(componentName, "handler", nil)
-	// 	require.EqualError(t, err, "component template is nil")
-	// 	assert.NotContains(t, l.components, componentName)
 	// })
 
 	// t.Run("registers components", func(t *testing.T) {

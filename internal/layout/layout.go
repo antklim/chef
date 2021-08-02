@@ -87,6 +87,11 @@ func (l Layout) GetNode(node, loc string) Node {
 	return d.Get(node)
 }
 
+// Find returns a node referenced by location.
+func (l Layout) Find(loc string) Node {
+	return nil
+}
+
 // AddComponent adds component node to the layout.
 // func (l *Layout) AddComponent(componentName, nodeName string) error {
 // 	component, ok := l.components[componentName]

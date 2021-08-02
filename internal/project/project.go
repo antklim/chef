@@ -2,11 +2,11 @@ package project
 
 import (
 	"fmt"
-	"html/template"
 	"io/fs"
 	"os"
 	"path"
 	"strings"
+	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/pkg/errors"
@@ -78,7 +78,8 @@ const (
 )
 
 var (
-	errEmptyProjectName = errors.New("project name required: empty name provided")
+	errEmptyProjectName     = errors.New("project name required: empty name provided")
+	errComponentTemplateNil = errors.New("nil component template")
 )
 
 type component struct {
@@ -194,7 +195,25 @@ func (p Project) Location() (string, error) {
 }
 
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
-	return errors.New("not implemented")
+	if t == nil {
+		return errComponentTemplateNil
+	}
+
+	n := p.lout.Find(loc)
+	if n == nil {
+		return fmt.Errorf("%q does not exist", loc)
+	}
+	if _, ok := n.(layout.Dir); !ok {
+		return fmt.Errorf("%q not a directory", loc)
+	}
+
+	p.components[componentName] = component{
+		loc:      loc,
+		name:     componentName,
+		template: t,
+	}
+
+	return nil
 }
 
 func (p Project) build() error {
