@@ -117,6 +117,7 @@ func TestProjectBootstrap(t *testing.T) {
 
 func TestProjectAdd(t *testing.T) {
 	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
+		t.Skip("WIP")
 		// TODO: validate that no new nodes added to project layout
 		p := project.New("cheftest")
 		err := p.Add("foo", "bar")

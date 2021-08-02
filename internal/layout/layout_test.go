@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"strings"
 	"testing"
-	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
@@ -186,44 +185,44 @@ func TestLayoutGetNode(t *testing.T) {
 	}
 }
 
-func TestAddComponent(t *testing.T) {
-	tmpl := template.Must(template.New("test").Parse("package foo"))
+// func TestAddComponent(t *testing.T) {
+// 	tmpl := template.Must(template.New("test").Parse("package foo"))
 
-	t.Run("returns error when adding unknown component", func(t *testing.T) {
-		l := layout.New("layout")
-		err := l.AddComponent("handler", "health")
-		assert.EqualError(t, err, `unknown component "handler"`)
-	})
+// 	t.Run("returns error when adding unknown component", func(t *testing.T) {
+// 		l := layout.New("layout")
+// 		err := l.AddComponent("handler", "health")
+// 		assert.EqualError(t, err, `unknown component "handler"`)
+// 	})
 
-	t.Run("returns error when component node with the provided name already exists", func(t *testing.T) {
-		loc := "handler"
-		componentName := "http_handler"
-		fnode := layout.NewFnode("health.go")
-		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
-		l := layout.New("layout", dnode)
-		err := l.RegisterComponent(componentName, loc, tmpl)
-		require.NoError(t, err)
+// 	t.Run("returns error when component node with the provided name already exists", func(t *testing.T) {
+// 		loc := "handler"
+// 		componentName := "http_handler"
+// 		fnode := layout.NewFnode("health.go")
+// 		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
+// 		l := layout.New("layout", dnode)
+// 		err := l.RegisterComponent(componentName, loc, tmpl)
+// 		require.NoError(t, err)
 
-		err = l.AddComponent(componentName, "health.go")
-		assert.EqualError(t, err, `http_handler "health.go" already exists`)
-	})
+// 		err = l.AddComponent(componentName, "health.go")
+// 		assert.EqualError(t, err, `http_handler "health.go" already exists`)
+// 	})
 
-	t.Run("adds a component node", func(t *testing.T) {
-		loc := "handler"
-		componentName := "http_handler"
-		fnode := layout.NewFnode("health.go")
-		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
-		l := layout.New("layout", dnode)
+// 	t.Run("adds a component node", func(t *testing.T) {
+// 		loc := "handler"
+// 		componentName := "http_handler"
+// 		fnode := layout.NewFnode("health.go")
+// 		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
+// 		l := layout.New("layout", dnode)
 
-		err := l.RegisterComponent(componentName, loc, tmpl)
-		require.NoError(t, err)
+// 		err := l.RegisterComponent(componentName, loc, tmpl)
+// 		require.NoError(t, err)
 
-		nodeName := "info.go"
-		err = l.AddComponent(componentName, nodeName)
-		require.NoError(t, err)
-		assert.NotNil(t, l.GetNode(nodeName, loc))
-	})
-}
+// 		nodeName := "info.go"
+// 		err = l.AddComponent(componentName, nodeName)
+// 		require.NoError(t, err)
+// 		assert.NotNil(t, l.GetNode(nodeName, loc))
+// 	})
+// }
 
 func TestLayoutsRegistry(t *testing.T) {
 	t.Run("get returns nil when layout not registered", func(t *testing.T) {

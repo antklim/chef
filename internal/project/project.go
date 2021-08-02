@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"html/template"
 	"io/fs"
 	"os"
 	"path"
@@ -80,6 +81,12 @@ var (
 	errEmptyProjectName = errors.New("project name required: empty name provided")
 )
 
+type component struct {
+	loc      string
+	name     string
+	template *template.Template
+}
+
 type projectOptions struct {
 	root string
 	cat  string
@@ -94,9 +101,10 @@ var defaultProjectOptions = projectOptions{
 
 // Project manager.
 type Project struct {
-	name string
-	opts projectOptions
-	lout layout.Layout
+	name       string
+	opts       projectOptions
+	lout       layout.Layout
+	components map[string]component
 }
 
 // New project.
@@ -167,9 +175,9 @@ func (p Project) Init() error {
 func (p Project) Add(component, name string) error {
 	// TODO: add node name extension based on project language preferences
 
-	if err := p.lout.AddComponent(component, name); err != nil {
-		return errors.Wrap(err, "could not add layout component")
-	}
+	// if err := p.lout.AddComponent(component, name); err != nil {
+	// 	return errors.Wrap(err, "could not add layout component")
+	// }
 	return errors.New("not implemented")
 }
 
@@ -183,6 +191,10 @@ func (p Project) Location() (string, error) {
 		return "", err
 	}
 	return path.Join(r, p.name), nil
+}
+
+func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
+	return errors.New("not implemented")
 }
 
 func (p Project) build() error {

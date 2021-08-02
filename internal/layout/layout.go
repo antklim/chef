@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"path"
 	"strings"
-	"text/template"
 )
 
 var (
@@ -20,16 +19,9 @@ type Dir interface {
 	Nodes() []Node
 }
 
-type component struct {
-	loc      string
-	name     string
-	template *template.Template
-}
-
 type Layout struct {
-	root       Dir
-	schema     string
-	components map[string]component
+	root   Dir
+	schema string
 }
 
 // TODO: refactor root node in a way that Get and findNode does not consider root as a separate use-case.
@@ -38,9 +30,8 @@ type Layout struct {
 func New(s string, nodes ...Node) Layout {
 	root := NewDnode(Root, WithSubNodes(nodes...))
 	return Layout{
-		root:       root,
-		schema:     s,
-		components: make(map[string]component),
+		root:   root,
+		schema: s,
 	}
 }
 
@@ -96,46 +87,20 @@ func (l Layout) GetNode(node, loc string) Node {
 	return d.Get(node)
 }
 
-func (l *Layout) RegisterComponent(componentName, loc string, t *template.Template) error {
-	if t == nil {
-		return errComponentTemplateNil
-	}
-
-	// TODO: refactor, root should not be a special case
-	if loc != Root {
-		locNode := l.findNode(loc)
-		if locNode == nil {
-			return fmt.Errorf("%q does not exist", loc)
-		}
-
-		if _, ok := locNode.(Dir); !ok {
-			return fmt.Errorf("%q not a directory", loc)
-		}
-	}
-
-	l.components[componentName] = component{
-		loc:      loc,
-		name:     componentName,
-		template: t,
-	}
-
-	return nil
-}
-
 // AddComponent adds component node to the layout.
-func (l *Layout) AddComponent(componentName, nodeName string) error {
-	component, ok := l.components[componentName]
-	if !ok {
-		return fmt.Errorf("unknown component %q", componentName)
-	}
+// func (l *Layout) AddComponent(componentName, nodeName string) error {
+// 	component, ok := l.components[componentName]
+// 	if !ok {
+// 		return fmt.Errorf("unknown component %q", componentName)
+// 	}
 
-	if node := l.GetNode(nodeName, component.loc); node != nil {
-		return fmt.Errorf("%s %q already exists", componentName, nodeName)
-	}
+// 	if node := l.GetNode(nodeName, component.loc); node != nil {
+// 		return fmt.Errorf("%s %q already exists", componentName, nodeName)
+// 	}
 
-	node := NewFnode(nodeName, WithTemplate(component.template))
-	return l.AddNode(node, component.loc)
-}
+// 	node := NewFnode(nodeName, WithTemplate(component.template))
+// 	return l.AddNode(node, component.loc)
+// }
 
 // TODO: refactor - unify Get and findNode
 // TODO: format comment bellow for better documentation help
