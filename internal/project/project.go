@@ -80,6 +80,7 @@ const (
 var (
 	errEmptyProjectName     = errors.New("project name required: empty name provided")
 	errComponentTemplateNil = errors.New("nil component template")
+	errNoLayout             = errors.New("project does not have layout")
 )
 
 type component struct {
@@ -119,8 +120,9 @@ func New(name string, opt ...Option) Project {
 	}
 
 	p := Project{
-		name: name,
-		opts: opts,
+		name:       name,
+		opts:       opts,
+		components: make(map[string]component),
 	}
 	return p
 }
@@ -201,6 +203,10 @@ func (p Project) Location() (string, error) {
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
 	if t == nil {
 		return errComponentTemplateNil
+	}
+
+	if p.lout == nil {
+		return errNoLayout
 	}
 
 	n := p.lout.Find(loc)

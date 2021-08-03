@@ -189,37 +189,55 @@ func TestRegisterComponent(t *testing.T) {
 		assert.NotContains(t, p.components, componentName)
 	})
 
-	t.Run("returns error when location does not exist", func(t *testing.T) {
-		t.Skip("WIP")
+	t.Run("returns error when project does not have layout", func(t *testing.T) {
 		p := New("project")
 		componentName := "handler"
-		err := p.RegisterComponent(componentName, "other/handler", tmpl)
+		err := p.RegisterComponent(componentName, "handler", tmpl)
+		require.EqualError(t, err, "project does not have layout")
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("returns error when location does not exist", func(t *testing.T) {
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		componentName := "handler"
+		err = p.RegisterComponent(componentName, "other/handler", tmpl)
 		assert.EqualError(t, err, `"other/handler" does not exist`)
 		assert.NotContains(t, p.components, componentName)
 	})
 
 	t.Run("returns error when location is not a directory", func(t *testing.T) {
-		t.Skip("WIP")
-		p := New("project")
+		l := layout.New("layout", layout.NewFnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
 		componentName := "handler"
-		err := p.RegisterComponent(componentName, "handler", tmpl)
+		err = p.RegisterComponent(componentName, "handler", tmpl)
 		assert.EqualError(t, err, `"handler" not a directory`)
 		assert.NotContains(t, p.components, componentName)
 	})
 
-	// t.Run("adds component to the list of components", func(t *testing.T) {
-	// 	l := New("layout", NewDnode("handler"))
+	t.Run("adds component to the list of components", func(t *testing.T) {
+		t.Skip("WIP")
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
 
-	// 	componentName := "http_handler"
-	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
-	// 	require.NoError(t, err)
-	// 	assert.Contains(t, l.components, componentName)
+		componentName := "http_handler"
+		err = p.RegisterComponent(componentName, "handler", tmpl)
+		require.NoError(t, err)
+		assert.Contains(t, p.components, componentName)
 
-	// 	componentName = "main.go"
-	// 	err = l.RegisterComponent(componentName, Root, tmpl)
-	// 	require.NoError(t, err)
-	// 	assert.Contains(t, l.components, componentName)
-	// })
+		componentName = "main.go"
+		err = p.RegisterComponent(componentName, layout.Root, tmpl)
+		require.NoError(t, err)
+		assert.Contains(t, p.components, componentName)
+	})
 
 	// t.Run("registers components", func(t *testing.T) {
 	// 	l := New("layout", NewDnode("handler"))
