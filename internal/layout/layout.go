@@ -61,45 +61,15 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// GetNode returns a node with the given name at a location.
-func (l Layout) GetNode(node, loc string) Node {
-	n := l.findNode(loc)
-	d, ok := n.(Dir)
-	if !ok {
-		return nil
-	}
-	return d.Get(node)
-}
-
-// FindNode returns a node referenced by location.
-func (l Layout) FindNode(loc string) Node {
-	return l.findNode(loc)
-}
-
-// AddComponent adds component node to the layout.
-// func (l *Layout) AddComponent(componentName, nodeName string) error {
-// 	component, ok := l.components[componentName]
-// 	if !ok {
-// 		return fmt.Errorf("unknown component %q", componentName)
-// 	}
-
-// 	if node := l.GetNode(nodeName, component.loc); node != nil {
-// 		return fmt.Errorf("%s %q already exists", componentName, nodeName)
-// 	}
-
-// 	node := NewFnode(nodeName, WithTemplate(component.template))
-// 	return l.AddNode(node, component.loc)
-// }
-
 // TODO: format comment bellow for better documentation help
 
-// find searches for a node at provided location.
+// FindNode returns a node at provided location.
 // For example:
 // - find("server/http") returns directory node associated with "server/http" location
 // - find("server/http/handler.go") returns file node associated with the handler.go
 // - find(".") returns root node
 // - find("") returns nil when no associated node found
-func (l Layout) findNode(loc string) Node {
+func (l Layout) FindNode(loc string) Node {
 	locs := splitPath(loc)
 	node := l.root
 
