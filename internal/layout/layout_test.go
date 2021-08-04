@@ -128,7 +128,7 @@ func TestLayoutAddNode(t *testing.T) {
 		l := layout.New("layout", dnode)
 
 		err := l.AddNode(layout.NewFnode("new_file.txt"), "other")
-		assert.EqualError(t, err, `path "other" not found in layout`)
+		assert.EqualError(t, err, `node "other" not found in layout`)
 	})
 
 	t.Run("returns error when adding existing node", func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestLayoutAddNode(t *testing.T) {
 		l := layout.New("layout", nodes...)
 
 		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
-		assert.EqualError(t, err, `node file.txt already exists at "."`)
+		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
 	})
 }
 
@@ -183,6 +183,51 @@ func TestLayoutGetNode(t *testing.T) {
 			assert.Equal(t, tC.expected, node)
 		})
 	}
+}
+
+func TestLayoutFindNode(t *testing.T) {
+	fileNode := layout.NewFnode("file.txt")
+	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
+	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
+	l := layout.New("layout", baseNode)
+
+	testCases := []struct {
+		desc string
+		loc  string
+		node layout.Node
+	}{
+		{
+			desc: "finds subdir node by location",
+			loc:  "base/subdir",
+			node: subdNode,
+		},
+		{
+			desc: "finds subdir node by location prefixed with root location",
+			loc:  "./base/subdir",
+			node: subdNode,
+		},
+		{
+			desc: "finds file node by location",
+			loc:  "base/subdir/file.txt",
+			node: fileNode,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			n := l.FindNode(tC.loc)
+			assert.Equal(t, tC.node, n)
+		})
+	}
+
+	t.Run("returns root node", func(t *testing.T) {
+		n := l.FindNode(layout.Root)
+		assert.NotNil(t, n)
+	})
+
+	t.Run("returns nil when no node found in location", func(t *testing.T) {
+		n := l.FindNode("foo/bar")
+		assert.Nil(t, n)
+	})
 }
 
 // func TestAddComponent(t *testing.T) {

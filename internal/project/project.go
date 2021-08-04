@@ -209,7 +209,7 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 		return errNoLayout
 	}
 
-	n := p.lout.Find(loc)
+	n := p.lout.FindNode(loc)
 	if n == nil {
 		return fmt.Errorf("%q does not exist", loc)
 	}
