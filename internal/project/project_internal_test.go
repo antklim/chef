@@ -222,7 +222,37 @@ func TestRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("adds component to the list of components", func(t *testing.T) {
-		t.Skip("WIP")
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		{
+			// register handler
+			componentName := "http_handler"
+			err = p.RegisterComponent(componentName, "handler", tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+
+		{
+			// register other handler to the same location
+			componentName := "grpc_hander"
+			err = p.RegisterComponent(componentName, "handler", tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+
+		{
+			// register to root location
+			componentName := "main.go"
+			err = p.RegisterComponent(componentName, layout.Root, tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+	})
+
+	t.Run("overrides an existing component", func(t *testing.T) {
 		l := layout.New("layout", layout.NewDnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.setLayout()
@@ -231,37 +261,12 @@ func TestRegisterComponent(t *testing.T) {
 		componentName := "http_handler"
 		err = p.RegisterComponent(componentName, "handler", tmpl)
 		require.NoError(t, err)
-		assert.Contains(t, p.components, componentName)
 
-		componentName = "main.go"
-		err = p.RegisterComponent(componentName, layout.Root, tmpl)
+		otherTmpl := template.Must(template.New("test2").Parse("package bar"))
+		err = p.RegisterComponent(componentName, "handler", otherTmpl)
 		require.NoError(t, err)
-		assert.Contains(t, p.components, componentName)
+
+		cmp := p.components[componentName]
+		assert.Equal(t, otherTmpl, cmp.template)
 	})
-
-	// t.Run("registers components", func(t *testing.T) {
-	// 	l := New("layout", NewDnode("handler"))
-	// 	componentName := "http_handler"
-	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
-	// 	require.NoError(t, err)
-
-	// 	// registers other component to the same location
-	// 	componentName = "grpc_hander"
-	// 	err = l.RegisterComponent(componentName, "handler", tmpl)
-	// 	require.NoError(t, err)
-	// })
-
-	// t.Run("overrides an existing component", func(t *testing.T) {
-	// 	l := New("layout", NewDnode("handler"))
-	// 	componentName := "http_handler"
-	// 	err := l.RegisterComponent(componentName, "handler", tmpl)
-	// 	require.NoError(t, err)
-
-	// 	otherTmpl := template.Must(template.New("test2").Parse("package bar"))
-	// 	err = l.RegisterComponent(componentName, "handler", otherTmpl)
-	// 	require.NoError(t, err)
-
-	// 	cmp := l.components[componentName]
-	// 	assert.Equal(t, otherTmpl, cmp.template)
-	// })
 }
