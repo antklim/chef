@@ -4,7 +4,7 @@ type Project struct {
 	e error
 }
 
-func (p Project) Add(component, name string) error {
+func (p Project) Employ(component, name string) error {
 	return p.e
 }
 

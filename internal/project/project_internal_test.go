@@ -3,10 +3,27 @@ package project
 import (
 	"fmt"
 	"testing"
+	"text/template"
 
+	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+var testTmpl = template.Must(template.New("test").Parse("package foo"))
+
+func testProject() (Project, error) {
+	l := layout.New("layout", layout.NewDnode("handler"))
+	p := New("project", WithLayout(l))
+	if err := p.setLayout(); err != nil {
+		return Project{}, err
+	}
+
+	if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
+		return Project{}, err
+	}
+	return p, nil
+}
 
 func TestProjectCategory(t *testing.T) {
 	testCases := []struct {
@@ -61,6 +78,7 @@ func TestProjectServer(t *testing.T) {
 }
 
 func TestProjectOptions(t *testing.T) {
+	tl := layout.New("testLayout")
 	testCases := []struct {
 		desc     string
 		opts     []Option
@@ -111,6 +129,16 @@ func TestProjectOptions(t *testing.T) {
 				mod:  "cheftest",
 			},
 		},
+		{
+			desc: "project created with custom layout",
+			opts: []Option{WithLayout(tl)},
+			expected: projectOptions{
+				root: "",
+				cat:  "srv",
+				srv:  "",
+				lout: &tl,
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -120,7 +148,8 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
-func TestLayout(t *testing.T) {
+func TestSetLayout(t *testing.T) {
+	tl := layout.New("testLayout")
 	testCases := []struct {
 		desc   string
 		p      Project
@@ -133,22 +162,155 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			desc:   "returns http service layout",
-			p:      New("test", WithCategory("srv"), WithServer("http")),
+			p:      New("test1", WithCategory("srv"), WithServer("http")),
 			schema: HTTPServiceLayout,
+		},
+		{
+			desc:   "returns custom layout",
+			p:      New("test2", WithLayout(tl)),
+			schema: "testLayout",
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			l, err := tC.p.layout()
+			assert.Nil(t, tC.p.lout)
+			err := tC.p.setLayout()
 			require.NoError(t, err)
-			assert.Equal(t, tC.schema, l.Schema())
+			assert.Equal(t, tC.schema, tC.p.lout.Schema())
 		})
 	}
 
 	t.Run("returns error when unknown layout requested", func(t *testing.T) {
 		p := New("test", WithCategory("test"))
-		l, err := p.layout()
-		assert.EqualError(t, err, "not found layout for category test")
-		assert.Nil(t, l)
+		err := p.setLayout()
+		assert.EqualError(t, err, `layout for "test" category not found`)
+		assert.Nil(t, p.lout)
+	})
+}
+
+func TestRegisterComponent(t *testing.T) {
+	tmpl := template.Must(template.New("test").Parse("package foo"))
+
+	t.Run("new project does not have registered components", func(t *testing.T) {
+		p := New("project")
+		assert.Empty(t, p.components)
+	})
+
+	t.Run("returns error when template is nil", func(t *testing.T) {
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "handler", nil)
+		require.EqualError(t, err, "nil component template")
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("returns error when project does not have layout", func(t *testing.T) {
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "handler", tmpl)
+		require.EqualError(t, err, "project does not have layout")
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("returns error when location does not exist", func(t *testing.T) {
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		componentName := "handler"
+		err = p.RegisterComponent(componentName, "other/handler", tmpl)
+		assert.EqualError(t, err, `"other/handler" does not exist`)
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("returns error when location is not a directory", func(t *testing.T) {
+		l := layout.New("layout", layout.NewFnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		componentName := "handler"
+		err = p.RegisterComponent(componentName, "handler", tmpl)
+		assert.EqualError(t, err, `"handler" not a directory`)
+		assert.NotContains(t, p.components, componentName)
+	})
+
+	t.Run("adds component to the list of components", func(t *testing.T) {
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		{
+			// register handler
+			componentName := "http_handler"
+			err = p.RegisterComponent(componentName, "handler", tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+
+		{
+			// register other handler to the same location
+			componentName := "grpc_hander"
+			err = p.RegisterComponent(componentName, "handler", tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+
+		{
+			// register to root location
+			componentName := "main.go"
+			err = p.RegisterComponent(componentName, layout.Root, tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.components, componentName)
+		}
+	})
+
+	t.Run("overrides an existing component", func(t *testing.T) {
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		err := p.setLayout()
+		require.NoError(t, err)
+
+		componentName := "http_handler"
+		err = p.RegisterComponent(componentName, "handler", tmpl)
+		require.NoError(t, err)
+
+		otherTmpl := template.Must(template.New("test2").Parse("package bar"))
+		err = p.RegisterComponent(componentName, "handler", otherTmpl)
+		require.NoError(t, err)
+
+		cmp := p.components[componentName]
+		assert.Equal(t, otherTmpl, cmp.template)
+	})
+}
+
+func TestProjectEmployComponent(t *testing.T) {
+	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("foo", "bar")
+		assert.EqualError(t, err, `unregistered component "foo"`)
+	})
+
+	t.Run("adds new component node to a project layout", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("http_handler", "echo")
+		assert.NoError(t, err)
+	})
+
+	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("http_handler", "echo")
+		assert.NoError(t, err)
+
+		err = p.Employ("http_handler", "echo")
+		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo"`)
 	})
 }

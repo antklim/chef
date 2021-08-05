@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"strings"
 	"testing"
-	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +51,7 @@ func TestNewLayout(t *testing.T) {
 	nodes := []layout.Node{node}
 	l := layout.New(schema, nodes...)
 	assert.Equal(t, schema, l.Schema())
-	assert.Equal(t, node, l.GetNode("testNode", layout.Root))
+	assert.Equal(t, node, l.FindNode("testNode"))
 }
 
 func TestLayoutBuild(t *testing.T) {
@@ -101,7 +100,7 @@ func TestLayoutAddNode(t *testing.T) {
 
 		err := l.AddNode(dnode, layout.Root)
 		assert.NoError(t, err)
-		assert.NotNil(t, l.GetNode("subdir", layout.Root))
+		assert.NotNil(t, l.FindNode("subdir"))
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
@@ -129,7 +128,7 @@ func TestLayoutAddNode(t *testing.T) {
 		l := layout.New("layout", dnode)
 
 		err := l.AddNode(layout.NewFnode("new_file.txt"), "other")
-		assert.EqualError(t, err, `path "other" not found in layout`)
+		assert.EqualError(t, err, `node "other" not found in layout`)
 	})
 
 	t.Run("returns error when adding existing node", func(t *testing.T) {
@@ -137,91 +136,57 @@ func TestLayoutAddNode(t *testing.T) {
 		l := layout.New("layout", nodes...)
 
 		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
-		assert.EqualError(t, err, `node file.txt already exists at "."`)
+		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
 	})
 }
 
-func TestLayoutGetNode(t *testing.T) {
+func TestLayoutFindNode(t *testing.T) {
 	fileNode := layout.NewFnode("file.txt")
 	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
 	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
 	l := layout.New("layout", baseNode)
 
 	testCases := []struct {
-		desc     string
-		node     string
-		loc      string
-		expected layout.Node
+		desc string
+		loc  string
+		node layout.Node
 	}{
 		{
-			desc:     "returns node from root location",
-			node:     "base",
-			loc:      ".",
-			expected: baseNode,
+			desc: "finds subdir node by location",
+			loc:  "base/subdir",
+			node: subdNode,
 		},
 		{
-			desc:     "returns node from subdirectory",
-			node:     "subdir",
-			loc:      "base",
-			expected: subdNode,
+			desc: "finds subdir node by location prefixed with root location",
+			loc:  "./base/subdir",
+			node: subdNode,
 		},
 		{
-			desc:     "returns node from nested subdirectory",
-			node:     "file.txt",
-			loc:      "base/subdir",
-			expected: fileNode,
-		},
-		{
-			desc:     "returns nil when no node found",
-			node:     "file.txt",
-			loc:      ".",
-			expected: nil,
+			desc: "finds file node by location",
+			loc:  "base/subdir/file.txt",
+			node: fileNode,
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			node := l.GetNode(tC.node, tC.loc)
-			assert.Equal(t, tC.expected, node)
+			n := l.FindNode(tC.loc)
+			assert.Equal(t, tC.node, n)
 		})
 	}
-}
 
-func TestAddComponent(t *testing.T) {
-	tmpl := template.Must(template.New("test").Parse("package foo"))
-
-	t.Run("returns error when adding unknown component", func(t *testing.T) {
-		l := layout.New("layout")
-		err := l.AddComponent("handler", "health")
-		assert.EqualError(t, err, `unknown component "handler"`)
+	t.Run("returns root node", func(t *testing.T) {
+		n := l.FindNode(layout.Root)
+		assert.NotNil(t, n)
 	})
 
-	t.Run("returns error when component node with the provided name already exists", func(t *testing.T) {
-		loc := "handler"
-		componentName := "http_handler"
-		fnode := layout.NewFnode("health.go")
-		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
-		l := layout.New("layout", dnode)
-		err := l.RegisterComponent(componentName, loc, tmpl)
-		require.NoError(t, err)
-
-		err = l.AddComponent(componentName, "health.go")
-		assert.EqualError(t, err, `http_handler "health.go" already exists`)
+	t.Run("returns nil when no node found in location", func(t *testing.T) {
+		n := l.FindNode("foo/bar")
+		assert.Nil(t, n)
 	})
 
-	t.Run("adds a component node", func(t *testing.T) {
-		loc := "handler"
-		componentName := "http_handler"
-		fnode := layout.NewFnode("health.go")
-		dnode := layout.NewDnode(loc, layout.WithSubNodes(fnode))
-		l := layout.New("layout", dnode)
-
-		err := l.RegisterComponent(componentName, loc, tmpl)
-		require.NoError(t, err)
-
-		nodeName := "info.go"
-		err = l.AddComponent(componentName, nodeName)
-		require.NoError(t, err)
-		assert.NotNil(t, l.GetNode(nodeName, loc))
+	t.Run("returns nil for empty location", func(t *testing.T) {
+		n := l.FindNode("")
+		assert.Nil(t, n)
 	})
 }
 

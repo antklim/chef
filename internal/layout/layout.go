@@ -1,15 +1,8 @@
 package layout
 
 import (
-	"errors"
 	"fmt"
-	"path"
 	"strings"
-	"text/template"
-)
-
-var (
-	errComponentTemplateNil = errors.New("component template is nil")
 )
 
 const Root = "."
@@ -20,50 +13,35 @@ type Dir interface {
 	Nodes() []Node
 }
 
-type component struct {
-	loc      string
-	name     string
-	template *template.Template
-}
-
 type Layout struct {
-	root       Dir
-	schema     string
-	components map[string]component
+	root   Dir
+	schema string
 }
-
-// TODO: refactor root node in a way that Get and findNode does not consider root as a separate use-case.
 
 // New creates a new layout with schema s and nodes n.
 func New(s string, nodes ...Node) Layout {
-	root := NewDnode(Root, WithSubNodes(nodes...))
+	rootNode := NewDnode(Root, WithSubNodes(nodes...))
+	root := NewDnode("", WithSubNodes(rootNode))
 	return Layout{
-		root:       root,
-		schema:     s,
-		components: make(map[string]component),
+		root:   root,
+		schema: s,
 	}
 }
 
-// TODO: Consider making it private
-
 // AddNode adds a node to a layout location.
 func (l *Layout) AddNode(n Node, loc string) error {
-	if node := l.GetNode(n.Name(), loc); node != nil {
-		return fmt.Errorf("node %s already exists at %q", n.Name(), loc)
-	}
-
-	if loc == Root {
-		return l.root.Add(n)
-	}
-
-	locNode := l.GetNode(path.Base(loc), path.Dir(loc))
+	locNode := l.FindNode(loc)
 	if locNode == nil {
-		return fmt.Errorf("path %q not found in layout", loc)
+		return fmt.Errorf("node %q not found in layout", loc)
 	}
 
 	locDir, ok := locNode.(Dir)
 	if !ok {
 		return fmt.Errorf("node %q does not support adding subnodes", loc)
+	}
+
+	if node := locDir.Get(n.Name()); node != nil {
+		return fmt.Errorf("node %q already has subnode %q", loc, n.Name())
 	}
 
 	return locDir.Add(n)
@@ -74,7 +52,8 @@ func (l Layout) Schema() string {
 }
 
 func (l Layout) Build(loc, mod string) error {
-	for _, n := range l.root.Nodes() {
+	root := l.rootDir()
+	for _, n := range root.Nodes() {
 		if err := n.Build(loc, mod); err != nil {
 			return err
 		}
@@ -82,76 +61,20 @@ func (l Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// GetNode returns a node with the given name at a location.
-func (l Layout) GetNode(node, loc string) Node {
-	if loc == Root {
-		return l.root.Get(node)
-	}
-
-	n := l.findNode(loc)
-	d, ok := n.(Dir)
-	if !ok {
-		return nil
-	}
-	return d.Get(node)
-}
-
-func (l *Layout) RegisterComponent(componentName, loc string, t *template.Template) error {
-	if t == nil {
-		return errComponentTemplateNil
-	}
-
-	// TODO: refactor, root should not be a special case
-	if loc != Root {
-		locNode := l.findNode(loc)
-		if locNode == nil {
-			return fmt.Errorf("%q does not exist", loc)
-		}
-
-		if _, ok := locNode.(Dir); !ok {
-			return fmt.Errorf("%q not a directory", loc)
-		}
-	}
-
-	l.components[componentName] = component{
-		loc:      loc,
-		name:     componentName,
-		template: t,
-	}
-
-	return nil
-}
-
-// AddComponent adds component node to the layout.
-func (l *Layout) AddComponent(componentName, nodeName string) error {
-	component, ok := l.components[componentName]
-	if !ok {
-		return fmt.Errorf("unknown component %q", componentName)
-	}
-
-	if node := l.GetNode(nodeName, component.loc); node != nil {
-		return fmt.Errorf("%s %q already exists", componentName, nodeName)
-	}
-
-	node := NewFnode(nodeName, WithTemplate(component.template))
-	return l.AddNode(node, component.loc)
-}
-
-// TODO: refactor - unify Get and findNode
 // TODO: format comment bellow for better documentation help
 
-// find searches for a node at provided location.
+// FindNode returns a node at provided location.
 // For example:
 // - find("server/http") returns directory node associated with "server/http" location
 // - find("server/http/handler.go") returns file node associated with the handler.go
-// - find(".") returns nil for root location
+// - find(".") returns root node
 // - find("") returns nil when no associated node found
-func (l Layout) findNode(loc string) Node {
-	dirs := strings.Split(loc, "/")
-	d := l.root
+func (l Layout) FindNode(loc string) Node {
+	locs := splitPath(loc)
+	node := l.root
 
-	for _, dir := range dirs[:len(dirs)-1] {
-		n := d.Get(dir)
+	for _, l := range locs[:len(locs)-1] {
+		n := node.Get(l)
 		if n == nil {
 			return nil
 		}
@@ -160,13 +83,34 @@ func (l Layout) findNode(loc string) Node {
 		if !ok {
 			return nil
 		}
-		d = dnode
+		node = dnode
 	}
 
-	return d.Get(dirs[len(dirs)-1])
+	return node.Get(locs[len(locs)-1])
 }
 
-// TODO: consider deprecation of layout registry
+func (l Layout) rootDir() Dir {
+	rootNode := l.root.Get(Root)
+	if rootNode == nil {
+		return nil
+	}
+
+	dir, ok := rootNode.(Dir)
+	if !ok {
+		return nil
+	}
+	return dir
+}
+
+func splitPath(loc string) []string {
+	a := strings.Split(loc, "/")
+	if a[0] != "." {
+		a = append([]string{"."}, a...)
+	}
+	return a
+}
+
+// TODO: deprecate layout registry or move it to the lower level package
 var (
 	// m is a map from schema to layout.
 	m = make(map[string]Layout)

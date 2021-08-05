@@ -73,7 +73,7 @@ func TestProjectValidate(t *testing.T) {
 			desc: "fails when root directory contains file or directory with the project name",
 			name: "chefsushi",
 			opts: []project.Option{project.WithRoot(tmpDir)},
-			err:  "file or directory chefsushi already exists",
+			err:  `file or directory "chefsushi" already exists`,
 		},
 	}
 	for _, tC := range testCases {
@@ -85,7 +85,7 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
-func TestProjectBootstrap(t *testing.T) {
+func TestProjectInit(t *testing.T) {
 	testCases := []struct {
 		desc string
 		root string
@@ -113,27 +113,6 @@ func TestProjectBootstrap(t *testing.T) {
 			os.RemoveAll(loc)
 		})
 	}
-}
-
-func TestProjectAdd(t *testing.T) {
-	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
-		p := project.New("cheftest")
-		err := p.Add("foo", "bar")
-		assert.EqualError(t, err, `could not add layout component: unknown component "foo"`)
-	})
-
-	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
-		// t.Log("not implemented")
-		// t.Fail()
-	})
-
-	t.Run("adds new component node to a project layout", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
-		// t.Log("not implemented")
-		// t.Fail()
-	})
 }
 
 // TODO: test default layouts

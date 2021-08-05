@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/pkg/errors"
@@ -77,14 +78,23 @@ const (
 )
 
 var (
-	errEmptyProjectName = errors.New("project name required: empty name provided")
+	errEmptyProjectName     = errors.New("project name required: empty name provided")
+	errComponentTemplateNil = errors.New("nil component template")
+	errNoLayout             = errors.New("project does not have layout")
 )
+
+type component struct {
+	loc      string
+	name     string
+	template *template.Template
+}
 
 type projectOptions struct {
 	root string
 	cat  string
 	srv  string
 	mod  string
+	lout *layout.Layout
 }
 
 var defaultProjectOptions = projectOptions{
@@ -94,9 +104,10 @@ var defaultProjectOptions = projectOptions{
 
 // Project manager.
 type Project struct {
-	name string
-	opts projectOptions
-	lout layout.Layout
+	name       string
+	opts       projectOptions
+	lout       *layout.Layout
+	components map[string]component
 }
 
 // New project.
@@ -109,8 +120,9 @@ func New(name string, opt ...Option) Project {
 	}
 
 	p := Project{
-		name: name,
-		opts: opts,
+		name:       name,
+		opts:       opts,
+		components: make(map[string]component),
 	}
 	return p
 }
@@ -144,7 +156,7 @@ func (p Project) Validate() error {
 
 	fi, _ = os.Stat(path.Join(root, p.name))
 	if fi != nil {
-		return fmt.Errorf("file or directory %s already exists", p.name)
+		return fmt.Errorf("file or directory %q already exists", p.name)
 	}
 
 	return nil
@@ -155,22 +167,28 @@ func (p Project) Init() error {
 	if err := p.Validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
 	}
+	if err := p.setLayout(); err != nil {
+		return errors.Wrap(err, "set layout failed")
+	}
 	if err := p.build(); err != nil {
 		return errors.Wrap(err, "build failed")
 	}
 	return nil
 }
 
-// TODO: implement add component
-
-// Add adds a new component node to a project
-func (p Project) Add(component, name string) error {
+// Employ employs registered component to add new node to a project layout.
+func (p Project) Employ(component, name string) error {
 	// TODO: add node name extension based on project language preferences
-
-	if err := p.lout.AddComponent(component, name); err != nil {
-		return errors.Wrap(err, "could not add layout component")
+	c, ok := p.components[component]
+	if !ok {
+		return fmt.Errorf("unregistered component %q", component)
 	}
-	return errors.New("not implemented")
+
+	n := layout.NewFnode(name, layout.WithTemplate(c.template))
+	if err := p.lout.AddNode(n, c.loc); err != nil {
+		return errors.Wrap(err, "add node failed")
+	}
+	return nil
 }
 
 func (p Project) Name() string {
@@ -185,12 +203,33 @@ func (p Project) Location() (string, error) {
 	return path.Join(r, p.name), nil
 }
 
-func (p Project) build() error {
-	l, err := p.layout()
-	if err != nil {
-		return err
+func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
+	if t == nil {
+		return errComponentTemplateNil
 	}
 
+	if p.lout == nil {
+		return errNoLayout
+	}
+
+	n := p.lout.FindNode(loc)
+	if n == nil {
+		return fmt.Errorf("%q does not exist", loc)
+	}
+	if _, ok := n.(layout.Dir); !ok {
+		return fmt.Errorf("%q not a directory", loc)
+	}
+
+	p.components[componentName] = component{
+		loc:      loc,
+		name:     componentName,
+		template: t,
+	}
+
+	return nil
+}
+
+func (p Project) build() error {
 	loc, err := p.Location()
 	if err != nil {
 		return err
@@ -201,7 +240,7 @@ func (p Project) build() error {
 		return err
 	}
 
-	return l.Build(loc, p.opts.mod)
+	return p.lout.Build(loc, p.opts.mod)
 }
 
 func (p Project) root() (root string, err error) {
@@ -212,7 +251,12 @@ func (p Project) root() (root string, err error) {
 	return
 }
 
-func (p Project) layout() (*layout.Layout, error) {
+func (p *Project) setLayout() error {
+	if p.opts.lout != nil {
+		p.lout = p.opts.lout
+		return nil
+	}
+
 	ln := category(p.opts.cat)
 
 	if s := server(p.opts.srv); s != serverNone {
@@ -221,10 +265,12 @@ func (p Project) layout() (*layout.Layout, error) {
 
 	l := layout.Get(ln)
 	if l == nil {
-		return nil, fmt.Errorf("not found layout for category %s", p.opts.cat)
+		return fmt.Errorf("layout for %q category not found", p.opts.cat)
 	}
 
-	return l, nil
+	p.lout = l
+
+	return nil
 }
 
 type Option interface {
@@ -264,5 +310,11 @@ func WithServer(s string) Option {
 func WithModule(m string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.mod = m
+	})
+}
+
+func WithLayout(l layout.Layout) Option {
+	return newFuncOption(func(o *projectOptions) {
+		o.lout = &l
 	})
 }
