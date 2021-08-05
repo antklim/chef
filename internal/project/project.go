@@ -176,16 +176,19 @@ func (p Project) Init() error {
 	return nil
 }
 
-// TODO: implement add component
-
-// Add adds a new component node to a project
-func (p Project) Add(component, name string) error {
+// Employ employs registered component to add new node to a project layout.
+func (p Project) Employ(component, name string) error {
 	// TODO: add node name extension based on project language preferences
+	c, ok := p.components[component]
+	if !ok {
+		return fmt.Errorf("unregistered component %q", component)
+	}
 
-	// if err := p.lout.AddComponent(component, name); err != nil {
-	// 	return errors.Wrap(err, "could not add layout component")
-	// }
-	return errors.New("not implemented")
+	n := layout.NewFnode(name, layout.WithTemplate(c.template))
+	if err := p.lout.AddNode(n, c.loc); err != nil {
+		return errors.Wrap(err, "add node failed")
+	}
+	return nil
 }
 
 func (p Project) Name() string {

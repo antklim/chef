@@ -10,6 +10,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var testTmpl = template.Must(template.New("test").Parse("package foo"))
+
+func testProject() (Project, error) {
+	l := layout.New("layout", layout.NewDnode("handler"))
+	p := New("project", WithLayout(l))
+	if err := p.setLayout(); err != nil {
+		return Project{}, err
+	}
+
+	if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
+		return Project{}, err
+	}
+	return p, nil
+}
+
 func TestProjectCategory(t *testing.T) {
 	testCases := []struct {
 		v        string
@@ -268,5 +283,34 @@ func TestRegisterComponent(t *testing.T) {
 
 		cmp := p.components[componentName]
 		assert.Equal(t, otherTmpl, cmp.template)
+	})
+}
+
+func TestProjectEmployComponent(t *testing.T) {
+	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("foo", "bar")
+		assert.EqualError(t, err, `unregistered component "foo"`)
+	})
+
+	t.Run("adds new component node to a project layout", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("http_handler", "echo")
+		assert.NoError(t, err)
+	})
+
+	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
+		// TODO: validate that no new nodes added to project layout
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.Employ("http_handler", "echo")
+		assert.NoError(t, err)
+
+		err = p.Employ("http_handler", "echo")
+		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo"`)
 	})
 }

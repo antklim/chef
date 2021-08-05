@@ -110,7 +110,7 @@ func splitPath(loc string) []string {
 	return a
 }
 
-// TODO: consider deprecation of layout registry
+// TODO: deprecate layout registry or move it to the lower level package
 var (
 	// m is a map from schema to layout.
 	m = make(map[string]Layout)
