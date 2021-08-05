@@ -16,11 +16,11 @@ var projectMakers = map[string]projectMaker{
 	// "http_svc": makeHttpSvcProject,
 }
 
-type svcProject struct {
-}
+// type svcProject struct {
+// }
 
-type httpSvcProject struct {
-}
+// type httpSvcProject struct {
+// }
 
 // TODO: it could be layout factory
 
@@ -32,10 +32,10 @@ func MakeProject(category string) (IProject, error) {
 	return nil, nil
 }
 
-func makeSvcProject() svcProject {
-	return svcProject{}
-}
+// func makeSvcProject() svcProject {
+// 	return svcProject{}
+// }
 
-func makeHttpSvcProject() httpSvcProject {
-	return httpSvcProject{}
-}
+// func makeHttpSvcProject() httpSvcProject {
+// 	return httpSvcProject{}
+// }
