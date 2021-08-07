@@ -241,6 +241,7 @@ func (p *Project) setLocation() error {
 		return fmt.Errorf("%s is not a directory", root)
 	}
 
+	// TODO: move this check to build
 	fi, _ = os.Stat(path.Join(root, p.name))
 	if fi != nil {
 		return fmt.Errorf("file or directory %q already exists", p.name)

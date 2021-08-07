@@ -306,6 +306,7 @@ func TestProjectInit(t *testing.T) {
 			assert.Equal(t, tC.lout, p.lout.Schema())
 		})
 	}
+	// TODO: inits project with default layout when directory exists
 }
 
 func TestProjectRegisterComponent(t *testing.T) {
