@@ -12,8 +12,8 @@ func (p Project) Init() error {
 	return p.e
 }
 
-func (p Project) Location() (string, error) {
-	return "", nil
+func (p Project) Location() string {
+	return ""
 }
 
 func (p Project) Name() string {

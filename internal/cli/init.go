@@ -102,11 +102,8 @@ func initCmdRunner(p Project) error {
 
 	// }
 
-	if l, err := p.Location(); err != nil {
-		fmt.Printf("get project location failed: %+v\n", err)
-	} else {
-		fmt.Printf("project location: %s\n", l)
-	}
+	l := p.Location()
+	fmt.Printf("project location: %s\n", l)
 
 	return nil
 }

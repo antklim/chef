@@ -189,12 +189,8 @@ func (p Project) Name() string {
 	return p.name
 }
 
-func (p Project) Location() (string, error) {
-	r, err := p.root()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(r, p.name), nil
+func (p Project) Location() string {
+	return p.loc
 }
 
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
@@ -224,18 +220,12 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 }
 
 func (p Project) build() error {
-	// TODO: use p.loc instead
-	loc, err := p.Location()
-	if err != nil {
-		return err
-	}
-
 	var dp fs.FileMode = 0755
-	if err := os.Mkdir(loc, dp); err != nil {
+	if err := os.Mkdir(p.loc, dp); err != nil {
 		return err
 	}
 
-	return p.lout.Build(loc, p.opts.mod)
+	return p.lout.Build(p.loc, p.opts.mod)
 }
 
 // TODO: consider deprecation due to setLayout usage

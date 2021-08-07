@@ -5,23 +5,7 @@ import (
 
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
-
-func TestNewProject(t *testing.T) {
-	name := "borsch"
-	opts := []project.Option{
-		project.WithCategory("pkg"),
-		project.WithRoot("/r"),
-		project.WithServer("grpc"),
-	}
-
-	p := project.New(name, opts...)
-	assert.Equal(t, name, p.Name())
-	loc, err := p.Location()
-	require.NoError(t, err)
-	assert.Equal(t, "/r/borsch", loc)
-}
 
 func TestProjectInit(t *testing.T) {
 	t.Run("propagates validation errors", func(t *testing.T) {
