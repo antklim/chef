@@ -174,6 +174,10 @@ func (p Project) Build() (string, error) {
 
 // Employ employs registered component to add new node to a project layout.
 func (p Project) Employ(component, name string) error {
+	if !p.inited {
+		return errNotInited
+	}
+
 	// TODO: add node name extension based on project language preferences
 	c, ok := p.components[component]
 	if !ok {

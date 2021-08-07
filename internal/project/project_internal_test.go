@@ -424,6 +424,12 @@ func TestProjectEmployComponent(t *testing.T) {
 		return p, nil
 	}
 
+	t.Run("returns error when project is not inited", func(t *testing.T) {
+		p := New("project")
+		err := p.Employ("foo", "bar")
+		assert.EqualError(t, err, "project not inited")
+	})
+
 	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
 		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
