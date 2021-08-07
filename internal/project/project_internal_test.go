@@ -316,6 +316,14 @@ func TestProjectRegisterComponent(t *testing.T) {
 		assert.Empty(t, p.components)
 	})
 
+	t.Run("returns error when project not inited", func(t *testing.T) {
+		p := New("project")
+		componentName := "handler"
+		err := p.RegisterComponent(componentName, "handler", tmpl)
+		require.EqualError(t, err, "project not inited")
+		assert.NotContains(t, p.components, componentName)
+	})
+
 	t.Run("returns error when template is nil", func(t *testing.T) {
 		p := New("project")
 		err := p.Init()
@@ -323,14 +331,6 @@ func TestProjectRegisterComponent(t *testing.T) {
 		componentName := "handler"
 		err = p.RegisterComponent(componentName, "handler", nil)
 		require.EqualError(t, err, "nil component template")
-		assert.NotContains(t, p.components, componentName)
-	})
-
-	t.Run("returns error when project not inited", func(t *testing.T) {
-		p := New("project")
-		componentName := "handler"
-		err := p.RegisterComponent(componentName, "handler", tmpl)
-		require.EqualError(t, err, "project not inited")
 		assert.NotContains(t, p.components, componentName)
 	})
 

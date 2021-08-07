@@ -143,10 +143,6 @@ func (p Project) Build() (string, error) {
 	return p.loc, nil
 }
 
-func (p Project) Name() string {
-	return p.name
-}
-
 func (p Project) Location() string {
 	return p.loc
 }

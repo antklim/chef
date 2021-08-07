@@ -96,14 +96,12 @@ func initCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
-	fmt.Printf("project %s successfully inited\n", p.Name())
+	loc, err := p.Build()
+	if err != nil {
+		return errors.Wrap(err, "init project failed")
+	}
 
-	// if loc, err := p.Build(); err != nil {
-
-	// }
-
-	l := p.Location()
-	fmt.Printf("project location: %s\n", l)
+	fmt.Printf("project successfully inited at %s\n", loc)
 
 	return nil
 }
