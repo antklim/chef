@@ -151,15 +151,6 @@ func TestProjectOptions(t *testing.T) {
 }
 
 func TestProjectValidate(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	err := os.Mkdir(path.Join(tmpDir, "chefsushi"), 0755)
-	require.NoError(t, err)
-
-	karrageFile := path.Join(tmpDir, "karrage")
-	_, err = os.Create(karrageFile)
-	require.NoError(t, err)
-
 	testCases := []struct {
 		desc string
 		name string
@@ -181,24 +172,6 @@ func TestProjectValidate(t *testing.T) {
 			name: "chefbar",
 			opts: []Option{WithServer("bar")},
 			err:  "project server bar is unknown",
-		},
-		{
-			desc: "fails when provided root directory does not exist",
-			name: "cheftempura",
-			opts: []Option{WithRoot("tempura")},
-			err:  "stat tempura: no such file or directory",
-		},
-		{
-			desc: "fails when provided root directory is not a directory",
-			name: "chefkarrage",
-			opts: []Option{WithRoot(karrageFile)},
-			err:  karrageFile + " is not a directory",
-		},
-		{
-			desc: "fails when root directory contains file or directory with the project name",
-			name: "chefsushi",
-			opts: []Option{WithRoot(tmpDir)},
-			err:  `file or directory "chefsushi" already exists`,
 		},
 	}
 	for _, tC := range testCases {
@@ -248,6 +221,50 @@ func TestProjectSetLayout(t *testing.T) {
 		assert.EqualError(t, err, `layout for "test" category not found`)
 		assert.Nil(t, p.lout)
 	})
+}
+
+func TestSetLocation(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	file := path.Join(tmpDir, "foo")
+	_, err := os.Create(file)
+	require.NoError(t, err)
+
+	err = os.Mkdir(path.Join(tmpDir, "bar"), 0755)
+	require.NoError(t, err)
+
+	testCases := []struct {
+		desc string
+		name string
+		opts []Option
+		err  string
+	}{
+		{
+			desc: "fails when provided root directory does not exist",
+			name: "project",
+			opts: []Option{WithRoot("foo")},
+			err:  "stat foo: no such file or directory",
+		},
+		{
+			desc: "fails when provided root directory is not a directory",
+			name: "project",
+			opts: []Option{WithRoot(file)},
+			err:  file + " is not a directory",
+		},
+		{
+			desc: "fails when root directory contains file or directory with the project name",
+			name: "bar",
+			opts: []Option{WithRoot(tmpDir)},
+			err:  `file or directory "bar" already exists`,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := New(tC.name, tC.opts...)
+			err := p.setLocation()
+			assert.EqualError(t, err, tC.err)
+		})
+	}
 }
 
 func TestProjectInit(t *testing.T) {

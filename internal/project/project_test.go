@@ -31,7 +31,6 @@ func TestProjectInit(t *testing.T) {
 	})
 
 	t.Run("propagates set location errors", func(t *testing.T) {
-		t.Skip()
 		p := project.New("p", project.WithRoot("/r"))
 		err := p.Init()
 		assert.EqualError(t, err, "set location failed: stat /r: no such file or directory")

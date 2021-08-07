@@ -141,26 +141,6 @@ func (p Project) validate() error {
 		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
-	// TODO: move to setLocation
-	root, err := p.root()
-	if err != nil {
-		return err
-	}
-
-	fi, err := os.Stat(root)
-	if err != nil {
-		return err
-	}
-
-	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", root)
-	}
-
-	fi, _ = os.Stat(path.Join(root, p.name))
-	if fi != nil {
-		return fmt.Errorf("file or directory %q already exists", p.name)
-	}
-
 	return nil
 }
 
@@ -268,11 +248,26 @@ func (p Project) root() (root string, err error) {
 }
 
 func (p *Project) setLocation() error {
-	r, err := p.root()
+	root, err := p.root()
 	if err != nil {
 		return err
 	}
-	p.loc = path.Join(r, p.name)
+
+	fi, err := os.Stat(root)
+	if err != nil {
+		return err
+	}
+
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", root)
+	}
+
+	fi, _ = os.Stat(path.Join(root, p.name))
+	if fi != nil {
+		return fmt.Errorf("file or directory %q already exists", p.name)
+	}
+
+	p.loc = path.Join(root, p.name)
 	return nil
 }
 
