@@ -1,10 +1,12 @@
 package project_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProjectInit(t *testing.T) {
@@ -28,40 +30,26 @@ func TestProjectInit(t *testing.T) {
 }
 
 func TestProjectBuild(t *testing.T) {
-	// builds project in provided directory
-	// builds project in current directory
-
-	t.Run("fails when", func(t *testing.T) {
-		testCases := []struct {
-			desc string
-			pf   func() *project.Project
-			err  string
-		}{
-			{
-				desc: "project is not inited",
-				pf: func() *project.Project {
-					return project.New("project")
-				},
-				err: "project not inited",
-			},
-			// {
-			// 	desc: "project could not be build",
-			// 	pf: func() project.Project {
-			// 		return project.New("project")
-			// 	},
-			// 	err: "---",
-			// },
-		}
-		for _, tC := range testCases {
-			t.Run(tC.desc, func(t *testing.T) {
-				loc, err := tC.pf().Build()
-				assert.EqualError(t, err, tC.err)
-				assert.Empty(t, loc)
-			})
-		}
+	t.Run("returns error when project not inited", func(t *testing.T) {
+		p := project.New("project")
+		loc, err := p.Build()
+		assert.EqualError(t, err, "project not inited")
+		assert.Empty(t, loc)
 	})
 
-	t.Run("builds project", func(t *testing.T) {})
+	t.Run("builds project", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		p := project.New("project", project.WithRoot(tmpDir))
+		err := p.Init()
+		require.NoError(t, err)
+
+		loc, err := p.Build()
+		require.NoError(t, err)
+
+		nodes, err := os.ReadDir(loc)
+		require.NoError(t, err)
+		assert.NotEmpty(t, nodes)
+	})
 }
 
 // TODO: test default layouts

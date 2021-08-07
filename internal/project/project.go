@@ -140,7 +140,7 @@ func (p Project) Build() (string, error) {
 	if err := p.build(); err != nil {
 		return "", errors.Wrap(err, "build failed")
 	}
-	return "", errors.New("not implemented")
+	return p.loc, nil
 }
 
 func (p Project) Name() string {
