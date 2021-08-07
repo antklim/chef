@@ -2,6 +2,8 @@ package project
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"testing"
 	"text/template"
 
@@ -12,15 +14,15 @@ import (
 
 var testTmpl = template.Must(template.New("test").Parse("package foo"))
 
-func testProject() (Project, error) {
+func testProject() (*Project, error) {
 	l := layout.New("layout", layout.NewDnode("handler"))
 	p := New("project", WithLayout(l))
 	if err := p.setLayout(); err != nil {
-		return Project{}, err
+		return nil, err
 	}
 
 	if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
-		return Project{}, err
+		return nil, err
 	}
 	return p, nil
 }
@@ -148,11 +150,11 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
-func TestSetLayout(t *testing.T) {
+func TestProjectSetLayout(t *testing.T) {
 	tl := layout.New("testLayout")
 	testCases := []struct {
 		desc   string
-		p      Project
+		p      *Project
 		schema string
 	}{
 		{
@@ -188,7 +190,43 @@ func TestSetLayout(t *testing.T) {
 	})
 }
 
-func TestRegisterComponent(t *testing.T) {
+func TestProjectInit(t *testing.T) {
+	// inits project with with custom location
+	// inits project with default layout
+	// inits project with layout determied by category
+	// inits project with layout determied by category and server
+	// inits project with custom layout
+	// inits project with custom layout taking priority over category
+
+	name := "project"
+	cwd, err := os.Getwd()
+	require.NoError(t, err)
+
+	testCases := []struct {
+		desc string
+		loc  string
+		lout string
+		opts []Option
+	}{
+		{
+			desc: "",
+			loc:  path.Join(cwd, name),
+			lout: "srv",
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := New(name, tC.opts...)
+			err := p.Init()
+			assert.NoError(t, err)
+
+			assert.Equal(t, tC.loc, p.loc)
+			assert.Equal(t, tC.lout, p.lout.Schema())
+		})
+	}
+}
+
+func TestProjectRegisterComponent(t *testing.T) {
 	tmpl := template.Must(template.New("test").Parse("package foo"))
 
 	t.Run("new project does not have registered components", func(t *testing.T) {

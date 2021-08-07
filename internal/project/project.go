@@ -106,12 +106,13 @@ var defaultProjectOptions = projectOptions{
 type Project struct {
 	name       string
 	opts       projectOptions
+	loc        string
 	lout       *layout.Layout
 	components map[string]component
 }
 
 // New project.
-func New(name string, opt ...Option) Project {
+func New(name string, opt ...Option) *Project {
 	name = strings.TrimSpace(name)
 	opts := defaultProjectOptions
 
@@ -119,7 +120,7 @@ func New(name string, opt ...Option) Project {
 		o.apply(&opts)
 	}
 
-	p := Project{
+	p := &Project{
 		name:       name,
 		opts:       opts,
 		components: make(map[string]component),
@@ -127,6 +128,7 @@ func New(name string, opt ...Option) Project {
 	return p
 }
 
+// TODO: make private
 func (p Project) Validate() error {
 	if p.name == "" {
 		return errEmptyProjectName
@@ -162,18 +164,32 @@ func (p Project) Validate() error {
 	return nil
 }
 
+// TODO: init should set location
+
 // Init orchestrates project validation and build steps.
-func (p Project) Init() error {
+func (p *Project) Init() error {
 	if err := p.Validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
+	}
+	if err := p.setLocation(); err != nil {
+		return errors.Wrap(err, "set location failed")
 	}
 	if err := p.setLayout(); err != nil {
 		return errors.Wrap(err, "set layout failed")
 	}
-	if err := p.build(); err != nil {
-		return errors.Wrap(err, "build failed")
-	}
 	return nil
+}
+
+// Build creates project layout nodes.
+// returns location and build error.
+func (p Project) Build() (string, error) {
+	if p.lout == nil {
+		return "", errNoLayout
+	}
+	if err := p.build(); err != nil {
+		return "", errors.Wrap(err, "build failed")
+	}
+	return "", errors.New("not implemented")
 }
 
 // Employ employs registered component to add new node to a project layout.
@@ -230,6 +246,7 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 }
 
 func (p Project) build() error {
+	// TODO: use p.loc instead
 	loc, err := p.Location()
 	if err != nil {
 		return err
@@ -243,12 +260,22 @@ func (p Project) build() error {
 	return p.lout.Build(loc, p.opts.mod)
 }
 
+// TODO: consider deprecation due to setLayout usage
 func (p Project) root() (root string, err error) {
 	root = p.opts.root
 	if root == "" {
 		root, err = os.Getwd()
 	}
 	return
+}
+
+func (p *Project) setLocation() error {
+	r, err := p.root()
+	if err != nil {
+		return err
+	}
+	p.loc = path.Join(r, p.name)
+	return nil
 }
 
 func (p *Project) setLayout() error {

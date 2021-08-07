@@ -5,6 +5,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -86,33 +87,76 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func TestProjectInit(t *testing.T) {
-	testCases := []struct {
-		desc string
-		root string
-	}{
-		{
-			desc: "inits project in provided directory",
-			root: t.TempDir(),
-		},
-		{
-			desc: "inits project in current directory",
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p := project.New("cheftest", project.WithRoot(tC.root))
-			err := p.Init()
-			require.NoError(t, err)
+	t.Skip()
+	t.Run("propagates validation errors", func(t *testing.T) {})
+	t.Run("propagates set layout errors", func(t *testing.T) {})
 
-			loc, err := p.Location()
-			require.NoError(t, err)
+	t.Run("inits project with default layout", func(t *testing.T) {
+		p := project.New("p")
+		err := p.Init()
+		require.NoError(t, err)
+	})
 
-			_, err = os.ReadDir(loc)
-			require.NoError(t, err)
+	t.Run("inits project with custom layout", func(t *testing.T) {
+		lout := layout.New("l")
+		p := project.New("p", project.WithLayout(lout))
+		err := p.Init()
+		require.NoError(t, err)
+	})
 
-			os.RemoveAll(loc)
-		})
-	}
+	t.Run("inits project with default location", func(t *testing.T) {})
+
+	t.Run("inits project with custom location", func(t *testing.T) {})
+}
+
+func TestProjectBuild(t *testing.T) {
+	// testCases := []struct {
+	// 	desc string
+	// }{
+	// 	{
+	// 		desc: "",
+	// 	},
+	// }
+	// for _, tC := range testCases {
+	// 	t.Run(tC.desc, func(t *testing.T) {
+
+	// 	})
+	// }
+
+	// builds project in provided directory
+	// builds project in current directory
+
+	t.Run("fails when", func(t *testing.T) {
+		testCases := []struct {
+			desc string
+			pf   func() *project.Project
+			err  string
+		}{
+			{
+				desc: "project does not have layout",
+				pf: func() *project.Project {
+					return project.New("project")
+				},
+				err: "project does not have layout",
+			},
+			// {
+			// 	desc: "project could not be build",
+			// 	pf: func() project.Project {
+			// 		return project.New("project")
+			// 	},
+			// 	err: "---",
+			// },
+		}
+		for _, tC := range testCases {
+			t.Run(tC.desc, func(t *testing.T) {
+				loc, err := tC.pf().Build()
+				assert.EqualError(t, err, tC.err)
+				assert.Empty(t, loc)
+			})
+		}
+	})
+
+	t.Run("builds project", func(t *testing.T) {})
 }
 
 // TODO: test default layouts
