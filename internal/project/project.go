@@ -228,19 +228,14 @@ func (p Project) build() error {
 	return p.lout.Build(p.loc, p.opts.mod)
 }
 
-// TODO: consider deprecation due to setLayout usage
-func (p Project) root() (root string, err error) {
-	root = p.opts.root
-	if root == "" {
-		root, err = os.Getwd()
-	}
-	return
-}
-
 func (p *Project) setLocation() error {
-	root, err := p.root()
-	if err != nil {
-		return err
+	root := p.opts.root
+	if root == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		root = cwd
 	}
 
 	fi, err := os.Stat(root)
@@ -279,7 +274,6 @@ func (p *Project) setLayout() error {
 	}
 
 	p.lout = l
-
 	return nil
 }
 
