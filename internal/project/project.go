@@ -128,8 +128,7 @@ func New(name string, opt ...Option) *Project {
 	return p
 }
 
-// TODO: make private
-func (p Project) Validate() error {
+func (p Project) validate() error {
 	if p.name == "" {
 		return errEmptyProjectName
 	}
@@ -165,11 +164,9 @@ func (p Project) Validate() error {
 	return nil
 }
 
-// TODO: init should set location
-
 // Init orchestrates project validation and build steps.
 func (p *Project) Init() error {
-	if err := p.Validate(); err != nil {
+	if err := p.validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
 	}
 	if err := p.setLocation(); err != nil {
