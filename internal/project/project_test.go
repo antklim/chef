@@ -28,19 +28,6 @@ func TestProjectInit(t *testing.T) {
 }
 
 func TestProjectBuild(t *testing.T) {
-	// testCases := []struct {
-	// 	desc string
-	// }{
-	// 	{
-	// 		desc: "",
-	// 	},
-	// }
-	// for _, tC := range testCases {
-	// 	t.Run(tC.desc, func(t *testing.T) {
-
-	// 	})
-	// }
-
 	// builds project in provided directory
 	// builds project in current directory
 

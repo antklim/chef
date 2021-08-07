@@ -12,21 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testTmpl = template.Must(template.New("test").Parse("package foo"))
-
-func testProject() (*Project, error) {
-	l := layout.New("layout", layout.NewDnode("handler"))
-	p := New("project", WithLayout(l))
-	if err := p.setLayout(); err != nil {
-		return nil, err
-	}
-
-	if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
-		return nil, err
-	}
-	return p, nil
-}
-
 func TestProjectCategory(t *testing.T) {
 	testCases := []struct {
 		v        string
@@ -422,6 +407,21 @@ func TestProjectRegisterComponent(t *testing.T) {
 }
 
 func TestProjectEmployComponent(t *testing.T) {
+	testTmpl := template.Must(template.New("test").Parse("package foo"))
+
+	testProject := func() (*Project, error) {
+		l := layout.New("layout", layout.NewDnode("handler"))
+		p := New("project", WithLayout(l))
+		if err := p.setLayout(); err != nil {
+			return nil, err
+		}
+
+		if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
+			return nil, err
+		}
+		return p, nil
+	}
+
 	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
 		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
