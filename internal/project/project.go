@@ -80,7 +80,7 @@ const (
 var (
 	errEmptyProjectName     = errors.New("project name cannot be empty")
 	errComponentTemplateNil = errors.New("nil component template")
-	errNoLayout             = errors.New("project does not have layout")
+	errNotInited            = errors.New("project not inited")
 )
 
 type component struct {
@@ -104,6 +104,7 @@ var defaultProjectOptions = projectOptions{
 
 // Project manager.
 type Project struct {
+	inited     bool
 	name       string
 	opts       projectOptions
 	loc        string
@@ -155,14 +156,15 @@ func (p *Project) Init() error {
 	if err := p.setLayout(); err != nil {
 		return errors.Wrap(err, "set layout failed")
 	}
+	p.inited = true
 	return nil
 }
 
 // Build creates project layout nodes.
 // returns location and build error.
 func (p Project) Build() (string, error) {
-	if p.lout == nil {
-		return "", errNoLayout
+	if !p.inited {
+		return "", errNotInited
 	}
 	if err := p.build(); err != nil {
 		return "", errors.Wrap(err, "build failed")
@@ -194,12 +196,12 @@ func (p Project) Location() string {
 }
 
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
-	if t == nil {
-		return errComponentTemplateNil
+	if !p.inited {
+		return errNotInited
 	}
 
-	if p.lout == nil {
-		return errNoLayout
+	if t == nil {
+		return errComponentTemplateNil
 	}
 
 	n := p.lout.FindNode(loc)

@@ -318,24 +318,26 @@ func TestProjectRegisterComponent(t *testing.T) {
 
 	t.Run("returns error when template is nil", func(t *testing.T) {
 		p := New("project")
+		err := p.Init()
+		require.NoError(t, err)
 		componentName := "handler"
-		err := p.RegisterComponent(componentName, "handler", nil)
+		err = p.RegisterComponent(componentName, "handler", nil)
 		require.EqualError(t, err, "nil component template")
 		assert.NotContains(t, p.components, componentName)
 	})
 
-	t.Run("returns error when project does not have layout", func(t *testing.T) {
+	t.Run("returns error when project not inited", func(t *testing.T) {
 		p := New("project")
 		componentName := "handler"
 		err := p.RegisterComponent(componentName, "handler", tmpl)
-		require.EqualError(t, err, "project does not have layout")
+		require.EqualError(t, err, "project not inited")
 		assert.NotContains(t, p.components, componentName)
 	})
 
 	t.Run("returns error when location does not exist", func(t *testing.T) {
 		l := layout.New("layout", layout.NewDnode("handler"))
 		p := New("project", WithLayout(l))
-		err := p.setLayout()
+		err := p.Init()
 		require.NoError(t, err)
 
 		componentName := "handler"
@@ -347,7 +349,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	t.Run("returns error when location is not a directory", func(t *testing.T) {
 		l := layout.New("layout", layout.NewFnode("handler"))
 		p := New("project", WithLayout(l))
-		err := p.setLayout()
+		err := p.Init()
 		require.NoError(t, err)
 
 		componentName := "handler"
@@ -359,7 +361,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	t.Run("adds component to the list of components", func(t *testing.T) {
 		l := layout.New("layout", layout.NewDnode("handler"))
 		p := New("project", WithLayout(l))
-		err := p.setLayout()
+		err := p.Init()
 		require.NoError(t, err)
 
 		{
@@ -390,7 +392,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	t.Run("overrides an existing component", func(t *testing.T) {
 		l := layout.New("layout", layout.NewDnode("handler"))
 		p := New("project", WithLayout(l))
-		err := p.setLayout()
+		err := p.Init()
 		require.NoError(t, err)
 
 		componentName := "http_handler"
@@ -412,7 +414,7 @@ func TestProjectEmployComponent(t *testing.T) {
 	testProject := func() (*Project, error) {
 		l := layout.New("layout", layout.NewDnode("handler"))
 		p := New("project", WithLayout(l))
-		if err := p.setLayout(); err != nil {
+		if err := p.Init(); err != nil {
 			return nil, err
 		}
 

@@ -38,11 +38,11 @@ func TestProjectBuild(t *testing.T) {
 			err  string
 		}{
 			{
-				desc: "project does not have layout",
+				desc: "project is not inited",
 				pf: func() *project.Project {
 					return project.New("project")
 				},
-				err: "project does not have layout",
+				err: "project not inited",
 			},
 			// {
 			// 	desc: "project could not be build",
