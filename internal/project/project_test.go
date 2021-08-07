@@ -5,7 +5,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,7 +43,7 @@ func TestProjectValidate(t *testing.T) {
 	}{
 		{
 			desc: "fails when project name is an empty string",
-			err:  "project name required: empty name provided",
+			err:  "project name cannot be empty",
 		},
 		{
 			desc: "fails when project category is unknown",
@@ -87,27 +86,24 @@ func TestProjectValidate(t *testing.T) {
 }
 
 func TestProjectInit(t *testing.T) {
-	t.Skip()
-	t.Run("propagates validation errors", func(t *testing.T) {})
-	t.Run("propagates set location errors", func(t *testing.T) {}) // provide non existent dir
-	t.Run("propagates set layout errors", func(t *testing.T) {})
+	t.Run("propagates validation errors", func(t *testing.T) {
+		p := project.New("")
+		err := p.Init()
+		assert.EqualError(t, err, "validation failed: project name cannot be empty")
+	})
 
-	t.Run("inits project with default layout", func(t *testing.T) {
+	t.Run("propagates set location errors", func(t *testing.T) {
+		t.Skip()
+		p := project.New("p", project.WithRoot("/r"))
+		err := p.Init()
+		assert.EqualError(t, err, "set location failed: stat /r: no such file or directory")
+	})
+
+	t.Run("inits project", func(t *testing.T) {
 		p := project.New("p")
 		err := p.Init()
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	})
-
-	t.Run("inits project with custom layout", func(t *testing.T) {
-		lout := layout.New("l")
-		p := project.New("p", project.WithLayout(lout))
-		err := p.Init()
-		require.NoError(t, err)
-	})
-
-	t.Run("inits project with default location", func(t *testing.T) {})
-
-	t.Run("inits project with custom location", func(t *testing.T) {})
 }
 
 func TestProjectBuild(t *testing.T) {

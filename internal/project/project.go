@@ -78,7 +78,7 @@ const (
 )
 
 var (
-	errEmptyProjectName     = errors.New("project name required: empty name provided")
+	errEmptyProjectName     = errors.New("project name cannot be empty")
 	errComponentTemplateNil = errors.New("nil component template")
 	errNoLayout             = errors.New("project does not have layout")
 )
@@ -142,6 +142,7 @@ func (p Project) Validate() error {
 		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
+	// TODO: move to setLocation
 	root, err := p.root()
 	if err != nil {
 		return err
