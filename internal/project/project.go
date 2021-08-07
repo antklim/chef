@@ -20,19 +20,6 @@ import (
 // TODO: init project with go.mod
 
 // TODO: split project into different project types, move concrete types to subdirectories
-// type API interface {
-// 	Init() error
-// 	Employ(Component) error // employ component
-
-// 	Location() (string, error)
-// 	Name() string
-// }
-
-type Component struct{}
-
-func (c Component) String() string {
-	return "foo"
-}
 
 const (
 	categoryUnknown = "unknown"
@@ -129,22 +116,6 @@ func New(name string, opt ...Option) *Project {
 	return p
 }
 
-func (p Project) validate() error {
-	if p.name == "" {
-		return errEmptyProjectName
-	}
-
-	if c := category(p.opts.cat); c == categoryUnknown {
-		return fmt.Errorf("project category %s is unknown", p.opts.cat)
-	}
-
-	if s := server(p.opts.srv); s == serverUnknown {
-		return fmt.Errorf("project server %s is unknown", p.opts.srv)
-	}
-
-	return nil
-}
-
 // Init orchestrates project validation and build steps.
 func (p *Project) Init() error {
 	if err := p.validate(); err != nil {
@@ -170,25 +141,6 @@ func (p Project) Build() (string, error) {
 		return "", errors.Wrap(err, "build failed")
 	}
 	return "", errors.New("not implemented")
-}
-
-// Employ employs registered component to add new node to a project layout.
-func (p Project) Employ(component, name string) error {
-	if !p.inited {
-		return errNotInited
-	}
-
-	// TODO: add node name extension based on project language preferences
-	c, ok := p.components[component]
-	if !ok {
-		return fmt.Errorf("unregistered component %q", component)
-	}
-
-	n := layout.NewFnode(name, layout.WithTemplate(c.template))
-	if err := p.lout.AddNode(n, c.loc); err != nil {
-		return errors.Wrap(err, "add node failed")
-	}
-	return nil
 }
 
 func (p Project) Name() string {
@@ -225,6 +177,25 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 	return nil
 }
 
+// EmployComponent employs registered component to add new node to a project layout.
+func (p Project) EmployComponent(component, name string) error {
+	if !p.inited {
+		return errNotInited
+	}
+
+	// TODO: add node name extension based on project language preferences
+	c, ok := p.components[component]
+	if !ok {
+		return fmt.Errorf("unregistered component %q", component)
+	}
+
+	n := layout.NewFnode(name, layout.WithTemplate(c.template))
+	if err := p.lout.AddNode(n, c.loc); err != nil {
+		return errors.Wrap(err, "add node failed")
+	}
+	return nil
+}
+
 func (p Project) build() error {
 	var dp fs.FileMode = 0755
 	if err := os.Mkdir(p.loc, dp); err != nil {
@@ -232,6 +203,27 @@ func (p Project) build() error {
 	}
 
 	return p.lout.Build(p.loc, p.opts.mod)
+}
+
+func (p *Project) setLayout() error {
+	if p.opts.lout != nil {
+		p.lout = p.opts.lout
+		return nil
+	}
+
+	ln := category(p.opts.cat)
+
+	if s := server(p.opts.srv); s != serverNone {
+		ln += "_" + s
+	}
+
+	l := layout.Get(ln)
+	if l == nil {
+		return fmt.Errorf("layout for %q category not found", p.opts.cat)
+	}
+
+	p.lout = l
+	return nil
 }
 
 func (p *Project) setLocation() error {
@@ -262,24 +254,19 @@ func (p *Project) setLocation() error {
 	return nil
 }
 
-func (p *Project) setLayout() error {
-	if p.opts.lout != nil {
-		p.lout = p.opts.lout
-		return nil
+func (p Project) validate() error {
+	if p.name == "" {
+		return errEmptyProjectName
 	}
 
-	ln := category(p.opts.cat)
-
-	if s := server(p.opts.srv); s != serverNone {
-		ln += "_" + s
+	if c := category(p.opts.cat); c == categoryUnknown {
+		return fmt.Errorf("project category %s is unknown", p.opts.cat)
 	}
 
-	l := layout.Get(ln)
-	if l == nil {
-		return fmt.Errorf("layout for %q category not found", p.opts.cat)
+	if s := server(p.opts.srv); s == serverUnknown {
+		return fmt.Errorf("project server %s is unknown", p.opts.srv)
 	}
 
-	p.lout = l
 	return nil
 }
 

@@ -426,7 +426,7 @@ func TestProjectEmployComponent(t *testing.T) {
 
 	t.Run("returns error when project is not inited", func(t *testing.T) {
 		p := New("project")
-		err := p.Employ("foo", "bar")
+		err := p.EmployComponent("foo", "bar")
 		assert.EqualError(t, err, "project not inited")
 	})
 
@@ -434,7 +434,7 @@ func TestProjectEmployComponent(t *testing.T) {
 		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
 		require.NoError(t, err)
-		err = p.Employ("foo", "bar")
+		err = p.EmployComponent("foo", "bar")
 		assert.EqualError(t, err, `unregistered component "foo"`)
 	})
 
@@ -442,7 +442,7 @@ func TestProjectEmployComponent(t *testing.T) {
 		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
 		require.NoError(t, err)
-		err = p.Employ("http_handler", "echo")
+		err = p.EmployComponent("http_handler", "echo")
 		assert.NoError(t, err)
 	})
 
@@ -450,10 +450,10 @@ func TestProjectEmployComponent(t *testing.T) {
 		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
 		require.NoError(t, err)
-		err = p.Employ("http_handler", "echo")
+		err = p.EmployComponent("http_handler", "echo")
 		assert.NoError(t, err)
 
-		err = p.Employ("http_handler", "echo")
+		err = p.EmployComponent("http_handler", "echo")
 		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo"`)
 	})
 }
