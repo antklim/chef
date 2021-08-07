@@ -1,25 +1,32 @@
 package mocks
 
 type Project struct {
-	e error
-}
-
-func (p Project) Employ(component, name string) error {
-	return p.e
+	initErr  error
+	buildErr error
+	ecErr    error
+	loc      string
 }
 
 func (p Project) Init() error {
-	return p.e
+	return p.initErr
 }
 
-func (p Project) Location() (string, error) {
-	return "", nil
+func (p Project) Build() (string, error) {
+	return p.loc, p.buildErr
 }
 
-func (p Project) Name() string {
-	return "ProjectMock"
+func (p Project) EmployComponent(component, name string) error {
+	return p.ecErr
 }
 
-func FailedProject(err error) Project {
-	return Project{err}
+func FailedInit(err error) Project {
+	return Project{initErr: err}
+}
+
+func FailedBuild(err error) Project {
+	return Project{buildErr: err}
+}
+
+func FailedEmployComponent(err error) Project {
+	return Project{ecErr: err}
 }

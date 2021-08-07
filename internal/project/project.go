@@ -20,19 +20,6 @@ import (
 // TODO: init project with go.mod
 
 // TODO: split project into different project types, move concrete types to subdirectories
-// type API interface {
-// 	Init() error
-// 	Employ(Component) error // employ component
-
-// 	Location() (string, error)
-// 	Name() string
-// }
-
-type Component struct{}
-
-func (c Component) String() string {
-	return "foo"
-}
 
 const (
 	categoryUnknown = "unknown"
@@ -78,9 +65,9 @@ const (
 )
 
 var (
-	errEmptyProjectName     = errors.New("project name required: empty name provided")
+	errEmptyProjectName     = errors.New("project name cannot be empty")
 	errComponentTemplateNil = errors.New("nil component template")
-	errNoLayout             = errors.New("project does not have layout")
+	errNotInited            = errors.New("project not inited")
 )
 
 type component struct {
@@ -104,14 +91,16 @@ var defaultProjectOptions = projectOptions{
 
 // Project manager.
 type Project struct {
+	inited     bool
 	name       string
 	opts       projectOptions
+	loc        string
 	lout       *layout.Layout
 	components map[string]component
 }
 
 // New project.
-func New(name string, opt ...Option) Project {
+func New(name string, opt ...Option) *Project {
 	name = strings.TrimSpace(name)
 	opts := defaultProjectOptions
 
@@ -119,7 +108,7 @@ func New(name string, opt ...Option) Project {
 		o.apply(&opts)
 	}
 
-	p := Project{
+	p := &Project{
 		name:       name,
 		opts:       opts,
 		components: make(map[string]component),
@@ -127,89 +116,44 @@ func New(name string, opt ...Option) Project {
 	return p
 }
 
-func (p Project) Validate() error {
-	if p.name == "" {
-		return errEmptyProjectName
-	}
-
-	if c := category(p.opts.cat); c == categoryUnknown {
-		return fmt.Errorf("project category %s is unknown", p.opts.cat)
-	}
-
-	if s := server(p.opts.srv); s == serverUnknown {
-		return fmt.Errorf("project server %s is unknown", p.opts.srv)
-	}
-
-	root, err := p.root()
-	if err != nil {
-		return err
-	}
-
-	fi, err := os.Stat(root)
-	if err != nil {
-		return err
-	}
-
-	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", root)
-	}
-
-	fi, _ = os.Stat(path.Join(root, p.name))
-	if fi != nil {
-		return fmt.Errorf("file or directory %q already exists", p.name)
-	}
-
-	return nil
-}
-
 // Init orchestrates project validation and build steps.
-func (p Project) Init() error {
-	if err := p.Validate(); err != nil {
+func (p *Project) Init() error {
+	if err := p.validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
+	}
+	if err := p.setLocation(); err != nil {
+		return errors.Wrap(err, "set location failed")
 	}
 	if err := p.setLayout(); err != nil {
 		return errors.Wrap(err, "set layout failed")
 	}
+	p.inited = true
+	return nil
+}
+
+// Build creates project layout nodes.
+// returns location and build error.
+func (p Project) Build() (string, error) {
+	if !p.inited {
+		return "", errNotInited
+	}
 	if err := p.build(); err != nil {
-		return errors.Wrap(err, "build failed")
+		return "", errors.Wrap(err, "build failed")
 	}
-	return nil
+	return p.loc, nil
 }
 
-// Employ employs registered component to add new node to a project layout.
-func (p Project) Employ(component, name string) error {
-	// TODO: add node name extension based on project language preferences
-	c, ok := p.components[component]
-	if !ok {
-		return fmt.Errorf("unregistered component %q", component)
-	}
-
-	n := layout.NewFnode(name, layout.WithTemplate(c.template))
-	if err := p.lout.AddNode(n, c.loc); err != nil {
-		return errors.Wrap(err, "add node failed")
-	}
-	return nil
-}
-
-func (p Project) Name() string {
-	return p.name
-}
-
-func (p Project) Location() (string, error) {
-	r, err := p.root()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(r, p.name), nil
+func (p Project) Location() string {
+	return p.loc
 }
 
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
-	if t == nil {
-		return errComponentTemplateNil
+	if !p.inited {
+		return errNotInited
 	}
 
-	if p.lout == nil {
-		return errNoLayout
+	if t == nil {
+		return errComponentTemplateNil
 	}
 
 	n := p.lout.FindNode(loc)
@@ -229,26 +173,32 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 	return nil
 }
 
-func (p Project) build() error {
-	loc, err := p.Location()
-	if err != nil {
-		return err
+// EmployComponent employs registered component to add new node to a project layout.
+func (p Project) EmployComponent(component, name string) error {
+	if !p.inited {
+		return errNotInited
 	}
 
-	var dp fs.FileMode = 0755
-	if err := os.Mkdir(loc, dp); err != nil {
-		return err
+	// TODO: add node name extension based on project language preferences
+	c, ok := p.components[component]
+	if !ok {
+		return fmt.Errorf("unregistered component %q", component)
 	}
 
-	return p.lout.Build(loc, p.opts.mod)
+	n := layout.NewFnode(name, layout.WithTemplate(c.template))
+	if err := p.lout.AddNode(n, c.loc); err != nil {
+		return errors.Wrap(err, "add node failed")
+	}
+	return nil
 }
 
-func (p Project) root() (root string, err error) {
-	root = p.opts.root
-	if root == "" {
-		root, err = os.Getwd()
+func (p Project) build() error {
+	var dp fs.FileMode = 0755
+	if err := os.Mkdir(p.loc, dp); err != nil {
+		return err
 	}
-	return
+
+	return p.lout.Build(p.loc, p.opts.mod)
 }
 
 func (p *Project) setLayout() error {
@@ -269,6 +219,49 @@ func (p *Project) setLayout() error {
 	}
 
 	p.lout = l
+	return nil
+}
+
+func (p *Project) setLocation() error {
+	root := p.opts.root
+	if root == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		root = cwd
+	}
+
+	fi, err := os.Stat(root)
+	if err != nil {
+		return err
+	}
+
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", root)
+	}
+
+	fi, _ = os.Stat(path.Join(root, p.name))
+	if fi != nil {
+		return fmt.Errorf("file or directory %q already exists", p.name)
+	}
+
+	p.loc = path.Join(root, p.name)
+	return nil
+}
+
+func (p Project) validate() error {
+	if p.name == "" {
+		return errEmptyProjectName
+	}
+
+	if c := category(p.opts.cat); c == categoryUnknown {
+		return fmt.Errorf("project category %s is unknown", p.opts.cat)
+	}
+
+	if s := server(p.opts.srv); s == serverUnknown {
+		return fmt.Errorf("project server %s is unknown", p.opts.srv)
+	}
 
 	return nil
 }
