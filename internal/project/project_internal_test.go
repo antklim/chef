@@ -191,16 +191,12 @@ func TestProjectSetLayout(t *testing.T) {
 }
 
 func TestProjectInit(t *testing.T) {
-	// inits project with with custom location
-	// inits project with default layout
-	// inits project with layout determied by category
-	// inits project with layout determied by category and server
-	// inits project with custom layout
-	// inits project with custom layout taking priority over category
-
 	name := "project"
+	tmpDir := t.TempDir()
 	cwd, err := os.Getwd()
 	require.NoError(t, err)
+	defLoc := path.Join(cwd, name)
+	tl := layout.New("testLayout")
 
 	testCases := []struct {
 		desc string
@@ -209,9 +205,33 @@ func TestProjectInit(t *testing.T) {
 		opts []Option
 	}{
 		{
-			desc: "",
-			loc:  path.Join(cwd, name),
+			desc: "inits project with default options",
+			loc:  defLoc,
 			lout: "srv",
+		},
+		{
+			desc: "inits project with with custom location",
+			loc:  path.Join(tmpDir, name),
+			lout: "srv",
+			opts: []Option{WithRoot(tmpDir)},
+		},
+		{
+			desc: "inits project with layout determied by server",
+			loc:  defLoc,
+			lout: "srv_http",
+			opts: []Option{WithServer("http")},
+		},
+		{
+			desc: "inits project with custom layout",
+			loc:  defLoc,
+			lout: "testLayout",
+			opts: []Option{WithLayout(tl)},
+		},
+		{
+			desc: "inits project with custom layout taking priority over category",
+			loc:  defLoc,
+			lout: "testLayout",
+			opts: []Option{WithLayout(tl), WithServer("http")},
 		},
 	}
 	for _, tC := range testCases {

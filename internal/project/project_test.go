@@ -89,6 +89,7 @@ func TestProjectValidate(t *testing.T) {
 func TestProjectInit(t *testing.T) {
 	t.Skip()
 	t.Run("propagates validation errors", func(t *testing.T) {})
+	t.Run("propagates set location errors", func(t *testing.T) {}) // provide non existent dir
 	t.Run("propagates set layout errors", func(t *testing.T) {})
 
 	t.Run("inits project with default layout", func(t *testing.T) {
