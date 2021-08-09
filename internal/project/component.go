@@ -8,6 +8,6 @@ type component struct {
 	template *template.Template
 }
 
-func makeComponents(category, server string) map[string]component {
+func makeComponents(category, server string) map[string]component { // nolint
 	return nil
 }
