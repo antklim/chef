@@ -1,37 +1,28 @@
 package project
 
 import (
-	"fmt"
-
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/project/template"
 )
 
-// TODO: deprecate default - use layoutFactory instead
-
-// TODO: validate executed templates content
-
-const (
-	dirAdapter  = "adapter"
-	dirApp      = "app"
-	dirHandler  = "handler"
-	dirHTTP     = "http"
-	dirServer   = "server"
-	dirProvider = "provider"
-	dirTest     = "test"
-)
-
-func init() { // nolint:gochecknoinits
-	layout.Register(layout.New(ServiceLayout, serviceNodes()...))
-	layout.Register(layout.New(HTTPServiceLayout, httpServiceNodes()...))
+type layoutMaker interface {
+	makeLayout() *layout.Layout
 }
 
-func httpEndpoint(name string) *layout.Fnode {
-	return layout.NewFnode(fmt.Sprintf("%s.go", name), layout.WithTemplate(template.Get(template.HTTPEndpoint)))
+func layoutFactory(category, server string) layoutMaker {
+	if category == categoryService && server == serverHTTP {
+		return httpServiceLayout{}
+	}
+	if category == categoryService && server == serverNone {
+		return serviceLayout{}
+	}
+	return nil
 }
 
-func serviceNodes() []layout.Node {
-	return []layout.Node{
+type serviceLayout struct{}
+
+func (serviceLayout) makeLayout() *layout.Layout {
+	nodes := []layout.Node{
 		layout.NewDnode(dirAdapter),
 		layout.NewDnode(dirApp),
 		layout.NewDnode(dirHandler),
@@ -39,16 +30,20 @@ func serviceNodes() []layout.Node {
 		layout.NewDnode(dirServer),
 		layout.NewDnode(dirTest),
 	}
+	l := layout.New(ServiceLayout, nodes...)
+	return &l
 }
 
-func httpServiceNodes() []layout.Node {
+type httpServiceLayout struct{}
+
+func (httpServiceLayout) makeLayout() *layout.Layout {
 	httpRouter := layout.NewFnode("router.go", layout.WithTemplate(template.Get(template.HTTPRouter)))
 	httpHandlerNode := layout.NewDnode(dirHTTP, layout.WithSubNodes(httpRouter))
 	httpServer := layout.NewFnode("server.go", layout.WithTemplate(template.Get(template.HTTPServer)))
 	httpServerNode := layout.NewDnode(dirHTTP, layout.WithSubNodes(httpServer))
 	httpSrvMain := layout.NewFnode("main.go", layout.WithTemplate(template.Get(template.HTTPService)))
 
-	return []layout.Node{
+	nodes := []layout.Node{
 		layout.NewDnode(dirAdapter),
 		layout.NewDnode(dirApp),
 		layout.NewDnode(dirHandler, layout.WithSubNodes(httpHandlerNode)),
@@ -57,4 +52,6 @@ func httpServiceNodes() []layout.Node {
 		layout.NewDnode(dirTest),
 		httpSrvMain,
 	}
+	l := layout.New(HTTPServiceLayout, nodes...)
+	return &l
 }

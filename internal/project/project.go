@@ -70,12 +70,6 @@ var (
 	errNotInited            = errors.New("project not inited")
 )
 
-type component struct {
-	loc      string
-	name     string
-	template *template.Template
-}
-
 type projectOptions struct {
 	root string
 	cat  string
@@ -127,6 +121,10 @@ func (p *Project) Init() error {
 	if err := p.setLayout(); err != nil {
 		return errors.Wrap(err, "set layout failed")
 	}
+	// TODO: enable when implemented
+	// if err := p.setComponents(); err != nil {
+	// 	return errors.Wrap(err, "set components failed")
+	// }
 	p.inited = true
 	return nil
 }
@@ -197,6 +195,11 @@ func (p Project) build() error {
 	return p.lout.Build(p.loc, p.opts.mod)
 }
 
+// TODO: implement
+// func (p *Project) setComponents() error {
+// 	return nil
+// }
+
 func (p *Project) setLayout() error {
 	if p.opts.lout != nil {
 		p.lout = p.opts.lout
@@ -209,6 +212,7 @@ func (p *Project) setLayout() error {
 		ln += "_" + s
 	}
 
+	// TODO: replace with l := makeLayout(category(p.opts.cat), server(p.opts.srv))
 	l := layout.Get(ln)
 	if l == nil {
 		return fmt.Errorf("layout for %q category not found", p.opts.cat)

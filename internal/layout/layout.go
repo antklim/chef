@@ -18,6 +18,9 @@ type Layout struct {
 	schema string
 }
 
+// TODO: return a pointer to Layout
+// TODO: delete schema after registry deprecation
+
 // New creates a new layout with schema s and nodes n.
 func New(s string, nodes ...Node) Layout {
 	rootNode := NewDnode(Root, WithSubNodes(nodes...))

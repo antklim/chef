@@ -78,20 +78,3 @@ func TestProjectBuild(t *testing.T) {
 		assert.NotEmpty(t, nodes)
 	})
 }
-
-// TODO: test default layouts
-// func TestDefaultLayouts(t *testing.T) {
-// 	defLayouts := map[string][]string{
-// 		layout.ServiceLayout:     {"adapter", "app", "handler", "provider", "server", "test"},
-// 		layout.HTTPServiceLayout: {"adapter", "app", "handler", "provider", "server", "test", "main.go"},
-// 	}
-
-// 	for layoutName, layoutNodes := range defLayouts {
-// 		l := layout.Get(layoutName)
-// 		require.NotNil(t, l)
-// 		for _, n := range layoutNodes {
-// 			node := l.Get(n, layout.Root)
-// 			assert.NotNil(t, node)
-// 		}
-// 	}
-// }
