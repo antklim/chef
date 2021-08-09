@@ -5,7 +5,6 @@ import "fmt"
 type IProject interface {
 	Init() error
 	Employ(string, string) error // employ component
-	Location() (string, error)
 	Name() string
 }
 

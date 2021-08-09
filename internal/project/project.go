@@ -143,10 +143,6 @@ func (p Project) Build() (string, error) {
 	return p.loc, nil
 }
 
-func (p Project) Location() string {
-	return p.loc
-}
-
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
 	if !p.inited {
 		return errNotInited
@@ -239,12 +235,6 @@ func (p *Project) setLocation() error {
 
 	if !fi.IsDir() {
 		return fmt.Errorf("%s is not a directory", root)
-	}
-
-	// TODO: move this check to build
-	fi, _ = os.Stat(path.Join(root, p.name))
-	if fi != nil {
-		return fmt.Errorf("file or directory %q already exists", p.name)
 	}
 
 	p.loc = path.Join(root, p.name)

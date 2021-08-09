@@ -135,6 +135,7 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
+// TODO: move to public test init
 func TestProjectValidate(t *testing.T) {
 	testCases := []struct {
 		desc string
@@ -208,14 +209,11 @@ func TestProjectSetLayout(t *testing.T) {
 	})
 }
 
-func TestSetLocation(t *testing.T) {
+func TestProjectSetLocation(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	file := path.Join(tmpDir, "foo")
 	_, err := os.Create(file)
-	require.NoError(t, err)
-
-	err = os.Mkdir(path.Join(tmpDir, "bar"), 0755)
 	require.NoError(t, err)
 
 	testCases := []struct {
@@ -236,12 +234,6 @@ func TestSetLocation(t *testing.T) {
 			opts: []Option{WithRoot(file)},
 			err:  file + " is not a directory",
 		},
-		{
-			desc: "fails when root directory contains file or directory with the project name",
-			name: "bar",
-			opts: []Option{WithRoot(tmpDir)},
-			err:  `file or directory "bar" already exists`,
-		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -252,6 +244,7 @@ func TestSetLocation(t *testing.T) {
 	}
 }
 
+// TODO: merge public and internal tests
 func TestProjectInit(t *testing.T) {
 	name := "project"
 	tmpDir := t.TempDir()
