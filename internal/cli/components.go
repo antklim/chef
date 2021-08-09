@@ -82,7 +82,7 @@ chef components employ -c http_handler -n bar`,
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
 	if err := p.EmployComponent(component, name); err != nil {
-		return errors.Wrap(err, "project employ component failed")
+		return errors.Wrap(err, "employ component failed")
 	}
 	return nil
 }
