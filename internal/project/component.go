@@ -1,6 +1,15 @@
 package project
 
-import "text/template"
+import (
+	"path"
+	"text/template"
+
+	templ "github.com/antklim/chef/internal/project/template"
+)
+
+const (
+	httpHandler = "http_handler"
+)
 
 type component struct {
 	loc      string
@@ -8,6 +17,25 @@ type component struct {
 	template *template.Template
 }
 
-func makeComponents(category, server string) map[string]component { // nolint
+type componentsMaker interface {
+	makeComponents() map[string]component
+}
+
+func componentsFactory(category, server string) componentsMaker {
+	if category == categoryService && server == serverHTTP {
+		return httpServiceComponets{}
+	}
 	return nil
+}
+
+type httpServiceComponets struct{}
+
+func (httpServiceComponets) makeComponents() map[string]component {
+	c := make(map[string]component)
+	c[httpHandler] = component{
+		loc:      path.Join(dirHandler, dirHTTP),
+		name:     httpHandler,
+		template: templ.Get(templ.HTTPEndpoint),
+	}
+	return c
 }

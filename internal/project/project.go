@@ -17,9 +17,9 @@ import (
 
 // TODO: support functionality of bring your own templates
 
-// TODO: init project with go.mod
+// TODO: init project with go.mod (when Go lang selected)
 
-// TODO: split project into different project types, move concrete types to subdirectories
+// TODO: make layout and components pluggable
 
 const (
 	categoryUnknown = "unknown"
@@ -55,13 +55,6 @@ func server(v string) string {
 const (
 	defaultCategory = categoryService
 	defaultServer   = serverNone
-)
-
-const (
-	// ServiceLayout an abstract service layout name.
-	ServiceLayout = "srv"
-	// HTTPServiceLayout an http service layout name.
-	HTTPServiceLayout = "srv_http"
 )
 
 var (

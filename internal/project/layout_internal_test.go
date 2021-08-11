@@ -31,9 +31,9 @@ func TestLayoutFactory(t *testing.T) {
 }
 
 func TestServiceLayoutFactory(t *testing.T) {
-	lf := layoutFactory(category("srv"), server(""))
-	assert.NotNil(t, lf)
-	l := lf.makeLayout()
+	f := layoutFactory(category("srv"), server(""))
+	assert.NotNil(t, f)
+	l := f.makeLayout()
 	assert.NotNil(t, l)
 
 	expectedNodes := []string{"adapter", "app", "handler", "provider", "server", "test"}
@@ -44,9 +44,9 @@ func TestServiceLayoutFactory(t *testing.T) {
 }
 
 func TestHTTPServiceLayoutFactory(t *testing.T) {
-	lf := layoutFactory(category("service"), server("http"))
-	assert.NotNil(t, lf)
-	l := lf.makeLayout()
+	f := layoutFactory(category("service"), server("http"))
+	assert.NotNil(t, f)
+	l := f.makeLayout()
 	assert.NotNil(t, l)
 
 	expectedNodes := []string{"adapter", "app", "handler", "provider", "server", "test", "main.go"}
