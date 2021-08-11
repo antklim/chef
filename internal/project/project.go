@@ -188,10 +188,12 @@ func (p Project) build() error {
 	return p.lout.Build(p.loc, p.opts.mod)
 }
 
-// TODO: implement
-// func (p *Project) setComponents() error {
-// 	return nil
-// }
+func (p *Project) setComponents() {
+	f := componentsFactory(category(p.opts.cat), server(p.opts.srv))
+	if f != nil {
+		p.components = f.makeComponents()
+	}
+}
 
 func (p *Project) setLayout() error {
 	if p.opts.lout != nil {
@@ -199,12 +201,12 @@ func (p *Project) setLayout() error {
 		return nil
 	}
 
-	lf := layoutFactory(category(p.opts.cat), server(p.opts.srv))
-	if lf == nil {
+	f := layoutFactory(category(p.opts.cat), server(p.opts.srv))
+	if f == nil {
 		return fmt.Errorf("layout for %q category not found", p.opts.cat)
 	}
 
-	p.lout = lf.makeLayout()
+	p.lout = f.makeLayout()
 	return nil
 }
 

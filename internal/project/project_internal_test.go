@@ -169,33 +169,63 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
+func TestProjectSetComponents(t *testing.T) {
+	testCases := []struct {
+		desc string
+		p    *Project
+		a    func(*testing.T, map[string]component)
+	}{
+		{
+			desc: "sets components for default project",
+			p:    New("test"),
+			a: func(t *testing.T, c map[string]component) {
+				assert.Empty(t, c)
+			},
+		},
+		{
+			desc: "sets components for http service project",
+			p:    New("test1", WithCategory("srv"), WithServer("http")),
+			a: func(t *testing.T, c map[string]component) {
+				assert.NotEmpty(t, c)
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			assert.Nil(t, tC.p.lout)
+			tC.p.setComponents()
+			tC.a(t, tC.p.components)
+		})
+	}
+}
+
 func TestProjectSetLayout(t *testing.T) {
 	tl := layout.New()
 	testCases := []struct {
 		desc string
 		p    *Project
-		la   func(*testing.T, *layout.Layout)
+		a    func(*testing.T, *layout.Layout)
 	}{
 		{
-			desc: "returns default project layout",
+			desc: "sets default project layout",
 			p:    New("test"),
-			la: func(t *testing.T, l *layout.Layout) {
+			a: func(t *testing.T, l *layout.Layout) {
 				assert.NotNil(t, l)
 				assert.NotEqual(t, tl, l)
 			},
 		},
 		{
-			desc: "returns http service layout",
+			desc: "sets http service layout",
 			p:    New("test1", WithCategory("srv"), WithServer("http")),
-			la: func(t *testing.T, l *layout.Layout) {
+			a: func(t *testing.T, l *layout.Layout) {
 				assert.NotNil(t, l)
 				assert.NotEqual(t, tl, l)
 			},
 		},
 		{
-			desc: "returns custom layout",
+			desc: "sets custom layout",
 			p:    New("test2", WithLayout(tl)),
-			la: func(t *testing.T, l *layout.Layout) {
+			a: func(t *testing.T, l *layout.Layout) {
 				assert.Equal(t, tl, l)
 			},
 		},
@@ -205,7 +235,7 @@ func TestProjectSetLayout(t *testing.T) {
 			assert.Nil(t, tC.p.lout)
 			err := tC.p.setLayout()
 			require.NoError(t, err)
-			tC.la(t, tC.p.lout)
+			tC.a(t, tC.p.lout)
 		})
 	}
 
@@ -296,9 +326,7 @@ func TestProjectInit(t *testing.T) {
 			p := New(name, tC.opts...)
 			err := p.Init()
 			assert.NoError(t, err)
-
 			assert.Equal(t, tC.loc, p.loc)
-			// assert.Equal(t, tl, p.lout)
 		})
 	}
 	// TODO: inits project with default layout when directory exists
