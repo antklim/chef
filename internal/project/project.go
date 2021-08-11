@@ -206,19 +206,12 @@ func (p *Project) setLayout() error {
 		return nil
 	}
 
-	ln := category(p.opts.cat)
-
-	if s := server(p.opts.srv); s != serverNone {
-		ln += "_" + s
-	}
-
-	// TODO: replace with l := makeLayout(category(p.opts.cat), server(p.opts.srv))
-	l := layout.Get(ln)
-	if l == nil {
+	lf := layoutFactory(category(p.opts.cat), server(p.opts.srv))
+	if lf == nil {
 		return fmt.Errorf("layout for %q category not found", p.opts.cat)
 	}
 
-	p.lout = l
+	p.lout = lf.makeLayout()
 	return nil
 }
 

@@ -5,6 +5,16 @@ import (
 	"github.com/antklim/chef/internal/project/template"
 )
 
+const (
+	dirAdapter  = "adapter"
+	dirApp      = "app"
+	dirHandler  = "handler"
+	dirHTTP     = "http"
+	dirServer   = "server"
+	dirProvider = "provider"
+	dirTest     = "test"
+)
+
 type layoutMaker interface {
 	makeLayout() *layout.Layout
 }
