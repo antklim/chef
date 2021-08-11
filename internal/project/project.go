@@ -294,8 +294,8 @@ func WithModule(m string) Option {
 	})
 }
 
-func WithLayout(l layout.Layout) Option {
+func WithLayout(l *layout.Layout) Option {
 	return newFuncOption(func(o *projectOptions) {
-		o.lout = &l
+		o.lout = l
 	})
 }

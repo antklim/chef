@@ -123,7 +123,7 @@ func TestProjectOptions(t *testing.T) {
 				root: "",
 				cat:  "srv",
 				srv:  "",
-				lout: &tl,
+				lout: tl,
 			},
 		},
 	}
@@ -196,7 +196,7 @@ func TestProjectSetLayout(t *testing.T) {
 			desc: "returns custom layout",
 			p:    New("test2", WithLayout(tl)),
 			la: func(t *testing.T, l *layout.Layout) {
-				assert.Equal(t, &tl, l)
+				assert.Equal(t, tl, l)
 			},
 		},
 	}

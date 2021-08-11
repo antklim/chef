@@ -17,14 +17,11 @@ type Layout struct {
 	root Dir
 }
 
-// TODO: return a pointer to Layout
-// TODO: delete schema after registry deprecation
-
 // New creates a new layout with nodes.
-func New(nodes ...Node) Layout {
+func New(nodes ...Node) *Layout {
 	rootNode := NewDnode(Root, WithSubNodes(nodes...))
 	root := NewDnode("", WithSubNodes(rootNode))
-	return Layout{root: root}
+	return &Layout{root: root}
 }
 
 // AddNode adds a node to a layout location.
