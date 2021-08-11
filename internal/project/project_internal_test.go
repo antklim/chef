@@ -292,9 +292,10 @@ func TestProjectInit(t *testing.T) {
 	tl := layout.New()
 
 	testCases := []struct {
-		desc string
-		loc  string
-		opts []Option
+		desc          string
+		loc           string
+		hasComponents bool
+		opts          []Option
 	}{
 		{
 			desc: "inits project with default options",
@@ -306,9 +307,10 @@ func TestProjectInit(t *testing.T) {
 			opts: []Option{WithRoot(tmpDir)},
 		},
 		{
-			desc: "inits project with layout determied by server",
-			loc:  defLoc,
-			opts: []Option{WithServer("http")},
+			desc:          "inits project with layout determied by server",
+			loc:           defLoc,
+			hasComponents: true,
+			opts:          []Option{WithServer("http")},
 		},
 		{
 			desc: "inits project with custom layout",
@@ -316,9 +318,10 @@ func TestProjectInit(t *testing.T) {
 			opts: []Option{WithLayout(tl)},
 		},
 		{
-			desc: "inits project with custom layout taking priority over category",
-			loc:  defLoc,
-			opts: []Option{WithLayout(tl), WithServer("http")},
+			desc:          "inits project with custom layout taking priority over category",
+			loc:           defLoc,
+			hasComponents: true,
+			opts:          []Option{WithLayout(tl), WithServer("http")},
 		},
 	}
 	for _, tC := range testCases {
@@ -327,6 +330,11 @@ func TestProjectInit(t *testing.T) {
 			err := p.Init()
 			assert.NoError(t, err)
 			assert.Equal(t, tC.loc, p.loc)
+			if tC.hasComponents {
+				assert.NotEmpty(t, p.components)
+			} else {
+				assert.Empty(t, p.components)
+			}
 		})
 	}
 	// TODO: inits project with default layout when directory exists

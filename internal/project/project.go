@@ -114,10 +114,7 @@ func (p *Project) Init() error {
 	if err := p.setLayout(); err != nil {
 		return errors.Wrap(err, "set layout failed")
 	}
-	// TODO: enable when implemented
-	// if err := p.setComponents(); err != nil {
-	// 	return errors.Wrap(err, "set components failed")
-	// }
+	p.setComponents()
 	p.inited = true
 	return nil
 }
@@ -190,8 +187,12 @@ func (p Project) build() error {
 
 func (p *Project) setComponents() {
 	f := componentsFactory(category(p.opts.cat), server(p.opts.srv))
-	if f != nil {
-		p.components = f.makeComponents()
+	if f == nil {
+		return
+	}
+
+	for n, c := range f.makeComponents() {
+		p.components[n] = c
 	}
 }
 
