@@ -189,17 +189,3 @@ func TestLayoutFindNode(t *testing.T) {
 		assert.Nil(t, n)
 	})
 }
-
-func TestLayoutsRegistry(t *testing.T) {
-	t.Run("get returns nil when layout not registered", func(t *testing.T) {
-		l := layout.Get("foo")
-		assert.Nil(t, l)
-	})
-
-	t.Run("get returns layout by schema", func(t *testing.T) {
-		tl := layout.New("testLayout", nil)
-		layout.Register(tl)
-		l := layout.Get("testLayout")
-		assert.Equal(t, tl, *l)
-	})
-}
