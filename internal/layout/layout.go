@@ -14,21 +14,17 @@ type Dir interface {
 }
 
 type Layout struct {
-	root   Dir
-	schema string
+	root Dir
 }
 
 // TODO: return a pointer to Layout
 // TODO: delete schema after registry deprecation
 
-// New creates a new layout with schema s and nodes n.
-func New(s string, nodes ...Node) Layout {
+// New creates a new layout with nodes.
+func New(nodes ...Node) Layout {
 	rootNode := NewDnode(Root, WithSubNodes(nodes...))
 	root := NewDnode("", WithSubNodes(rootNode))
-	return Layout{
-		root:   root,
-		schema: s,
-	}
+	return Layout{root: root}
 }
 
 // AddNode adds a node to a layout location.
@@ -48,10 +44,6 @@ func (l *Layout) AddNode(n Node, loc string) error {
 	}
 
 	return locDir.Add(n)
-}
-
-func (l Layout) Schema() string {
-	return l.schema
 }
 
 func (l Layout) Build(loc, mod string) error {
@@ -107,8 +99,8 @@ func (l Layout) rootDir() Dir {
 
 func splitPath(loc string) []string {
 	a := strings.Split(loc, "/")
-	if a[0] != "." {
-		a = append([]string{"."}, a...)
+	if a[0] != Root {
+		a = append([]string{Root}, a...)
 	}
 	return a
 }

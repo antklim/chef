@@ -40,7 +40,7 @@ func (serviceLayout) makeLayout() *layout.Layout {
 		layout.NewDnode(dirServer),
 		layout.NewDnode(dirTest),
 	}
-	l := layout.New(ServiceLayout, nodes...)
+	l := layout.New(nodes...)
 	return &l
 }
 
@@ -62,6 +62,6 @@ func (httpServiceLayout) makeLayout() *layout.Layout {
 		layout.NewDnode(dirTest),
 		httpSrvMain,
 	}
-	l := layout.New(HTTPServiceLayout, nodes...)
+	l := layout.New(nodes...)
 	return &l
 }
