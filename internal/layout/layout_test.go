@@ -133,6 +133,7 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
 		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
 	})
+	// TODO: should build node
 }
 
 func TestLayoutFindNode(t *testing.T) {

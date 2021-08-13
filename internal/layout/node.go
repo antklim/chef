@@ -54,15 +54,15 @@ func NewDnode(name string, opts ...DnodeOption) *Dnode {
 	return n
 }
 
-func (n Dnode) Name() string {
+func (n *Dnode) Name() string {
 	return n.name
 }
 
-func (n Dnode) Permissions() fs.FileMode {
+func (n *Dnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
-func (n Dnode) Build(loc, mod string) error {
+func (n *Dnode) Build(loc, mod string) error {
 	o := path.Join(loc, n.Name())
 
 	if err := os.Mkdir(o, n.Permissions()); err != nil {
@@ -78,11 +78,11 @@ func (n Dnode) Build(loc, mod string) error {
 	return nil
 }
 
-func (n Dnode) Nodes() []Node {
+func (n *Dnode) Nodes() []Node {
 	return n.subnodes
 }
 
-func (n Dnode) Get(name string) Node {
+func (n *Dnode) Get(name string) Node {
 	return findByName(n.subnodes, name)
 }
 

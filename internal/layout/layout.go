@@ -43,7 +43,7 @@ func (l *Layout) AddNode(n Node, loc string) error {
 	return locDir.Add(n)
 }
 
-func (l Layout) Build(loc, mod string) error {
+func (l *Layout) Build(loc, mod string) error {
 	root := l.rootDir()
 	for _, n := range root.Nodes() {
 		if err := n.Build(loc, mod); err != nil {
@@ -61,7 +61,7 @@ func (l Layout) Build(loc, mod string) error {
 // - find("server/http/handler.go") returns file node associated with the handler.go
 // - find(".") returns root node
 // - find("") returns nil when no associated node found
-func (l Layout) FindNode(loc string) Node {
+func (l *Layout) FindNode(loc string) Node {
 	locs := splitPath(loc)
 	node := l.root
 
@@ -81,7 +81,7 @@ func (l Layout) FindNode(loc string) Node {
 	return node.Get(locs[len(locs)-1])
 }
 
-func (l Layout) rootDir() Dir {
+func (l *Layout) rootDir() Dir {
 	rootNode := l.root.Get(Root)
 	if rootNode == nil {
 		return nil

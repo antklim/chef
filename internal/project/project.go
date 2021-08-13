@@ -121,7 +121,7 @@ func (p *Project) Init() error {
 
 // Build creates project layout nodes.
 // returns location and build error.
-func (p Project) Build() (string, error) {
+func (p *Project) Build() (string, error) {
 	if !p.inited {
 		return "", errNotInited
 	}
@@ -158,7 +158,7 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 }
 
 // EmployComponent employs registered component to add new node to a project layout.
-func (p Project) EmployComponent(component, name string) error {
+func (p *Project) EmployComponent(component, name string) error {
 	if !p.inited {
 		return errNotInited
 	}
@@ -176,7 +176,7 @@ func (p Project) EmployComponent(component, name string) error {
 	return nil
 }
 
-func (p Project) build() error {
+func (p *Project) build() error {
 	var dp fs.FileMode = 0755
 	if err := os.Mkdir(p.loc, dp); err != nil {
 		return err
