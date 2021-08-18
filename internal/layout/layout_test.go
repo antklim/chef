@@ -1,9 +1,6 @@
 package layout_test
 
 import (
-	"errors"
-	"io/fs"
-	"strings"
 	"testing"
 
 	"github.com/antklim/chef/internal/layout"
@@ -11,45 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testNode struct {
-	buildCalled bool
-	buildError  error
-	loc         string
-}
-
-func (n *testNode) Build(loc, mod string) error {
-	n.buildCalled = true
-	n.loc = loc
-	if strings.HasPrefix(loc, "/error") {
-		n.buildError = errors.New("node build error")
-		return n.buildError
-	}
-	return nil
-}
-
-func (testNode) Name() string {
-	return "testNode"
-}
-
-func (testNode) Permissions() fs.FileMode {
-	return 0400
-}
-
-func (n testNode) WasBuild() bool {
-	return n.buildCalled == true
-}
-
-func (n testNode) BuiltAt() string {
-	return n.loc
-}
-
-var _ layout.Node = (*testNode)(nil)
-
 func TestNewLayout(t *testing.T) {
-	node := &testNode{}
+	node := newTestNode("foo")
 	nodes := []layout.Node{node}
 	l := layout.New(nodes...)
-	assert.Equal(t, node, l.FindNode("testNode"))
+	assert.Equal(t, node, l.FindNode("foo"))
 }
 
 func TestLayoutBuild(t *testing.T) {
@@ -61,7 +24,7 @@ func TestLayoutBuild(t *testing.T) {
 	}{
 		{
 			desc: "builds layout nodes",
-			node: &testNode{},
+			node: newTestNode("bar"),
 			loc:  "/tmp/foo/bar",
 			assert: func(t *testing.T, err error) {
 				require.NoError(t, err)
@@ -69,7 +32,7 @@ func TestLayoutBuild(t *testing.T) {
 		},
 		{
 			desc: "fails to build layout when node build fails",
-			node: &testNode{},
+			node: newTestNode("bar"),
 			loc:  "/error/bar",
 			assert: func(t *testing.T, err error) {
 				assert.EqualError(t, err, "node build error")
@@ -96,6 +59,7 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(dnode, layout.Root)
 		assert.NoError(t, err)
 		assert.NotNil(t, l.FindNode("subdir"))
+		// TODO: should build node
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
@@ -106,6 +70,7 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode")
 		assert.NoError(t, err)
 		assert.Len(t, dnode.Nodes(), 2)
+		// TODO: should build node
 	})
 
 	t.Run("returns error when nested level is a file", func(t *testing.T) {
@@ -133,7 +98,6 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
 		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
 	})
-	// TODO: should build node
 }
 
 func TestLayoutFindNode(t *testing.T) {
