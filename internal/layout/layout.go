@@ -3,8 +3,6 @@ package layout
 import (
 	"fmt"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 const Root = "."
@@ -42,11 +40,7 @@ func (l *Layout) AddNode(n Node, loc string) error {
 		return fmt.Errorf("node %q already has subnode %q", loc, n.Name())
 	}
 
-	if err := locDir.Add(n); err != nil {
-		return errors.Wrap(err, "failed to add node")
-	}
-
-	return nil
+	return locDir.Add(n)
 }
 
 func (l *Layout) Build(loc, mod string) error {

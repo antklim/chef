@@ -59,7 +59,6 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(dnode, layout.Root)
 		assert.NoError(t, err)
 		assert.NotNil(t, l.FindNode("subdir"))
-		// TODO: should build node
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
@@ -70,7 +69,6 @@ func TestLayoutAddNode(t *testing.T) {
 		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode")
 		assert.NoError(t, err)
 		assert.Len(t, dnode.Nodes(), 2)
-		// TODO: should build node
 	})
 
 	t.Run("returns error when nested level is a file", func(t *testing.T) {
