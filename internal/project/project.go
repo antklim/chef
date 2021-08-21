@@ -173,7 +173,8 @@ func (p *Project) EmployComponent(component, name string) error {
 	if err := p.lout.AddNode(n, c.loc); err != nil {
 		return errors.Wrap(err, "add node failed")
 	}
-	return nil
+
+	return n.Build(path.Join(p.loc, c.loc), p.opts.mod)
 }
 
 func (p *Project) build() error {

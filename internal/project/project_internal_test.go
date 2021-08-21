@@ -441,11 +441,12 @@ func TestProjectRegisterComponent(t *testing.T) {
 }
 
 func TestProjectEmployComponent(t *testing.T) {
+	// TODO: in all error cases validate that no new nodes added to project layout
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*Project, error) {
 		l := layout.New(layout.NewDnode("handler"))
-		p := New("project", WithLayout(l))
+		p := New("project", WithLayout(l), WithRoot(t.TempDir()))
 		if err := p.Init(); err != nil {
 			return nil, err
 		}
@@ -453,6 +454,7 @@ func TestProjectEmployComponent(t *testing.T) {
 		if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
 			return nil, err
 		}
+
 		return p, nil
 	}
 
@@ -463,25 +465,49 @@ func TestProjectEmployComponent(t *testing.T) {
 	})
 
 	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
 		require.NoError(t, err)
 		err = p.EmployComponent("foo", "bar")
 		assert.EqualError(t, err, `unregistered component "foo"`)
 	})
 
-	t.Run("adds new component node to a project layout", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
+	t.Run("returns error when project layout does not exist", func(t *testing.T) {
 		p, err := testProject()
 		require.NoError(t, err)
 		err = p.EmployComponent("http_handler", "echo")
+		assert.True(t, os.IsNotExist(err))
+	})
+
+	t.Run("adds new component node to a project layout", func(t *testing.T) {
+		p, err := testProject()
+		require.NoError(t, err)
+		loc, err := p.Build()
+		require.NoError(t, err)
+
+		projectRoot, err := os.ReadDir(loc)
 		assert.NoError(t, err)
+		assert.Len(t, projectRoot, 1)
+		assert.Equal(t, projectRoot[0].Name(), "handler")
+		assert.True(t, projectRoot[0].IsDir())
+
+		handlersDir, err := os.ReadDir(path.Join(loc, "handler"))
+		assert.NoError(t, err)
+		assert.Empty(t, handlersDir)
+
+		err = p.EmployComponent("http_handler", "echo")
+		assert.NoError(t, err)
+
+		handlersDir, err = os.ReadDir(path.Join(loc, "handler"))
+		assert.NoError(t, err)
+		assert.Len(t, handlersDir, 1)
 	})
 
 	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
-		// TODO: validate that no new nodes added to project layout
 		p, err := testProject()
 		require.NoError(t, err)
+		_, err = p.Build()
+		require.NoError(t, err)
+
 		err = p.EmployComponent("http_handler", "echo")
 		assert.NoError(t, err)
 
