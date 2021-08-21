@@ -157,14 +157,14 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 
 // EmployComponent employs registered component to add new node to a project layout.
 func (p *Project) EmployComponent(component, name string) error {
-	// TODO: name should not contain more than one dot
+	// TODO (ref): name should not contain more than one dot
 	if !p.inited {
 		return errNotInited
 	}
 
 	nname, tname := name, name // node and template element name
 
-	// TODO: extension should be configurable
+	// TODO (feat): extension should be configurable
 	switch ext := path.Ext(name); ext {
 	case "":
 		nname += defaultExt
@@ -174,13 +174,13 @@ func (p *Project) EmployComponent(component, name string) error {
 		return fmt.Errorf("unknown file extension %q", ext)
 	}
 
-	// TODO: add node file extension based on project language preferences
+	// TODO (feat): add node file extension based on project language preferences
 	c, ok := p.components[component]
 	if !ok {
 		return fmt.Errorf("unregistered component %q", component)
 	}
 
-	// TODO: nodes should be added by name. File name extensions should be added
+	// TODO (feat): nodes should be added by name. File name extensions should be added
 	// at build time depending on template/component.
 
 	n := layout.NewFnode(nname, layout.WithTemplate(c.template))

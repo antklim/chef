@@ -135,7 +135,7 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
-// TODO: move to public test init
+// TODO (ref): move to public test init
 func TestProjectValidate(t *testing.T) {
 	testCases := []struct {
 		desc string
@@ -282,7 +282,7 @@ func TestProjectSetLocation(t *testing.T) {
 	}
 }
 
-// TODO: merge public and internal tests
+// TODO (ref): merge public and internal tests
 func TestProjectInit(t *testing.T) {
 	name := "project"
 	tmpDir := t.TempDir()
@@ -337,7 +337,7 @@ func TestProjectInit(t *testing.T) {
 			}
 		})
 	}
-	// TODO: inits project with default layout when directory exists
+	// TODO (ref): inits project with default layout when directory exists
 }
 
 func TestProjectRegisterComponent(t *testing.T) {
@@ -441,8 +441,8 @@ func TestProjectRegisterComponent(t *testing.T) {
 }
 
 func TestProjectEmployComponent(t *testing.T) {
-	// TODO: in all error cases validate that no new nodes added to project layout
-	// TODO: in succes cases validate node added to layout (node should not have file extensions)
+	// TODO (ref): in all error cases validate that no new nodes added to project layout
+	// TODO (ref): in succes cases validate node added to layout (node should not have file extensions)
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*Project, error) {

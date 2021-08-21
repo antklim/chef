@@ -59,7 +59,7 @@ func (l *Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// TODO: format comment bellow for better documentation help
+// TODO (ref): format comment bellow for better documentation help
 
 // FindNode returns a node at provided location.
 // For example:
