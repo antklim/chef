@@ -55,6 +55,7 @@ func server(v string) string {
 const (
 	defaultCategory = categoryService
 	defaultServer   = serverNone
+	defaultExt      = ".go" // default file extension
 )
 
 var (
@@ -159,8 +160,21 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 
 // EmployComponent employs registered component to add new node to a project layout.
 func (p *Project) EmployComponent(component, name string) error {
+	// TODO: name should not contain more than one dot
 	if !p.inited {
 		return errNotInited
+	}
+
+	nname, tname := name, name // node and template element name
+
+	// TODO: extension should be configurable
+	switch ext := path.Ext(name); ext {
+	case "":
+		nname += defaultExt
+	case defaultExt:
+		tname = strings.TrimSuffix(name, defaultExt)
+	default:
+		return fmt.Errorf("unknown file extension %q", ext)
 	}
 
 	// TODO: add node file extension based on project language preferences
@@ -169,7 +183,10 @@ func (p *Project) EmployComponent(component, name string) error {
 		return fmt.Errorf("unregistered component %q", component)
 	}
 
-	n := layout.NewFnode(name, layout.WithTemplate(c.template))
+	// TODO: nodes should be added by name. File name extensions should be added
+	// at build time depending on template/component.
+
+	n := layout.NewFnode(nname, layout.WithTemplate(c.template))
 	if err := p.lout.AddNode(n, c.loc); err != nil {
 		return errors.Wrap(err, "add node failed")
 	}
@@ -177,8 +194,8 @@ func (p *Project) EmployComponent(component, name string) error {
 	data := struct {
 		Name, Path string
 	}{
-		Name: name,
-		Path: "/" + name,
+		Name: tname,
+		Path: "/" + tname,
 	}
 
 	return n.Build(path.Join(p.loc, c.loc), data)

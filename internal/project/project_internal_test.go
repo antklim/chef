@@ -475,8 +475,15 @@ func TestProjectEmployComponent(t *testing.T) {
 	t.Run("returns error when project layout does not exist", func(t *testing.T) {
 		p, err := testProject()
 		require.NoError(t, err)
-		err = p.EmployComponent("http_handler", "echo")
+		err = p.EmployComponent("http_handler", "echo.go")
 		assert.True(t, os.IsNotExist(err))
+	})
+
+	t.Run("returns error when trying to add unknown file extension", func(t *testing.T) {
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.EmployComponent("http_handler", "echo.cpp")
+		assert.EqualError(t, err, `unknown file extension ".cpp"`)
 	})
 
 	t.Run("adds new component node to a project layout", func(t *testing.T) {
@@ -501,7 +508,7 @@ func TestProjectEmployComponent(t *testing.T) {
 		handlersDir, err = os.ReadDir(path.Join(loc, "handler"))
 		assert.NoError(t, err)
 		assert.Len(t, handlersDir, 1)
-		// TODO: read file
+		assert.Equal(t, "echo.go", handlersDir[0].Name())
 	})
 
 	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
@@ -514,6 +521,6 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.NoError(t, err)
 
 		err = p.EmployComponent("http_handler", "echo")
-		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo"`)
+		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo.go"`)
 	})
 }
