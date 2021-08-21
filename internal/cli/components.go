@@ -2,7 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"os"
+	"path"
 
+	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -54,6 +57,9 @@ chef components ls`,
 	return cmd
 }
 
+// TODO: by default this command add component to a current directory (assume current directory is a root of the project)
+// add ability to provide a project name and location
+
 func employComponentCmd() *cobra.Command {
 	var inputs struct {
 		Component string // component name
@@ -68,9 +74,12 @@ func employComponentCmd() *cobra.Command {
 		Example: `chef components employ --component http_handler --name foo 
 chef components employ -c http_handler -n bar`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: implement employ component
-			fmt.Println("not implemented")
-			return nil
+			dir, err := os.Getwd()
+			if err != nil {
+				return errors.Wrap(err, "failed to get working directory")
+			}
+			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
+			return componentsEmployCmdRunner(p, inputs.Component, inputs.Name)
 		},
 	}
 
@@ -81,8 +90,16 @@ chef components employ -c http_handler -n bar`,
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
+	// TODO: don't print the stack trace
+	if err := p.Init(); err != nil {
+		return errors.Wrap(err, "init project failed")
+	}
+
 	if err := p.EmployComponent(component, name); err != nil {
 		return errors.Wrap(err, "employ component failed")
 	}
+
+	fmt.Printf("%q component with the name %q successfully employed\n", component, name)
+
 	return nil
 }

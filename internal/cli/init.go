@@ -91,8 +91,8 @@ chef init -c [srv] -n myproject --root /usr/local`,
 }
 
 func initCmdRunner(p Project) error {
+	// TODO: don't print the stack trace
 	if err := p.Init(); err != nil {
-		// TODO: don't print the stack trace
 		return errors.Wrap(err, "init project failed")
 	}
 
