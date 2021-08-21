@@ -44,9 +44,15 @@ func (l *Layout) AddNode(n Node, loc string) error {
 }
 
 func (l *Layout) Build(loc, mod string) error {
+	data := struct {
+		Module string
+	}{
+		Module: mod,
+	}
+
 	root := l.rootDir()
 	for _, n := range root.Nodes() {
-		if err := n.Build(loc, mod); err != nil {
+		if err := n.Build(loc, data); err != nil {
 			return err
 		}
 	}

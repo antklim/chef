@@ -84,15 +84,19 @@ func TestFnode(t *testing.T) {
 
 func TestFnodeWBuild(t *testing.T) {
 	t.Run("writes module to template", func(t *testing.T) {
-		mod := "cheftest"
+		data := struct {
+			Module string
+		}{
+			Module: "cheftest",
+		}
 		tmpl := template.Must(template.New("test").Parse(`package foo
 import "{{ .Module }}/test/template"`))
 		expected := fmt.Sprintf(`package foo
-import "%s/test/template"`, mod)
+import "%s/test/template"`, data.Module)
 
 		var out bytes.Buffer
 		f := NewFnode("test_fnode", WithTemplate(tmpl))
-		err := f.wbuild(&out, mod)
+		err := f.wbuild(&out, data)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, out.String())
 	})

@@ -24,7 +24,7 @@ var (
 type Node interface {
 	Name() string
 	Permissions() fs.FileMode
-	Build(loc, mod string) error
+	Build(loc string, data interface{}) error
 }
 
 type node struct {
@@ -62,7 +62,7 @@ func (n *Dnode) Permissions() fs.FileMode {
 	return n.permissions
 }
 
-func (n *Dnode) Build(loc, mod string) error {
+func (n *Dnode) Build(loc string, data interface{}) error {
 	o := path.Join(loc, n.Name())
 
 	if err := os.Mkdir(o, n.Permissions()); err != nil {
@@ -70,7 +70,7 @@ func (n *Dnode) Build(loc, mod string) error {
 	}
 
 	for _, sn := range n.subnodes {
-		if err := sn.Build(o, mod); err != nil {
+		if err := sn.Build(o, data); err != nil {
 			return err
 		}
 	}
@@ -162,7 +162,7 @@ func (n Fnode) Permissions() fs.FileMode {
 }
 
 // Build executes node template and writes it to a file to a provided location.
-func (n Fnode) Build(loc, mod string) error {
+func (n Fnode) Build(loc string, data interface{}) error {
 	if n.template == nil {
 		return errNilTemplate
 	}
@@ -175,20 +175,14 @@ func (n Fnode) Build(loc, mod string) error {
 	}
 	defer f.Close()
 
-	if err := n.wbuild(f, mod); err != nil {
+	if err := n.wbuild(f, data); err != nil {
 		return err
 	}
 
 	return f.Chmod(n.Permissions())
 }
 
-func (n Fnode) wbuild(w io.Writer, mod string) error {
-	data := struct {
-		Module string
-	}{
-		Module: mod,
-	}
-
+func (n Fnode) wbuild(w io.Writer, data interface{}) error {
 	return n.template.Execute(w, data)
 }
 

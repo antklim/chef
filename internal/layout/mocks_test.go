@@ -19,7 +19,7 @@ func newTestNode(name string) *testNode {
 	return &testNode{name: name}
 }
 
-func (n *testNode) Build(loc, mod string) error {
+func (n *testNode) Build(loc string, data interface{}) error {
 	n.buildCalled = true
 	n.loc = loc
 	if strings.HasPrefix(loc, "/error") {

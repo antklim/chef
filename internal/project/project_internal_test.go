@@ -442,6 +442,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 
 func TestProjectEmployComponent(t *testing.T) {
 	// TODO: in all error cases validate that no new nodes added to project layout
+	// TODO: in succes cases validate node added to layout (node should not have file extensions)
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*Project, error) {
@@ -500,6 +501,7 @@ func TestProjectEmployComponent(t *testing.T) {
 		handlersDir, err = os.ReadDir(path.Join(loc, "handler"))
 		assert.NoError(t, err)
 		assert.Len(t, handlersDir, 1)
+		// TODO: read file
 	})
 
 	t.Run("returns error when component with the given name already exists", func(t *testing.T) {

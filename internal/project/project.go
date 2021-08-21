@@ -163,7 +163,7 @@ func (p *Project) EmployComponent(component, name string) error {
 		return errNotInited
 	}
 
-	// TODO: add node name extension based on project language preferences
+	// TODO: add node file extension based on project language preferences
 	c, ok := p.components[component]
 	if !ok {
 		return fmt.Errorf("unregistered component %q", component)
@@ -174,7 +174,14 @@ func (p *Project) EmployComponent(component, name string) error {
 		return errors.Wrap(err, "add node failed")
 	}
 
-	return n.Build(path.Join(p.loc, c.loc), p.opts.mod)
+	data := struct {
+		Name, Path string
+	}{
+		Name: name,
+		Path: "/" + name,
+	}
+
+	return n.Build(path.Join(p.loc, c.loc), data)
 }
 
 func (p *Project) build() error {
