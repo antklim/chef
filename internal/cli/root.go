@@ -19,7 +19,7 @@ func Execute() {
 		Long: "Supercharge your development workflow.\n" +
 			"Bootstrap a new project using predefined categories or bring your own layout.\n" +
 			"Add new components to an existing project.\n",
-		Version: "v0.1.0", // TODO: add build info and version
+		Version: "v0.1.0", // TODO (feat): add build info and version
 	}
 
 	rootCmd.AddCommand(initCmd())

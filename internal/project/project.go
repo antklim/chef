@@ -14,11 +14,8 @@ import (
 
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
-
 // TODO: support functionality of bring your own templates
-
 // TODO: init project with go.mod (when Go lang selected)
-
 // TODO: make layout and components pluggable
 
 const (

@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO: add commamds tests, use https://github.com/commander-cli/commander
+// TODO (ref): add commamds tests, use https://github.com/commander-cli/commander
 // TODO: layout/chef.yml location
 
 var (
@@ -91,7 +91,7 @@ chef init -c [srv] -n myproject --root /usr/local`,
 }
 
 func initCmdRunner(p Project) error {
-	// TODO: don't print the stack trace
+	// TODO (ref): don't print the stack trace
 	if err := p.Init(); err != nil {
 		return errors.Wrap(err, "init project failed")
 	}

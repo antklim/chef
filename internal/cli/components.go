@@ -48,7 +48,7 @@ func listComponentsCmd() *cobra.Command {
 		Example: `chef components list
 chef components ls`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: implement list registered components
+			// TODO (feat): implement list registered components
 			fmt.Println("not implemented")
 			return nil
 		},
@@ -57,7 +57,7 @@ chef components ls`,
 	return cmd
 }
 
-// TODO: by default this command add component to a current directory (assume current directory is a root of the project)
+// TODO (feat): by default this command add component to a current directory (assume current directory is a root of the project)
 // add ability to provide a project name and location
 
 func employComponentCmd() *cobra.Command {
@@ -90,7 +90,7 @@ chef components employ -c http_handler -n bar`,
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
-	// TODO: don't print the stack trace
+	// TODO (ref): don't print the stack trace
 	if err := p.Init(); err != nil {
 		return errors.Wrap(err, "init project failed")
 	}
