@@ -41,13 +41,15 @@ jobs:
       with:
         go-version: ^1.16
 
+    # TODO: use make command
     - name: Get dependencies
       run: |
         go mod download
 
     - name: Test
-      run: go test -coverprofile=coverage.out -covermode=count -v ./...
+      run: make test
 
+    # TODO: use make command
     - name: Upload coverage to Codecov
       run: |
         bash <(curl -s https://codecov.io/bash)
@@ -65,9 +67,11 @@ jobs:
       with:
         go-version: ^1.16
 
+    # TODO: use make command
     - name: Get dependencies
       run: |
         go mod download
 
+    # TODO: use make command
     - name: Build
       run: go build -v ./...
