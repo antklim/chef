@@ -6,7 +6,6 @@ import (
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewLayout(t *testing.T) {
@@ -18,92 +17,126 @@ func TestNewLayout(t *testing.T) {
 
 func TestLayoutBuild(t *testing.T) {
 	testCases := []struct {
-		desc   string
-		node   *testNode
-		loc    string
-		assert func(*testing.T, error)
+		desc string
+		node *testNode
+		loc  string
+		err  string
 	}{
 		{
 			desc: "builds layout nodes",
 			node: newTestNode("bar"),
 			loc:  "/tmp/foo/bar",
-			assert: func(t *testing.T, err error) {
-				require.NoError(t, err)
-			},
 		},
 		{
-			desc: "fails to build layout when node build fails",
+			desc: "fails when node build fails",
 			node: newTestNode("bar"),
 			loc:  "/error/bar",
-			assert: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "node build error")
-			},
+			err:  "node build error",
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			l := layout.New(tC.node)
 			assert.False(t, tC.node.WasBuild())
+
 			err := l.Build(tC.loc, "module_name")
-			tC.assert(t, err)
+			if tC.err != "" {
+				assert.EqualError(t, err, tC.err)
+			} else {
+				assert.NoError(t, err)
+			}
+
 			assert.True(t, tC.node.WasBuild())
 			assert.Equal(t, tC.loc, tC.node.BuiltAt())
 		})
 	}
 }
 
+func TestLayoutAddNodeFails(t *testing.T) {
+	/* Test layout:
+	  .
+		+- dir
+		   +- file.txt
+	*/
+
+	f := node.NewFnode("file.txt")
+	d := node.NewDnode("dir", node.WithSubNodes(f))
+	l := layout.New(d)
+
+	testCases := []struct {
+		desc string
+		node node.Node
+		loc  string
+		err  string
+	}{
+		{
+			desc: "when nested level is a file",
+			node: node.NewFnode("new_file.txt"),
+			loc:  "dir/file.txt",
+			err:  `node "dir/file.txt" does not support adding subnodes`,
+		},
+		{
+			desc: "when nested level not found in layout",
+			node: node.NewFnode("new_file.txt"),
+			loc:  "other",
+			err:  `node "other" not found in layout`,
+		},
+		{
+			desc: "when adding existing node",
+			node: node.NewDnode("dir"),
+			loc:  layout.Root,
+			err:  `node "." already has subnode "dir"`,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			err := l.AddNode(tC.node, tC.loc)
+			assert.EqualError(t, err, tC.err)
+		})
+	}
+}
+
 func TestLayoutAddNode(t *testing.T) {
 	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
-		dnode := node.NewDnode("subdir")
+		d := node.NewDnode("dir")
 		l := layout.New()
 
-		err := l.AddNode(dnode, layout.Root)
+		assert.Nil(t, l.FindNode("dir"))
+
+		err := l.AddNode(d, layout.Root)
 		assert.NoError(t, err)
-		assert.NotNil(t, l.FindNode("subdir"))
+
+		assert.NotNil(t, l.FindNode("dir"))
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
-		fnode := node.NewFnode("file.txt")
-		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
-		l := layout.New(dnode)
+		f := node.NewFnode("file.txt")
+		d := node.NewDnode("dir")
+		l := layout.New(d)
 
-		err := l.AddNode(node.NewFnode("new_file.txt"), "dnode")
+		assert.Empty(t, d.Nodes())
+		assert.Nil(t, l.FindNode("dir/file.txt"))
+
+		err := l.AddNode(f, "dir")
 		assert.NoError(t, err)
-		assert.Len(t, dnode.Nodes(), 2)
-	})
 
-	t.Run("returns error when nested level is a file", func(t *testing.T) {
-		fnode := node.NewFnode("file.txt")
-		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
-		l := layout.New(dnode)
-
-		err := l.AddNode(node.NewFnode("new_file.txt"), "dnode/file.txt")
-		assert.EqualError(t, err, `node "dnode/file.txt" does not support adding subnodes`)
-	})
-
-	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
-		fnode := node.NewFnode("file.txt")
-		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
-		l := layout.New(dnode)
-
-		err := l.AddNode(node.NewFnode("new_file.txt"), "other")
-		assert.EqualError(t, err, `node "other" not found in layout`)
-	})
-
-	t.Run("returns error when adding existing node", func(t *testing.T) {
-		nodes := []node.Node{node.NewDnode("subdir"), node.NewFnode("file.txt")}
-		l := layout.New(nodes...)
-
-		err := l.AddNode(node.NewFnode("file.txt"), layout.Root)
-		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
+		assert.NotEmpty(t, d.Nodes())
+		assert.NotNil(t, l.FindNode("dir/file.txt"))
 	})
 }
 
 func TestLayoutFindNode(t *testing.T) {
-	fileNode := node.NewFnode("file.txt")
-	subdNode := node.NewDnode("subdir", node.WithSubNodes(fileNode))
-	baseNode := node.NewDnode("base", node.WithSubNodes(subdNode))
-	l := layout.New(baseNode)
+	/* Test layout:
+	  .
+		+- dir
+		   +- file1.txt
+		   +- subdir
+		      +- file2.txt
+	*/
+	f1, f2 := node.NewFnode("file1.txt"), node.NewFnode("file2.txt")
+	sd := node.NewDnode("subdir", node.WithSubNodes(f2))
+	d := node.NewDnode("dir", node.WithSubNodes(f1, sd))
+	l := layout.New(d)
 
 	testCases := []struct {
 		desc string
@@ -112,39 +145,45 @@ func TestLayoutFindNode(t *testing.T) {
 	}{
 		{
 			desc: "finds subdir node by location",
-			loc:  "base/subdir",
-			node: subdNode,
+			loc:  "dir/subdir",
+			node: sd,
 		},
 		{
 			desc: "finds subdir node by location prefixed with root location",
-			loc:  "./base/subdir",
-			node: subdNode,
+			loc:  "./dir/subdir",
+			node: sd,
 		},
 		{
 			desc: "finds file node by location",
-			loc:  "base/subdir/file.txt",
-			node: fileNode,
+			loc:  "dir/subdir/file2.txt",
+			node: f2,
+		},
+		{
+			desc: "returns nil when no node found in location",
+			loc:  "foo/bar",
+		},
+		{
+			desc: "returns nil when subnode is a file",
+			loc:  "dir/file1.txt/foo",
+		},
+		{
+			desc: "returns nil for empty location",
+			loc:  "",
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			n := l.FindNode(tC.loc)
-			assert.Equal(t, tC.node, n)
+			if tC.node != nil {
+				assert.Equal(t, tC.node, n)
+			} else {
+				assert.Nil(t, n)
+			}
 		})
 	}
 
 	t.Run("returns root node", func(t *testing.T) {
 		n := l.FindNode(layout.Root)
 		assert.NotNil(t, n)
-	})
-
-	t.Run("returns nil when no node found in location", func(t *testing.T) {
-		n := l.FindNode("foo/bar")
-		assert.Nil(t, n)
-	})
-
-	t.Run("returns nil for empty location", func(t *testing.T) {
-		n := l.FindNode("")
-		assert.Nil(t, n)
 	})
 }

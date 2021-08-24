@@ -184,10 +184,6 @@ func (n Fnode) wbuild(w io.Writer, data interface{}) error {
 	return n.template.Execute(w, data)
 }
 
-func (n Fnode) Template() *template.Template {
-	return n.template
-}
-
 type FnodeOption interface {
 	apply(*Fnode)
 }
