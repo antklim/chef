@@ -68,6 +68,7 @@ var (
 	errEmptyProjectName     = errors.New("name cannot be empty")
 	errComponentTemplateNil = errors.New("nil component template")
 	errNotInited            = errors.New("project not inited")
+	errInvalidNodeName      = errors.New("periods not allowed in a file name")
 )
 
 type projectOptions struct {
@@ -168,9 +169,12 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 
 // EmployComponent employs registered component to add new node to a project layout.
 func (p *Project) EmployComponent(component, name string) error {
-	// TODO (ref): name should not contain more than one dot
 	if !p.inited {
 		return errNotInited
+	}
+
+	if strings.Index(name, ".") != strings.LastIndex(name, ".") {
+		return errInvalidNodeName
 	}
 
 	nname, tname := name, name // node and template element name

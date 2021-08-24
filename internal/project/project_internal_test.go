@@ -404,6 +404,13 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.EqualError(t, err, `unregistered component "foo"`)
 	})
 
+	t.Run("returns error when node name contains additional periods", func(t *testing.T) {
+		p, err := testProject()
+		require.NoError(t, err)
+		err = p.EmployComponent("http_handler", "echo.bravo.go")
+		assert.EqualError(t, err, "periods not allowed in a file name")
+	})
+
 	t.Run("returns error when project layout does not exist", func(t *testing.T) {
 		p, err := testProject()
 		require.NoError(t, err)
