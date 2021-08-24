@@ -136,40 +136,6 @@ func TestProjectOptions(t *testing.T) {
 	}
 }
 
-// TODO (ref): move to public test init
-func TestProjectValidate(t *testing.T) {
-	testCases := []struct {
-		desc string
-		name string
-		opts []Option
-		err  string
-	}{
-		{
-			desc: "fails when project name is an empty string",
-			err:  "project name cannot be empty",
-		},
-		{
-			desc: "fails when project category is unknown",
-			name: "cheffoo",
-			opts: []Option{WithCategory("foo")},
-			err:  "project category foo is unknown",
-		},
-		{
-			desc: "fails when project server is unknown",
-			name: "chefbar",
-			opts: []Option{WithServer("bar")},
-			err:  "project server bar is unknown",
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p := New(tC.name, tC.opts...)
-			err := p.validate()
-			assert.EqualError(t, err, tC.err)
-		})
-	}
-}
-
 func TestProjectSetComponents(t *testing.T) {
 	testCases := []struct {
 		desc string
@@ -246,41 +212,6 @@ func TestProjectSetLayout(t *testing.T) {
 		assert.EqualError(t, err, `layout for "test" category not found`)
 		assert.Nil(t, p.lout)
 	})
-}
-
-func TestProjectSetLocation(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	file := path.Join(tmpDir, "foo")
-	_, err := os.Create(file)
-	require.NoError(t, err)
-
-	testCases := []struct {
-		desc string
-		name string
-		opts []Option
-		err  string
-	}{
-		{
-			desc: "fails when provided root directory does not exist",
-			name: "project",
-			opts: []Option{WithRoot("foo")},
-			err:  "stat foo: no such file or directory",
-		},
-		{
-			desc: "fails when provided root directory is not a directory",
-			name: "project",
-			opts: []Option{WithRoot(file)},
-			err:  file + " is not a directory",
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p := New(tC.name, tC.opts...)
-			err := p.setLocation()
-			assert.EqualError(t, err, tC.err)
-		})
-	}
 }
 
 // TODO (ref): merge public and internal tests

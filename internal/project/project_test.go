@@ -11,13 +11,60 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestProjectInit(t *testing.T) {
-	t.Run("propagates validation errors", func(t *testing.T) {
-		p := project.New("")
-		err := p.Init()
-		assert.EqualError(t, err, "validation failed: project name cannot be empty")
-	})
+func TestProjectInitFails(t *testing.T) {
+	tmpDir := t.TempDir()
+	foofile := path.Join(tmpDir, "foofoo")
+	_, err := os.Create(foofile)
+	require.NoError(t, err)
 
+	testCases := []struct {
+		desc string
+		name string
+		opts []project.Option
+		err  string
+	}{
+		{
+			desc: "when the project name is an empty string",
+			err:  "validation failed: name cannot be empty",
+		},
+		{
+			desc: "when the project category is unknown",
+			name: "cheftest",
+			opts: []project.Option{project.WithCategory("foo")},
+			err:  `validation failed: unknown category "foo"`,
+		},
+		{
+			desc: "when the project server is unknown",
+			name: "cheftest",
+			opts: []project.Option{project.WithServer("foo")},
+			err:  `validation failed: unknown server "foo"`,
+		},
+		{
+			desc: "when root directory does not exist",
+			name: "cheftest",
+			opts: []project.Option{project.WithRoot("foo")},
+			err:  "set location failed: stat foo: no such file or directory",
+		},
+		{
+			desc: "when root is not a directory",
+			name: "cheftest",
+			opts: []project.Option{project.WithRoot(foofile)},
+			err:  `set location failed: "` + foofile + `" is not a directory`,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := project.New(tC.name, tC.opts...)
+			err := p.Init()
+			assert.EqualError(t, err, tC.err)
+		})
+	}
+
+	// t.Run("propagates set location errors", func(t *testing.T) {})
+	// t.Run("propagates set layout errors", func(t *testing.T) {})
+}
+
+func TestProjectInit(t *testing.T) {
 	t.Run("propagates set location errors", func(t *testing.T) {
 		p := project.New("project", project.WithRoot("/r"))
 		err := p.Init()

@@ -57,7 +57,7 @@ const (
 )
 
 var (
-	errEmptyProjectName     = errors.New("project name cannot be empty")
+	errEmptyProjectName     = errors.New("name cannot be empty")
 	errComponentTemplateNil = errors.New("nil component template")
 	errNotInited            = errors.New("project not inited")
 )
@@ -250,7 +250,7 @@ func (p *Project) setLocation() error {
 	}
 
 	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", root)
+		return fmt.Errorf("%q is not a directory", root)
 	}
 
 	p.loc = path.Join(root, p.name)
@@ -263,11 +263,11 @@ func (p Project) validate() error {
 	}
 
 	if c := category(p.opts.cat); c == categoryUnknown {
-		return fmt.Errorf("project category %s is unknown", p.opts.cat)
+		return fmt.Errorf("unknown category %q", p.opts.cat)
 	}
 
 	if s := server(p.opts.srv); s == serverUnknown {
-		return fmt.Errorf("project server %s is unknown", p.opts.srv)
+		return fmt.Errorf("unknown server %q", p.opts.srv)
 	}
 
 	return nil
