@@ -4,15 +4,16 @@ import (
 	"testing"
 
 	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewLayout(t *testing.T) {
-	node := newTestNode("foo")
-	nodes := []layout.Node{node}
+	n := newTestNode("foo")
+	nodes := []node.Node{n}
 	l := layout.New(nodes...)
-	assert.Equal(t, node, l.FindNode("foo"))
+	assert.Equal(t, n, l.FindNode("foo"))
 }
 
 func TestLayoutBuild(t *testing.T) {
@@ -53,7 +54,7 @@ func TestLayoutBuild(t *testing.T) {
 
 func TestLayoutAddNode(t *testing.T) {
 	t.Run("adds nodes to the root level of layout nodes", func(t *testing.T) {
-		dnode := layout.NewDnode("subdir")
+		dnode := node.NewDnode("subdir")
 		l := layout.New()
 
 		err := l.AddNode(dnode, layout.Root)
@@ -62,52 +63,52 @@ func TestLayoutAddNode(t *testing.T) {
 	})
 
 	t.Run("adds nodes to a nested level in layout", func(t *testing.T) {
-		fnode := layout.NewFnode("file.txt")
-		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		fnode := node.NewFnode("file.txt")
+		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
 		l := layout.New(dnode)
 
-		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode")
+		err := l.AddNode(node.NewFnode("new_file.txt"), "dnode")
 		assert.NoError(t, err)
 		assert.Len(t, dnode.Nodes(), 2)
 	})
 
 	t.Run("returns error when nested level is a file", func(t *testing.T) {
-		fnode := layout.NewFnode("file.txt")
-		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		fnode := node.NewFnode("file.txt")
+		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
 		l := layout.New(dnode)
 
-		err := l.AddNode(layout.NewFnode("new_file.txt"), "dnode/file.txt")
+		err := l.AddNode(node.NewFnode("new_file.txt"), "dnode/file.txt")
 		assert.EqualError(t, err, `node "dnode/file.txt" does not support adding subnodes`)
 	})
 
 	t.Run("returns error when nested level not found in layout", func(t *testing.T) {
-		fnode := layout.NewFnode("file.txt")
-		dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+		fnode := node.NewFnode("file.txt")
+		dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
 		l := layout.New(dnode)
 
-		err := l.AddNode(layout.NewFnode("new_file.txt"), "other")
+		err := l.AddNode(node.NewFnode("new_file.txt"), "other")
 		assert.EqualError(t, err, `node "other" not found in layout`)
 	})
 
 	t.Run("returns error when adding existing node", func(t *testing.T) {
-		nodes := []layout.Node{layout.NewDnode("subdir"), layout.NewFnode("file.txt")}
+		nodes := []node.Node{node.NewDnode("subdir"), node.NewFnode("file.txt")}
 		l := layout.New(nodes...)
 
-		err := l.AddNode(layout.NewFnode("file.txt"), layout.Root)
+		err := l.AddNode(node.NewFnode("file.txt"), layout.Root)
 		assert.EqualError(t, err, `node "." already has subnode "file.txt"`)
 	})
 }
 
 func TestLayoutFindNode(t *testing.T) {
-	fileNode := layout.NewFnode("file.txt")
-	subdNode := layout.NewDnode("subdir", layout.WithSubNodes(fileNode))
-	baseNode := layout.NewDnode("base", layout.WithSubNodes(subdNode))
+	fileNode := node.NewFnode("file.txt")
+	subdNode := node.NewDnode("subdir", node.WithSubNodes(fileNode))
+	baseNode := node.NewDnode("base", node.WithSubNodes(subdNode))
 	l := layout.New(baseNode)
 
 	testCases := []struct {
 		desc string
 		loc  string
-		node layout.Node
+		node node.Node
 	}{
 		{
 			desc: "finds subdir node by location",

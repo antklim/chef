@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/pkg/errors"
 )
 
@@ -183,7 +184,7 @@ func (p *Project) EmployComponent(component, name string) error {
 	// TODO (feat): nodes should be added by name. File name extensions should be added
 	// at build time depending on template/component.
 
-	n := layout.NewFnode(nname, layout.WithTemplate(c.template))
+	n := node.NewFnode(nname, node.WithTemplate(c.template))
 	if err := p.lout.AddNode(n, c.loc); err != nil {
 		return errors.Wrap(err, "add node failed")
 	}

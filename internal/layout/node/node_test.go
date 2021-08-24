@@ -1,23 +1,23 @@
-package layout_test
+package node_test
 
 import (
 	"os"
 	"path"
 	"testing"
 
-	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDnodeGetSubNode(t *testing.T) {
-	fnode := layout.NewFnode("file.txt")
-	dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+	fnode := node.NewFnode("file.txt")
+	dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
 
 	testCases := []struct {
 		desc     string
 		name     string
-		expected layout.Node
+		expected node.Node
 	}{
 		{
 			desc:     "returns sub node by name",
@@ -39,13 +39,13 @@ func TestDnodeGetSubNode(t *testing.T) {
 }
 
 func TestDnodeAdd(t *testing.T) {
-	fnode := layout.NewFnode("file.txt")
-	dnode := layout.NewDnode("dnode", layout.WithSubNodes(fnode))
+	fnode := node.NewFnode("file.txt")
+	dnode := node.NewDnode("dnode", node.WithSubNodes(fnode))
 
 	t.Run("returns an error when existing sub node has same name as the new", func(t *testing.T) {
 		subnodesBefore := len(dnode.Nodes())
 
-		newNode := layout.NewDnode("file.txt")
+		newNode := node.NewDnode("file.txt")
 		err := dnode.Add(newNode)
 		assert.EqualError(t, err, `node "file.txt" already exists`)
 
@@ -56,7 +56,7 @@ func TestDnodeAdd(t *testing.T) {
 	t.Run("adds a new subnode", func(t *testing.T) {
 		subnodesBefore := len(dnode.Nodes())
 
-		newNode := layout.NewFnode("file2.txt")
+		newNode := node.NewFnode("file2.txt")
 		err := dnode.Add(newNode)
 		assert.NoError(t, err)
 
@@ -69,7 +69,7 @@ func TestDnodeBuild(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	t.Run("creates node directory in a provided location", func(t *testing.T) {
-		n := layout.NewDnode("test_dir_1")
+		n := node.NewDnode("test_dir_1")
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
@@ -78,8 +78,8 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a directory subnode", func(t *testing.T) {
-		sn := layout.NewDnode("sub_test_dir_2")
-		n := layout.NewDnode("test_dir_2", layout.WithSubNodes(sn))
+		sn := node.NewDnode("sub_test_dir_2")
+		n := node.NewDnode("test_dir_2", node.WithSubNodes(sn))
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
@@ -88,8 +88,8 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file subnode", func(t *testing.T) {
-		sn := layout.NewFnode("test_file_1", layout.WithNewTemplate("test", "package foo"))
-		n := layout.NewDnode("test_dir_3", layout.WithSubNodes(sn))
+		sn := node.NewFnode("test_file_1", node.WithNewTemplate("test", "package foo"))
+		n := node.NewDnode("test_dir_3", node.WithSubNodes(sn))
 		err := n.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 
@@ -102,7 +102,7 @@ func TestFnodeBuild(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	t.Run("returns an error when does not have template", func(t *testing.T) {
-		f := layout.NewFnode("test_file_1")
+		f := node.NewFnode("test_file_1")
 		err := f.Build(tmpDir, "module_name")
 		assert.EqualError(t, err, "node template is nil")
 
@@ -111,7 +111,7 @@ func TestFnodeBuild(t *testing.T) {
 	})
 
 	t.Run("creates a file using node template", func(t *testing.T) {
-		f := layout.NewFnode("test_file_2", layout.WithNewTemplate("test", "package foo"))
+		f := node.NewFnode("test_file_2", node.WithNewTemplate("test", "package foo"))
 		err := f.Build(tmpDir, "module_name")
 		require.NoError(t, err)
 

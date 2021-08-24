@@ -2,6 +2,7 @@ package project
 
 import (
 	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/antklim/chef/internal/project/template"
 )
 
@@ -32,13 +33,13 @@ func layoutFactory(category, server string) layoutMaker {
 type serviceLayout struct{}
 
 func (serviceLayout) makeLayout() *layout.Layout {
-	nodes := []layout.Node{
-		layout.NewDnode(dirAdapter),
-		layout.NewDnode(dirApp),
-		layout.NewDnode(dirHandler),
-		layout.NewDnode(dirProvider),
-		layout.NewDnode(dirServer),
-		layout.NewDnode(dirTest),
+	nodes := []node.Node{
+		node.NewDnode(dirAdapter),
+		node.NewDnode(dirApp),
+		node.NewDnode(dirHandler),
+		node.NewDnode(dirProvider),
+		node.NewDnode(dirServer),
+		node.NewDnode(dirTest),
 	}
 	return layout.New(nodes...)
 }
@@ -46,19 +47,19 @@ func (serviceLayout) makeLayout() *layout.Layout {
 type httpServiceLayout struct{}
 
 func (httpServiceLayout) makeLayout() *layout.Layout {
-	httpRouter := layout.NewFnode("router.go", layout.WithTemplate(template.Get(template.HTTPRouter)))
-	httpHandlerNode := layout.NewDnode(dirHTTP, layout.WithSubNodes(httpRouter))
-	httpServer := layout.NewFnode("server.go", layout.WithTemplate(template.Get(template.HTTPServer)))
-	httpServerNode := layout.NewDnode(dirHTTP, layout.WithSubNodes(httpServer))
-	httpSrvMain := layout.NewFnode("main.go", layout.WithTemplate(template.Get(template.HTTPService)))
+	httpRouter := node.NewFnode("router.go", node.WithTemplate(template.Get(template.HTTPRouter)))
+	httpHandlerNode := node.NewDnode(dirHTTP, node.WithSubNodes(httpRouter))
+	httpServer := node.NewFnode("server.go", node.WithTemplate(template.Get(template.HTTPServer)))
+	httpServerNode := node.NewDnode(dirHTTP, node.WithSubNodes(httpServer))
+	httpSrvMain := node.NewFnode("main.go", node.WithTemplate(template.Get(template.HTTPService)))
 
-	nodes := []layout.Node{
-		layout.NewDnode(dirAdapter),
-		layout.NewDnode(dirApp),
-		layout.NewDnode(dirHandler, layout.WithSubNodes(httpHandlerNode)),
-		layout.NewDnode(dirProvider),
-		layout.NewDnode(dirServer, layout.WithSubNodes(httpServerNode)),
-		layout.NewDnode(dirTest),
+	nodes := []node.Node{
+		node.NewDnode(dirAdapter),
+		node.NewDnode(dirApp),
+		node.NewDnode(dirHandler, node.WithSubNodes(httpHandlerNode)),
+		node.NewDnode(dirProvider),
+		node.NewDnode(dirServer, node.WithSubNodes(httpServerNode)),
+		node.NewDnode(dirTest),
 		httpSrvMain,
 	}
 	return layout.New(nodes...)

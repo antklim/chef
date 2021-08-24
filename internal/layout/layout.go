@@ -3,14 +3,16 @@ package layout
 import (
 	"fmt"
 	"strings"
+
+	"github.com/antklim/chef/internal/layout/node"
 )
 
 const Root = "."
 
 type Dir interface {
-	Add(n Node) error
-	Get(string) Node
-	Nodes() []Node
+	Add(n node.Node) error
+	Get(string) node.Node
+	Nodes() []node.Node
 }
 
 type Layout struct {
@@ -18,14 +20,14 @@ type Layout struct {
 }
 
 // New creates a new layout with nodes.
-func New(nodes ...Node) *Layout {
-	rootNode := NewDnode(Root, WithSubNodes(nodes...))
-	root := NewDnode("", WithSubNodes(rootNode))
+func New(nodes ...node.Node) *Layout {
+	rootNode := node.NewDnode(Root, node.WithSubNodes(nodes...))
+	root := node.NewDnode("", node.WithSubNodes(rootNode))
 	return &Layout{root: root}
 }
 
 // AddNode adds a node to a layout location.
-func (l *Layout) AddNode(n Node, loc string) error {
+func (l *Layout) AddNode(n node.Node, loc string) error {
 	locNode := l.FindNode(loc)
 	if locNode == nil {
 		return fmt.Errorf("node %q not found in layout", loc)
@@ -67,7 +69,7 @@ func (l *Layout) Build(loc, mod string) error {
 // - find("server/http/handler.go") returns file node associated with the handler.go
 // - find(".") returns root node
 // - find("") returns nil when no associated node found
-func (l *Layout) FindNode(loc string) Node {
+func (l *Layout) FindNode(loc string) node.Node {
 	locs := splitPath(loc)
 	node := l.root
 

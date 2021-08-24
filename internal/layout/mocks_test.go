@@ -5,7 +5,7 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 )
 
 type testNode struct {
@@ -45,4 +45,4 @@ func (n *testNode) BuiltAt() string {
 	return n.loc
 }
 
-var _ layout.Node = (*testNode)(nil)
+var _ node.Node = (*testNode)(nil)

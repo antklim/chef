@@ -8,6 +8,7 @@ import (
 	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -367,7 +368,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("returns error when location does not exist", func(t *testing.T) {
-		l := layout.New(layout.NewDnode("handler"))
+		l := layout.New(node.NewDnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.Init()
 		require.NoError(t, err)
@@ -379,7 +380,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("returns error when location is not a directory", func(t *testing.T) {
-		l := layout.New(layout.NewFnode("handler"))
+		l := layout.New(node.NewFnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.Init()
 		require.NoError(t, err)
@@ -391,7 +392,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("adds component to the list of components", func(t *testing.T) {
-		l := layout.New(layout.NewDnode("handler"))
+		l := layout.New(node.NewDnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.Init()
 		require.NoError(t, err)
@@ -422,7 +423,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 	})
 
 	t.Run("overrides an existing component", func(t *testing.T) {
-		l := layout.New(layout.NewDnode("handler"))
+		l := layout.New(node.NewDnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.Init()
 		require.NoError(t, err)
@@ -446,7 +447,7 @@ func TestProjectEmployComponent(t *testing.T) {
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*Project, error) {
-		l := layout.New(layout.NewDnode("handler"))
+		l := layout.New(node.NewDnode("handler"))
 		p := New("project", WithLayout(l), WithRoot(t.TempDir()))
 		if err := p.Init(); err != nil {
 			return nil, err
