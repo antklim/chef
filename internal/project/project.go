@@ -227,7 +227,7 @@ func (p *Project) setLayout() error {
 
 	f := layoutFactory(category(p.opts.cat), server(p.opts.srv))
 	if f == nil {
-		return fmt.Errorf("layout for %q category not found", p.opts.cat)
+		return fmt.Errorf("category %q: layout not found", p.opts.cat)
 	}
 
 	p.lout = f.makeLayout()

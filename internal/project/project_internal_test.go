@@ -209,7 +209,7 @@ func TestProjectSetLayout(t *testing.T) {
 	t.Run("returns error when unknown layout requested", func(t *testing.T) {
 		p := New("test", WithCategory("test"))
 		err := p.setLayout()
-		assert.EqualError(t, err, `layout for "test" category not found`)
+		assert.EqualError(t, err, `category "test": layout not found`)
 		assert.Nil(t, p.lout)
 	})
 }
@@ -269,7 +269,7 @@ func TestProjectInit(t *testing.T) {
 			}
 		})
 	}
-	// TODO (ref): inits project with default layout when directory exists
+	// TODO (ref): inits project with default layout in the existing project directory
 }
 
 func TestProjectRegisterComponent(t *testing.T) {

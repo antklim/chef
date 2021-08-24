@@ -59,33 +59,6 @@ func TestProjectInitFails(t *testing.T) {
 			assert.EqualError(t, err, tC.err)
 		})
 	}
-
-	// t.Run("propagates set location errors", func(t *testing.T) {})
-	// t.Run("propagates set layout errors", func(t *testing.T) {})
-}
-
-func TestProjectInit(t *testing.T) {
-	t.Run("propagates set location errors", func(t *testing.T) {
-		p := project.New("project", project.WithRoot("/r"))
-		err := p.Init()
-		assert.EqualError(t, err, "set location failed: stat /r: no such file or directory")
-	})
-
-	t.Run("inits project", func(t *testing.T) {
-		p := project.New("project")
-		err := p.Init()
-		assert.NoError(t, err)
-	})
-
-	t.Run("inits existing project", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		err := os.Mkdir(path.Join(tmpDir, "project"), 0755)
-		require.NoError(t, err)
-
-		p := project.New("project")
-		err = p.Init()
-		assert.NoError(t, err)
-	})
 }
 
 func TestProjectBuild(t *testing.T) {
