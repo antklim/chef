@@ -83,7 +83,7 @@ var defaultProjectOptions = projectOptions{
 	srv: defaultServer,
 }
 
-// Project manager.
+// Project stores the information to maintain components, layout and nodes.
 type Project struct {
 	inited     bool
 	name       string
@@ -93,7 +93,7 @@ type Project struct {
 	components map[string]component
 }
 
-// New project.
+// New project creates a new instance of a project.
 func New(name string, opt ...Option) *Project {
 	name = strings.TrimSpace(name)
 	opts := defaultProjectOptions
@@ -110,7 +110,7 @@ func New(name string, opt ...Option) *Project {
 	return p
 }
 
-// Init orchestrates project validation and build steps.
+// Init orchestrates process of project initialization.
 func (p *Project) Init() error {
 	if err := p.validate(); err != nil {
 		return errors.Wrap(err, "validation failed")
@@ -126,8 +126,7 @@ func (p *Project) Init() error {
 	return nil
 }
 
-// Build creates project layout nodes.
-// returns location and build error.
+// Build creates project layout and returns project location or build error.
 func (p *Project) Build() (string, error) {
 	if !p.inited {
 		return "", errNotInited
@@ -138,6 +137,9 @@ func (p *Project) Build() (string, error) {
 	return p.loc, nil
 }
 
+// RegisterComponent adds a component with the template to the project.
+// After component registered, new layout nodes can be added to project
+// using `EmployComponent` method.
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
 	if !p.inited {
 		return errNotInited
@@ -281,6 +283,7 @@ func (p Project) validate() error {
 	return nil
 }
 
+// Option sets project options such as root location, category, etc.
 type Option interface {
 	apply(*projectOptions)
 }
@@ -297,30 +300,35 @@ func newFuncOption(f func(*projectOptions)) *funcOption {
 	return &funcOption{f}
 }
 
+// WithRoot returns an Option that sets project root location.
 func WithRoot(r string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.root = strings.TrimSpace(r)
 	})
 }
 
+// WithCategory returns an Option that sets project category.
 func WithCategory(c string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.cat = c
 	})
 }
 
+// WithServer returns an Option that sets project server type.
 func WithServer(s string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.srv = s
 	})
 }
 
+// WithModule returns an Option that sets module name (for Go projects).
 func WithModule(m string) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.mod = m
 	})
 }
 
+// WithLayout returns an Option that sets project layout.
 func WithLayout(l *layout.Layout) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.lout = l
