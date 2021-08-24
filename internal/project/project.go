@@ -24,13 +24,18 @@ const (
 	categoryService = "srv"
 )
 
+var categories = map[string]string{
+	"srv":     categoryService,
+	"service": categoryService,
+}
+
 func category(v string) string {
-	switch strings.ToLower(v) {
-	case "srv", "service":
-		return categoryService
-	default:
+	cv := strings.ToLower(v)
+	cat, ok := categories[cv]
+	if !ok {
 		return categoryUnknown
 	}
+	return cat
 }
 
 const (
@@ -39,15 +44,18 @@ const (
 	serverHTTP    = "http"
 )
 
+var servers = map[string]string{
+	"":     serverNone,
+	"http": serverHTTP,
+}
+
 func server(v string) string {
-	switch strings.ToLower(v) {
-	case "":
-		return serverNone
-	case "http":
-		return serverHTTP
-	default:
+	sv := strings.ToLower(v)
+	srv, ok := servers[sv]
+	if !ok {
 		return serverUnknown
 	}
+	return srv
 }
 
 const (
