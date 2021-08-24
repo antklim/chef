@@ -61,29 +61,49 @@ func TestProjectInitFails(t *testing.T) {
 	}
 }
 
+func TestProjectBuildFails(t *testing.T) {
+	name := "cheftest" // test project name
+
+	tmpDir := t.TempDir()
+	ppath := path.Join(tmpDir, name)
+	err := os.Mkdir(ppath, 0755)
+	require.NoError(t, err)
+
+	testCases := []struct {
+		desc string
+		pgen func() (*project.Project, error)
+		err  string
+	}{
+		{
+			desc: "when project not inited",
+			pgen: func() (*project.Project, error) {
+				return project.New(name), nil
+			},
+			err: "project not inited",
+		},
+		{
+			desc: "when root contains file or directory with the project name",
+			pgen: func() (*project.Project, error) {
+				p := project.New(name, project.WithRoot(tmpDir))
+				err := p.Init()
+				return p, err
+			},
+			err: fmt.Sprintf("build failed: mkdir %s: file exists", ppath),
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p, err := tC.pgen()
+			require.NoError(t, err)
+
+			loc, err := p.Build()
+			assert.EqualError(t, err, tC.err)
+			assert.Empty(t, loc)
+		})
+	}
+}
+
 func TestProjectBuild(t *testing.T) {
-	t.Run("returns error when project not inited", func(t *testing.T) {
-		p := project.New("project")
-		loc, err := p.Build()
-		assert.EqualError(t, err, "project not inited")
-		assert.Empty(t, loc)
-	})
-
-	t.Run("returns error when root directory contains file or directory with the project name", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ppath := path.Join(tmpDir, "project")
-		err := os.Mkdir(ppath, 0755)
-		require.NoError(t, err)
-
-		p := project.New("project", project.WithRoot(tmpDir))
-		err = p.Init()
-		require.NoError(t, err)
-
-		expected := fmt.Sprintf("build failed: mkdir %s: file exists", ppath)
-		_, err = p.Build()
-		assert.EqualError(t, err, expected)
-	})
-
 	t.Run("builds project", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		p := project.New("project", project.WithRoot(tmpDir))
