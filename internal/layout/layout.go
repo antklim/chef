@@ -65,14 +65,22 @@ func (l *Layout) Build(loc, mod string) error {
 	return nil
 }
 
-// TODO (ref): format comment bellow for better documentation help
-
-// FindNode returns a node at the provided location in the layout.
+// FindNode returns a node associated with the location in the layout.
+//
 // For example:
-// - find("server/http") returns directory node associated with "server/http" location
-// - find("server/http/handler.go") returns file node associated with the handler.go
-// - find(".") returns root node
-// - find("") returns nil when no associated node found
+//
+//	// Find a subdirectory node at "server/http".
+//	find("server/http")
+//
+//	// Find a file node at "server/http/handler.go".
+//	find("server/http/handler.go")
+//
+//	// Find a root node.
+//	find(layout.Root)
+//
+//	// Returns nil when not found nodes associated with the location.
+// 	find("foo/bar")
+//
 func (l *Layout) FindNode(loc string) node.Node {
 	locs := splitPath(loc)
 	node := l.root
