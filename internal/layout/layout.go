@@ -102,12 +102,7 @@ func (l *Layout) FindNode(loc string) node.Node {
 }
 
 func (l *Layout) rootDir() Dir {
-	rootNode := l.root.Get(Root)
-	if rootNode == nil {
-		return nil
-	}
-
-	dir, ok := rootNode.(Dir)
+	dir, ok := l.root.Get(Root).(Dir)
 	if !ok {
 		return nil
 	}

@@ -12,6 +12,7 @@ func TestNewLayout(t *testing.T) {
 	n := newTestNode("foo")
 	nodes := []node.Node{n}
 	l := layout.New(nodes...)
+	assert.NotNil(t, l.FindNode(layout.Root))
 	assert.Equal(t, n, l.FindNode("foo"))
 }
 
