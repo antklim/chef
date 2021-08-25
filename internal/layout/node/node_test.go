@@ -96,18 +96,26 @@ func TestDnodeBuild(t *testing.T) {
 		_, err = os.ReadFile(path.Join(tmpDir, n.Name(), sn.Name()))
 		require.NoError(t, err)
 	})
+
+	t.Run("fails when subnode build fails", func(t *testing.T) {
+		// TODO (ref): implement
+	})
 }
 
 func TestFnodeBuild(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	t.Run("returns an error when does not have template", func(t *testing.T) {
+	t.Run("fails when does not have template", func(t *testing.T) {
 		f := node.NewFnode("test_file_1")
 		err := f.Build(tmpDir, "module_name")
 		assert.EqualError(t, err, "node template is nil")
 
 		_, err = os.ReadFile(path.Join(tmpDir, f.Name()))
 		assert.True(t, os.IsNotExist(err))
+	})
+
+	t.Run("fails when cannot execute template", func(t *testing.T) {
+		// TODO (ref): implement
 	})
 
 	t.Run("creates a file using node template", func(t *testing.T) {

@@ -11,32 +11,32 @@ import (
 
 func TestDnode(t *testing.T) {
 	t.Run("has default directory permissions and no children when created", func(t *testing.T) {
-		n := NewDnode("test_dir")
-		expected := &Dnode{node: node{name: "test_dir", permissions: 0755}}
-		assert.Equal(t, expected, n)
+		d := NewDnode("dir")
+		expected := &Dnode{node: node{name: "dir", permissions: 0755}}
+		assert.Equal(t, expected, d)
 	})
 
 	t.Run("has custom directory permissions when created with permission option", func(t *testing.T) {
-		n := NewDnode("test_dir", WithDperm(0700))
-		expected := &Dnode{node: node{name: "test_dir", permissions: 0700}}
-		assert.Equal(t, expected, n)
+		d := NewDnode("dir", WithDperm(0700))
+		expected := &Dnode{node: node{name: "dir", permissions: 0700}}
+		assert.Equal(t, expected, d)
 	})
 
 	t.Run("has non empty children list when created with children option", func(t *testing.T) {
-		f1 := NewFnode("test_file_1")
-		d1 := NewDnode("test_dir_1")
-		n := NewDnode("test_dir", WithSubNodes(f1, d1))
+		f := NewFnode("file.txt")
+		sd := NewDnode("subdir")
+		d := NewDnode("dir", WithSubNodes(sd, f))
 		expected := &Dnode{
 			node: node{
-				name:        "test_dir",
+				name:        "dir",
 				permissions: 0755,
 			},
 			subnodes: []Node{
-				&Fnode{node: node{name: "test_file_1", permissions: 0644}},
-				&Dnode{node: node{name: "test_dir_1", permissions: 0755}},
+				&Dnode{node: node{name: "subdir", permissions: 0755}},
+				&Fnode{node: node{name: "file.txt", permissions: 0644}},
 			},
 		}
-		assert.Equal(t, expected, n)
+		assert.Equal(t, expected, d)
 	})
 }
 
@@ -50,18 +50,18 @@ func TestFnode(t *testing.T) {
 	}{
 		{
 			desc:     "has default file permissions and no template when created",
-			expected: &Fnode{node: node{name: "test_file", permissions: 0644}},
+			expected: &Fnode{node: node{name: "file.go", permissions: 0644}},
 		},
 		{
 			desc:     "has custom file permissions when created with permission option",
 			opts:     []FnodeOption{WithFperm(0600)},
-			expected: &Fnode{node: node{name: "test_file", permissions: 0600}},
+			expected: &Fnode{node: node{name: "file.go", permissions: 0600}},
 		},
 		{
 			desc: "has custom template when created with new template option",
 			opts: []FnodeOption{WithNewTemplate("test_new", "package foo")},
 			expected: &Fnode{
-				node:     node{name: "test_file", permissions: 0644},
+				node:     node{name: "file.go", permissions: 0644},
 				template: template.Must(template.New("test_new").Parse("package foo")),
 			},
 		},
@@ -69,14 +69,14 @@ func TestFnode(t *testing.T) {
 			desc: "has custom template when created with template option",
 			opts: []FnodeOption{WithTemplate(tmpl)},
 			expected: &Fnode{
-				node:     node{name: "test_file", permissions: 0644},
+				node:     node{name: "file.go", permissions: 0644},
 				template: template.Must(template.New("test").Parse("package foo")),
 			},
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			n := NewFnode("test_file", tC.opts...)
+			n := NewFnode("file.go", tC.opts...)
 			assert.Equal(t, tC.expected, n)
 		})
 	}
@@ -95,7 +95,7 @@ import "{{ .Module }}/test/template"`))
 import "%s/test/template"`, data.Module)
 
 		var out bytes.Buffer
-		f := NewFnode("test_fnode", WithTemplate(tmpl))
+		f := NewFnode("file.go", WithTemplate(tmpl))
 		err := f.wbuild(&out, data)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, out.String())
