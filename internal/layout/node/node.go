@@ -1,13 +1,14 @@
 package node
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path"
 	"text/template"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -171,11 +172,12 @@ func (n Fnode) Build(loc string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-
 	if err := n.wbuild(f, data); err != nil {
-		return err
+		f.Close()
+		os.Remove(o) // try to remove created file
+		return errors.Wrap(err, "failed to execute template")
 	}
+	defer f.Close()
 
 	return f.Chmod(n.Permissions())
 }
