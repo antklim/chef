@@ -2,7 +2,6 @@ package layout_test
 
 import (
 	"errors"
-	"io/fs"
 	"strings"
 
 	"github.com/antklim/chef/internal/layout/node"
@@ -31,10 +30,6 @@ func (n *testNode) Build(loc string, data interface{}) error {
 
 func (n *testNode) Name() string {
 	return n.name
-}
-
-func (*testNode) Permissions() fs.FileMode {
-	return 0400
 }
 
 func (n *testNode) WasBuild() bool {

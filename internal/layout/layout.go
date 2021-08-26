@@ -10,7 +10,7 @@ import (
 // A Root is a root node of the layout.
 const Root = "."
 
-// Dir interface defines directory node functionality.
+// Dir interface defines directory functionality.
 type Dir interface {
 	Add(n node.Node) error
 	Get(string) node.Node

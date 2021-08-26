@@ -20,9 +20,11 @@ var (
 	errNilTemplate = errors.New("node template is nil")
 )
 
+// Node interface defines layout node functionality.
 type Node interface {
+	// Name is a node name.
 	Name() string
-	Permissions() fs.FileMode
+	// Build executes node build.
 	Build(loc string, data interface{}) error
 }
 
@@ -32,12 +34,12 @@ type node struct {
 }
 
 // Dnode describes directory nodes.
-// Use NewDnode to initialize Dnode.
 type Dnode struct {
 	node
 	subnodes []Node
 }
 
+// NewDnode creates a new directory node.
 func NewDnode(name string, opts ...DnodeOption) *Dnode {
 	n := &Dnode{
 		node: node{
@@ -53,18 +55,15 @@ func NewDnode(name string, opts ...DnodeOption) *Dnode {
 	return n
 }
 
+// Name returns a node name.
 func (n *Dnode) Name() string {
 	return n.name
-}
-
-func (n *Dnode) Permissions() fs.FileMode {
-	return n.permissions
 }
 
 func (n *Dnode) Build(loc string, data interface{}) error {
 	o := path.Join(loc, n.Name())
 
-	if err := os.Mkdir(o, n.Permissions()); err != nil {
+	if err := os.Mkdir(o, n.permissions); err != nil {
 		return err
 	}
 
@@ -156,10 +155,6 @@ func (n Fnode) Name() string {
 	return n.name
 }
 
-func (n Fnode) Permissions() fs.FileMode {
-	return n.permissions
-}
-
 // Build executes node template and writes it to a file to a provided location.
 func (n Fnode) Build(loc string, data interface{}) error {
 	if n.template == nil {
@@ -179,7 +174,7 @@ func (n Fnode) Build(loc string, data interface{}) error {
 	}
 	defer f.Close()
 
-	return f.Chmod(n.Permissions())
+	return f.Chmod(n.permissions)
 }
 
 func (n Fnode) wbuild(w io.Writer, data interface{}) error {
