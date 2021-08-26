@@ -100,7 +100,14 @@ func TestDnodeBuild(t *testing.T) {
 	})
 
 	t.Run("fails when subnode build fails", func(t *testing.T) {
-		// TODO (ref): implement
+		tmpDir := t.TempDir()
+		f := node.NewFnode("file.go")
+		d := node.NewDnode("dir", node.WithSubNodes(f))
+		err := d.Build(tmpDir, "module_name")
+		require.EqualError(t, err, `failed to build subnode "file.go": node template is nil`)
+
+		_, err = os.ReadFile(path.Join(tmpDir, d.Name(), f.Name()))
+		assert.True(t, os.IsNotExist(err))
 	})
 }
 

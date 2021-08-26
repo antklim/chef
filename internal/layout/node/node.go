@@ -70,7 +70,7 @@ func (n *Dnode) Build(loc string, data interface{}) error {
 
 	for _, sn := range n.subnodes {
 		if err := sn.Build(o, data); err != nil {
-			return err
+			return errors.Wrapf(err, "failed to build subnode %q", sn.Name())
 		}
 	}
 
