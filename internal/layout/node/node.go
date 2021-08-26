@@ -185,6 +185,7 @@ func (n *Fnode) Build(loc string, data interface{}) error {
 	}
 	if err := n.wbuild(f, data); err != nil {
 		f.Close()
+		// Remove created file. It's a clean up, thus ignore errors here.
 		os.Remove(o)
 		return errors.Wrap(err, "failed to execute template")
 	}
