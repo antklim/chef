@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TODO (feat): consider to store location in node and remove it from Build
+
 const (
 	fperm fs.FileMode = 0644
 	dperm fs.FileMode = 0755
@@ -22,7 +24,7 @@ var (
 
 // Node interface defines layout node functionality.
 type Node interface {
-	// Name is a node name.
+	// Name returns a node name.
 	Name() string
 	// Build executes node build.
 	Build(loc string, data interface{}) error
@@ -60,6 +62,10 @@ func (n *Dnode) Name() string {
 	return n.name
 }
 
+// Build creates a directory in file system recursively builds all subnodes.
+//
+// When subnode build fails the process stops and the error is returned.
+// Node directory is not deleted in case of build failure.
 func (n *Dnode) Build(loc string, data interface{}) error {
 	o := path.Join(loc, n.Name())
 
@@ -76,14 +82,20 @@ func (n *Dnode) Build(loc string, data interface{}) error {
 	return nil
 }
 
+// Nodes returns a list of subnodes.
 func (n *Dnode) Nodes() []Node {
 	return n.subnodes
 }
 
+// Get returns the first node found by name in all subnodes of the node, or nil
+// if no node found.
 func (n *Dnode) Get(name string) Node {
 	return findByName(n.subnodes, name)
 }
 
+// Add adds a new node to a list of subnodes.
+//
+// When subnode list already has a node with the same name the error returned.
 func (n *Dnode) Add(newNode Node) error {
 	if subnode := findByName(n.subnodes, newNode.Name()); subnode != nil {
 		return fmt.Errorf("node %q already exists", newNode.Name())
@@ -101,6 +113,7 @@ func findByName(nodes []Node, n string) Node {
 	return nil
 }
 
+// DnodeOption sets directory node options.
 type DnodeOption interface {
 	apply(*Dnode)
 }
@@ -117,12 +130,14 @@ func newdnodefopt(f func(*Dnode)) *dnodefopt {
 	return &dnodefopt{f}
 }
 
+// WithSubNodes returns an DnodeOption that sets directory node subnodes.
 func WithSubNodes(sn ...Node) DnodeOption {
 	return newdnodefopt(func(n *Dnode) {
 		n.subnodes = sn
 	})
 }
 
+// WithDperm returns an DnodeOption that sets directory permissions.
 func WithDperm(p fs.FileMode) DnodeOption {
 	return newdnodefopt(func(n *Dnode) {
 		n.permissions = p
@@ -130,12 +145,12 @@ func WithDperm(p fs.FileMode) DnodeOption {
 }
 
 // Fnode describes file nodes.
-// Use NewFnode to initialize Fnode.
 type Fnode struct {
 	node
 	template *template.Template
 }
 
+// NewFnode creates a new file node.
 func NewFnode(name string, opts ...FnodeOption) *Fnode {
 	n := &Fnode{
 		node: node{
@@ -151,12 +166,13 @@ func NewFnode(name string, opts ...FnodeOption) *Fnode {
 	return n
 }
 
-func (n Fnode) Name() string {
+// Name returns a node name.
+func (n *Fnode) Name() string {
 	return n.name
 }
 
 // Build executes node template and writes it to a file to a provided location.
-func (n Fnode) Build(loc string, data interface{}) error {
+func (n *Fnode) Build(loc string, data interface{}) error {
 	if n.template == nil {
 		return errNilTemplate
 	}
@@ -169,7 +185,7 @@ func (n Fnode) Build(loc string, data interface{}) error {
 	}
 	if err := n.wbuild(f, data); err != nil {
 		f.Close()
-		os.Remove(o) // try to remove created file
+		os.Remove(o)
 		return errors.Wrap(err, "failed to execute template")
 	}
 	defer f.Close()
@@ -177,10 +193,11 @@ func (n Fnode) Build(loc string, data interface{}) error {
 	return f.Chmod(n.permissions)
 }
 
-func (n Fnode) wbuild(w io.Writer, data interface{}) error {
+func (n *Fnode) wbuild(w io.Writer, data interface{}) error {
 	return n.template.Execute(w, data)
 }
 
+// FnodeOption sets file node options.
 type FnodeOption interface {
 	apply(*Fnode)
 }
@@ -197,6 +214,7 @@ func newfnodefopt(f func(*Fnode)) *fnodefopt {
 	return &fnodefopt{f}
 }
 
+// WithFperm returns an FnodeOption that sets file permissions.
 func WithFperm(p fs.FileMode) FnodeOption {
 	return newfnodefopt(func(n *Fnode) {
 		n.permissions = p
