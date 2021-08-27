@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/antklim/chef/internal/layout/node"
+	"github.com/pkg/errors"
 )
 
 // A Root is a root node of the layout.
@@ -12,7 +13,6 @@ const Root = "."
 
 // dir interface defines directory functionality.
 type dir interface {
-	node.Adder
 	node.Getter
 	Nodes() []node.Node
 }
@@ -36,16 +36,15 @@ func (l *Layout) AddNode(n node.Node, loc string) error {
 		return fmt.Errorf("%q not found in layout", loc)
 	}
 
-	locDir, ok := locNode.(dir)
+	locDir, ok := locNode.(node.Adder)
 	if !ok {
 		return fmt.Errorf("%q cannot have subnodes", loc)
 	}
 
-	if node := locDir.Get(n.Name()); node != nil {
-		return fmt.Errorf("%q has subnode %q", loc, n.Name())
+	if err := locDir.Add(n); err != nil {
+		return errors.Wrapf(err, "failed to add node to %q", loc)
 	}
-
-	return locDir.Add(n)
+	return nil
 }
 
 // Build recursively builds all nodes in layout.

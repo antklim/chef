@@ -88,7 +88,7 @@ func TestLayoutAddNodeFails(t *testing.T) {
 			desc: "when adding existing node",
 			node: node.NewDnode("dir"),
 			loc:  layout.Root,
-			err:  `"." has subnode "dir"`,
+			err:  `failed to add node to ".": node "dir" already exists`,
 		},
 	}
 	for _, tC := range testCases {

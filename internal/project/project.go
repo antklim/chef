@@ -200,7 +200,7 @@ func (p *Project) EmployComponent(component, name string) error {
 
 	n := node.NewFnode(nname, node.WithTemplate(c.template))
 	if err := p.lout.AddNode(n, c.loc); err != nil {
-		return errors.Wrap(err, "add node failed")
+		return errors.Wrap(err, "failed to add node to layout")
 	}
 
 	data := struct {

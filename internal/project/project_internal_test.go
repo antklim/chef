@@ -460,6 +460,6 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.NoError(t, err)
 
 		err = p.EmployComponent("http_handler", "echo")
-		assert.EqualError(t, err, `add node failed: "handler" has subnode "echo.go"`)
+		assert.EqualError(t, err, `failed to add node to layout: failed to add node to "handler": node "echo.go" already exists`)
 	})
 }

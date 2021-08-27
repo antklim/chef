@@ -32,7 +32,7 @@ type Adder interface {
 
 // Getter is the interface that wraps node Get method.
 //
-// Get searches node in the provided location in the collection of subnodes.
+// Get searches node by provided name in the collection of subnodes.
 // It returns nil if no nodes found.
 type Getter interface {
 	Get(string) Node
