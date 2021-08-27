@@ -127,7 +127,9 @@ func (p *Project) Init() error {
 	return nil
 }
 
-// Build creates project layout and returns project location or build error.
+// Build creates project layout and returns project location and any occured
+// build error. In case of the error the location is available, an empty string
+// returned instead.
 func (p *Project) Build() (string, error) {
 	if !p.inited {
 		return "", errNotInited
