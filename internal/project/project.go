@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TODO: write layout settings to yaml
 // TODO: read layout settings from yaml
 // TODO: test/build generated go code
 // TODO: support functionality of bring your own templates

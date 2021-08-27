@@ -9,7 +9,6 @@ import (
 )
 
 // TODO (ref): add commamds tests, use https://github.com/commander-cli/commander
-// TODO: layout/chef.yml location
 
 var (
 	projName = Flag{
@@ -37,6 +36,7 @@ var (
 		Help:       "Name of the project's module to be used in 'go mod'.",
 		IsRequired: true,
 	}
+	// This flag is a location of chef.yml with the project layout configuration
 	projLayout = Flag{
 		LongForm:   "layout",
 		ShortForm:  "l",
