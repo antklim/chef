@@ -167,7 +167,8 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 	return nil
 }
 
-// EmployComponent employs registered component to add new node to a project layout.
+// EmployComponent employs registered component to add new node to a project
+// layout.
 func (p *Project) EmployComponent(component, name string) error {
 	if !p.inited {
 		return errNotInited
