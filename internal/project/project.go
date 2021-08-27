@@ -154,8 +154,8 @@ func (p *Project) RegisterComponent(componentName, loc string, t *template.Templ
 	if n == nil {
 		return fmt.Errorf("%q does not exist", loc)
 	}
-	if _, ok := n.(layout.Dir); !ok {
-		return fmt.Errorf("%q not a directory", loc)
+	if _, ok := n.(node.Adder); !ok {
+		return fmt.Errorf("%q cannot have subnodes", loc)
 	}
 
 	p.components[componentName] = component{

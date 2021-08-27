@@ -10,16 +10,16 @@ import (
 // A Root is a root node of the layout.
 const Root = "."
 
-// Dir interface defines directory functionality.
-type Dir interface {
-	Add(n node.Node) error
-	Get(string) node.Node
+// dir interface defines directory functionality.
+type dir interface {
+	node.Adder
+	node.Getter
 	Nodes() []node.Node
 }
 
 // A Layout defines project layout.
 type Layout struct {
-	root Dir
+	root dir
 }
 
 // New creates a new layout with nodes.
@@ -33,16 +33,16 @@ func New(nodes ...node.Node) *Layout {
 func (l *Layout) AddNode(n node.Node, loc string) error {
 	locNode := l.FindNode(loc)
 	if locNode == nil {
-		return fmt.Errorf("node %q not found in layout", loc)
+		return fmt.Errorf("%q not found in layout", loc)
 	}
 
-	locDir, ok := locNode.(Dir)
+	locDir, ok := locNode.(dir)
 	if !ok {
-		return fmt.Errorf("node %q does not support adding subnodes", loc)
+		return fmt.Errorf("%q cannot have subnodes", loc)
 	}
 
 	if node := locDir.Get(n.Name()); node != nil {
-		return fmt.Errorf("node %q already has subnode %q", loc, n.Name())
+		return fmt.Errorf("%q has subnode %q", loc, n.Name())
 	}
 
 	return locDir.Add(n)
@@ -91,7 +91,7 @@ func (l *Layout) FindNode(loc string) node.Node {
 			return nil
 		}
 
-		dnode, ok := n.(Dir)
+		dnode, ok := n.(dir)
 		if !ok {
 			return nil
 		}
@@ -101,8 +101,8 @@ func (l *Layout) FindNode(loc string) node.Node {
 	return node.Get(locs[len(locs)-1])
 }
 
-func (l *Layout) rootDir() Dir {
-	dir, ok := l.root.Get(Root).(Dir)
+func (l *Layout) rootDir() dir {
+	dir, ok := l.root.Get(Root).(dir)
 	if !ok {
 		return nil
 	}

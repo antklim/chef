@@ -22,6 +22,22 @@ var (
 	errNilTemplate = errors.New("node template is nil")
 )
 
+// Adder is the interface that wraps node Add method.
+//
+// Add adds Node to a collection of subnodes.
+// It returns an error if Node could not be added to the collection of subnodes.
+type Adder interface {
+	Add(Node) error
+}
+
+// Getter is the interface that wraps node Get method.
+//
+// Get searches node in the provided location in the collection of subnodes.
+// It returns nil if no nodes found.
+type Getter interface {
+	Get(string) Node
+}
+
 // Node interface defines layout node functionality.
 type Node interface {
 	// Name returns a node name.

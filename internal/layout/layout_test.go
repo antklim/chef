@@ -14,7 +14,7 @@ func TestNewLayout(t *testing.T) {
 	l := layout.New(nodes...)
 	root := l.FindNode(layout.Root)
 	assert.NotNil(t, root)
-	assert.Implements(t, (*layout.Dir)(nil), root)
+	assert.Implements(t, (*node.Adder)(nil), root)
 	assert.Equal(t, n, l.FindNode("foo"))
 }
 
@@ -76,19 +76,19 @@ func TestLayoutAddNodeFails(t *testing.T) {
 			desc: "when nested level is a file",
 			node: node.NewFnode("new_file.txt"),
 			loc:  "dir/file.txt",
-			err:  `node "dir/file.txt" does not support adding subnodes`,
+			err:  `"dir/file.txt" cannot have subnodes`,
 		},
 		{
 			desc: "when nested level not found in layout",
 			node: node.NewFnode("new_file.txt"),
 			loc:  "other",
-			err:  `node "other" not found in layout`,
+			err:  `"other" not found in layout`,
 		},
 		{
 			desc: "when adding existing node",
 			node: node.NewDnode("dir"),
 			loc:  layout.Root,
-			err:  `node "." already has subnode "dir"`,
+			err:  `"." has subnode "dir"`,
 		},
 	}
 	for _, tC := range testCases {

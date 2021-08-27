@@ -318,7 +318,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 
 		componentName := "handler"
 		err = p.RegisterComponent(componentName, "handler", tmpl)
-		assert.EqualError(t, err, `"handler" not a directory`)
+		assert.EqualError(t, err, `"handler" cannot have subnodes`)
 		assert.NotContains(t, p.components, componentName)
 	})
 
@@ -460,6 +460,6 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.NoError(t, err)
 
 		err = p.EmployComponent("http_handler", "echo")
-		assert.EqualError(t, err, `add node failed: node "handler" already has subnode "echo.go"`)
+		assert.EqualError(t, err, `add node failed: "handler" has subnode "echo.go"`)
 	})
 }
