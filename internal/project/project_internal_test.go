@@ -214,46 +214,25 @@ func TestProjectSetLayout(t *testing.T) {
 	})
 }
 
-// TODO (ref): merge public and internal tests
 func TestProjectInit(t *testing.T) {
 	name := "project"
-	tmpDir := t.TempDir()
-	cwd, err := os.Getwd()
-	require.NoError(t, err)
-	defLoc := path.Join(cwd, name)
-	tl := layout.New()
+	tmpDir := "/tmp"
+	cwd, _ := os.Getwd()
+	dloc := path.Join(cwd, name)
 
 	testCases := []struct {
-		desc          string
-		loc           string
-		hasComponents bool
-		opts          []Option
+		desc string
+		loc  string
+		opts []Option
 	}{
 		{
-			desc: "inits project with default options",
-			loc:  defLoc,
+			desc: "by default inits project in current direcoty",
+			loc:  dloc,
 		},
 		{
 			desc: "inits project with with custom location",
 			loc:  path.Join(tmpDir, name),
 			opts: []Option{WithRoot(tmpDir)},
-		},
-		{
-			desc:          "inits project with layout determied by server",
-			loc:           defLoc,
-			hasComponents: true,
-			opts:          []Option{WithServer("http")},
-		},
-		{
-			desc: "inits project with custom layout",
-			loc:  defLoc,
-			opts: []Option{WithLayout(tl)},
-		},
-		{
-			desc:          "inits project with custom layout taking priority over category",
-			loc:           defLoc,
-			hasComponents: true,
-			opts:          []Option{WithLayout(tl), WithServer("http")},
 		},
 	}
 	for _, tC := range testCases {
@@ -262,14 +241,8 @@ func TestProjectInit(t *testing.T) {
 			err := p.Init()
 			assert.NoError(t, err)
 			assert.Equal(t, tC.loc, p.loc)
-			if tC.hasComponents {
-				assert.NotEmpty(t, p.ComponentsNames())
-			} else {
-				assert.Empty(t, p.ComponentsNames())
-			}
 		})
 	}
-	// TODO (ref): inits project with default layout in the existing project directory
 }
 
 func TestProjectRegisterComponent(t *testing.T) {

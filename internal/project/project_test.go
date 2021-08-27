@@ -64,6 +64,49 @@ func TestProjectInitFails(t *testing.T) {
 	}
 }
 
+func TestProjectInit(t *testing.T) {
+	name := "project"
+	l := layout.New()
+
+	testCases := []struct {
+		desc          string
+		hasComponents bool
+		opts          []project.Option
+	}{
+		{
+			desc: "inits project with default options",
+		},
+		{
+			desc:          "inits project with layout determied by server",
+			hasComponents: true,
+			opts:          []project.Option{project.WithServer("http")},
+		},
+		{
+			desc: "inits project with custom layout",
+			opts: []project.Option{project.WithLayout(l)},
+		},
+		{
+			desc:          "inits project with custom layout taking priority over category",
+			hasComponents: true,
+			opts:          []project.Option{project.WithLayout(l), project.WithServer("http")},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p := project.New(name, tC.opts...)
+			err := p.Init()
+			assert.NoError(t, err)
+
+			if tC.hasComponents {
+				assert.NotEmpty(t, p.ComponentsNames())
+			} else {
+				assert.Empty(t, p.ComponentsNames())
+			}
+		})
+	}
+	// TODO (ref): inits project with default layout in the existing project directory
+}
+
 func TestProjectBuildFails(t *testing.T) {
 	name := "cheftest" // test project name
 
