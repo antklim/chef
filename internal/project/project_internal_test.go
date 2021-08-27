@@ -263,112 +263,18 @@ func TestProjectInit(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tC.loc, p.loc)
 			if tC.hasComponents {
-				assert.NotEmpty(t, p.components)
+				assert.NotEmpty(t, p.ComponentsNames())
 			} else {
-				assert.Empty(t, p.components)
+				assert.Empty(t, p.ComponentsNames())
 			}
 		})
 	}
 	// TODO (ref): inits project with default layout in the existing project directory
 }
 
-func TestProjectRegisterComponentFails(t *testing.T) {
-	name := "cheftest" // test project name
-	componentName := "handler"
-	tmpl := template.Must(template.New("test").Parse("package foo"))
-
-	testCases := []struct {
-		desc string
-		pgen func() (*Project, error)
-		tmpl *template.Template
-		err  string
-	}{
-		{
-			desc: "when project not inited",
-			pgen: func() (*Project, error) {
-				return New(name), nil
-			},
-			err: "project not inited",
-		},
-		{
-			desc: "when template is nil",
-			pgen: func() (*Project, error) {
-				p := New(name)
-				err := p.Init()
-				return p, err
-			},
-			err: "nil component template",
-		},
-		{
-			desc: "when location does not exist",
-			pgen: func() (*Project, error) {
-				l := layout.New(node.NewDnode("dir"))
-				p := New(name, WithLayout(l))
-				err := p.Init()
-				return p, err
-			},
-			tmpl: tmpl,
-			err:  `"handler" does not exist`,
-		},
-		{
-			desc: "when location cannot have subnodes",
-			pgen: func() (*Project, error) {
-				l := layout.New(node.NewFnode("handler"))
-				p := New(name, WithLayout(l))
-				err := p.Init()
-				return p, err
-			},
-			tmpl: tmpl,
-			err:  `"handler" cannot have subnodes`,
-		},
-	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			p, err := tC.pgen()
-			require.NoError(t, err)
-
-			err = p.RegisterComponent(componentName, "handler", tC.tmpl)
-			require.EqualError(t, err, tC.err)
-			assert.NotContains(t, p.components, componentName)
-		})
-	}
-}
-
 func TestProjectRegisterComponent(t *testing.T) {
-	tmpl := template.Must(template.New("test").Parse("package foo"))
-
-	t.Run("adds component to the list of components", func(t *testing.T) {
-		l := layout.New(node.NewDnode("handler"))
-		p := New("project", WithLayout(l))
-		err := p.Init()
-		require.NoError(t, err)
-
-		{
-			// register handler
-			componentName := "http_handler"
-			err = p.RegisterComponent(componentName, "handler", tmpl)
-			require.NoError(t, err)
-			assert.Contains(t, p.components, componentName)
-		}
-
-		{
-			// register other handler to the same location
-			componentName := "grpc_hander"
-			err = p.RegisterComponent(componentName, "handler", tmpl)
-			require.NoError(t, err)
-			assert.Contains(t, p.components, componentName)
-		}
-
-		{
-			// register to root location
-			componentName := "main.go"
-			err = p.RegisterComponent(componentName, layout.Root, tmpl)
-			require.NoError(t, err)
-			assert.Contains(t, p.components, componentName)
-		}
-	})
-
 	t.Run("overrides an existing component", func(t *testing.T) {
+		tmpl := template.Must(template.New("test").Parse("package foo"))
 		l := layout.New(node.NewDnode("handler"))
 		p := New("project", WithLayout(l))
 		err := p.Init()
@@ -377,13 +283,12 @@ func TestProjectRegisterComponent(t *testing.T) {
 		componentName := "http_handler"
 		err = p.RegisterComponent(componentName, "handler", tmpl)
 		require.NoError(t, err)
+		assert.Equal(t, tmpl, p.components[componentName].template)
 
 		otherTmpl := template.Must(template.New("test2").Parse("package bar"))
 		err = p.RegisterComponent(componentName, "handler", otherTmpl)
 		require.NoError(t, err)
-
-		cmp := p.components[componentName]
-		assert.Equal(t, otherTmpl, cmp.template)
+		assert.Equal(t, otherTmpl, p.components[componentName].template)
 	})
 }
 

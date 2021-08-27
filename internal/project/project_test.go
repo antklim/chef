@@ -5,7 +5,10 @@ import (
 	"os"
 	"path"
 	"testing"
+	"text/template"
 
+	"github.com/antklim/chef/internal/layout"
+	"github.com/antklim/chef/internal/layout/node"
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -117,4 +120,103 @@ func TestProjectBuild(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, nodes)
 	})
+}
+
+func TestProjectRegisterComponentFails(t *testing.T) {
+	name := "cheftest" // test project name
+	componentName := "handler"
+	tmpl := template.Must(template.New("test").Parse("package foo"))
+
+	testCases := []struct {
+		desc string
+		pgen func() (*project.Project, error)
+		tmpl *template.Template
+		err  string
+	}{
+		{
+			desc: "when project not inited",
+			pgen: func() (*project.Project, error) {
+				return project.New(name), nil
+			},
+			err: "project not inited",
+		},
+		{
+			desc: "when template is nil",
+			pgen: func() (*project.Project, error) {
+				p := project.New(name)
+				err := p.Init()
+				return p, err
+			},
+			err: "nil component template",
+		},
+		{
+			desc: "when location does not exist",
+			pgen: func() (*project.Project, error) {
+				l := layout.New(node.NewDnode("dir"))
+				p := project.New(name, project.WithLayout(l))
+				err := p.Init()
+				return p, err
+			},
+			tmpl: tmpl,
+			err:  `"handler" does not exist`,
+		},
+		{
+			desc: "when location cannot have subnodes",
+			pgen: func() (*project.Project, error) {
+				l := layout.New(node.NewFnode("handler"))
+				p := project.New(name, project.WithLayout(l))
+				err := p.Init()
+				return p, err
+			},
+			tmpl: tmpl,
+			err:  `"handler" cannot have subnodes`,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			p, err := tC.pgen()
+			require.NoError(t, err)
+
+			err = p.RegisterComponent(componentName, "handler", tC.tmpl)
+			require.EqualError(t, err, tC.err)
+			assert.NotContains(t, p.ComponentsNames(), componentName)
+		})
+	}
+}
+
+func TestProjectRegisterComponent(t *testing.T) {
+	tmpl := template.Must(template.New("test").Parse("package foo"))
+	l := layout.New(node.NewDnode("handler"))
+	p := project.New("project", project.WithLayout(l))
+	err := p.Init()
+	require.NoError(t, err)
+
+	testCases := []struct {
+		desc          string
+		loc           string
+		componentName string
+	}{
+		{
+			desc:          "registers a handler",
+			loc:           "handler",
+			componentName: "http_handler",
+		},
+		{
+			desc:          "registers other handler to the same location",
+			loc:           "handler",
+			componentName: "grpc_hander",
+		},
+		{
+			desc:          "registers component to root location",
+			loc:           layout.Root,
+			componentName: "main.go",
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			err = p.RegisterComponent(tC.componentName, tC.loc, tmpl)
+			require.NoError(t, err)
+			assert.Contains(t, p.ComponentsNames(), tC.componentName)
+		})
+	}
 }

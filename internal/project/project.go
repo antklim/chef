@@ -139,6 +139,7 @@ func (p *Project) Build() (string, error) {
 }
 
 // RegisterComponent adds a component with the template to the project.
+//
 // After component registered, new layout nodes can be added to project
 // using `EmployComponent` method.
 func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
@@ -212,6 +213,15 @@ func (p *Project) EmployComponent(component, name string) error {
 	}
 
 	return n.Build(path.Join(p.loc, c.loc), data)
+}
+
+// ComponentsNames returns a list of registered components names.
+func (p *Project) ComponentsNames() []string {
+	var names []string
+	for name := range p.components {
+		names = append(names, name)
+	}
+	return names
 }
 
 func (p *Project) build() error {
