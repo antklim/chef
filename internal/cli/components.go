@@ -90,16 +90,16 @@ chef components employ -c http_handler -n bar`,
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
-	// TODO (ref): don't print the stack trace
 	if err := p.Init(); err != nil {
 		return errors.Wrap(err, "init project failed")
 	}
 
 	if err := p.EmployComponent(component, name); err != nil {
-		return errors.Wrap(err, "employ component failed")
+		// TODO: better explanation why employ failed
+		return errors.Wrapf(err, "employ %q component failed", component)
 	}
 
-	fmt.Printf("component %q with the name %q successfully employed\n", component, name)
+	fmt.Printf("successfully added %q as %q component\n", name, component)
 
 	return nil
 }
