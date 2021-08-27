@@ -99,7 +99,7 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 		return errors.Wrap(err, "employ component failed")
 	}
 
-	fmt.Printf("%q component with the name %q successfully employed\n", component, name)
+	fmt.Printf("component %q with the name %q successfully employed\n", component, name)
 
 	return nil
 }
