@@ -14,7 +14,7 @@ func TestComponentsEmployCmdRunner(t *testing.T) {
 		assert.EqualError(t, err, "init project failed: some init error")
 	})
 
-	t.Run("failes when employ component failed", func(t *testing.T) {
+	t.Run("fails when employ component failed", func(t *testing.T) {
 		p := FailedEmployComponent(errors.New("some employ component error"))
 		err := componentsEmployCmdRunner(p, "handler", "health")
 		assert.EqualError(t, err, `employ "handler" component failed: some employ component error`)
