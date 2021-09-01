@@ -15,7 +15,7 @@ var testTmpl = template.Must(template.New("test").Parse("package foo"))
 func ProjectFactory(opts ...project.Option) (*project.Project, error) {
 	dopts := defaultProjectOptions()
 	oopts := make([]project.Option, 0, len(opts)+len(dopts))
-	copy(oopts, dopts)
+	oopts = append(oopts, dopts...)
 	oopts = append(oopts, opts...)
 
 	p := project.New("cheftestapi", oopts...)

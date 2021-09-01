@@ -331,24 +331,8 @@ func TestProjectEmployComponentFails(t *testing.T) {
 }
 
 func TestProjectEmployComponent(t *testing.T) {
-	testTmpl := template.Must(template.New("test").Parse("package foo"))
-
-	testProject := func() (*project.Project, error) {
-		l := layout.New(node.NewDnode("handler"))
-		p := project.New("cheftest", project.WithLayout(l), project.WithRoot(t.TempDir()))
-		if err := p.Init(); err != nil {
-			return nil, err
-		}
-
-		if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
-			return nil, err
-		}
-
-		return p, nil
-	}
-
 	t.Run("adds new component node to a project layout", func(t *testing.T) {
-		p, err := testProject()
+		p, err := testapi.ProjectFactory(project.WithRoot(t.TempDir()))
 		require.NoError(t, err)
 		loc, err := p.Build()
 		require.NoError(t, err)
