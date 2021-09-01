@@ -213,8 +213,6 @@ func TestProjectRegisterComponent(t *testing.T) {
 }
 
 func TestProjectEmployComponent(t *testing.T) {
-	// TODO (ref): in all error cases validate that no new nodes added to project layout
-	// TODO (ref): in succes cases validate node added to layout (node should not have file extensions)
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*Project, error) {
@@ -230,40 +228,6 @@ func TestProjectEmployComponent(t *testing.T) {
 
 		return p, nil
 	}
-
-	t.Run("returns error when project is not inited", func(t *testing.T) {
-		p := New("project")
-		err := p.EmployComponent("foo", "bar")
-		assert.EqualError(t, err, "project not inited")
-	})
-
-	t.Run("returns error when trying to add unknow component type", func(t *testing.T) {
-		p, err := testProject()
-		require.NoError(t, err)
-		err = p.EmployComponent("foo", "bar")
-		assert.EqualError(t, err, `unregistered component "foo"`)
-	})
-
-	t.Run("returns error when node name contains additional periods", func(t *testing.T) {
-		p, err := testProject()
-		require.NoError(t, err)
-		err = p.EmployComponent("http_handler", "echo.bravo.go")
-		assert.EqualError(t, err, "periods not allowed in a file name")
-	})
-
-	t.Run("returns error when project layout does not exist", func(t *testing.T) {
-		p, err := testProject()
-		require.NoError(t, err)
-		err = p.EmployComponent("http_handler", "echo.go")
-		assert.True(t, os.IsNotExist(err))
-	})
-
-	t.Run("returns error when trying to add unknown file extension", func(t *testing.T) {
-		p, err := testProject()
-		require.NoError(t, err)
-		err = p.EmployComponent("http_handler", "echo.cpp")
-		assert.EqualError(t, err, `unknown file extension ".cpp"`)
-	})
 
 	t.Run("adds new component node to a project layout", func(t *testing.T) {
 		p, err := testProject()
@@ -288,18 +252,5 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Len(t, handlersDir, 1)
 		assert.Equal(t, "echo.go", handlersDir[0].Name())
-	})
-
-	t.Run("returns error when component with the given name already exists", func(t *testing.T) {
-		p, err := testProject()
-		require.NoError(t, err)
-		_, err = p.Build()
-		require.NoError(t, err)
-
-		err = p.EmployComponent("http_handler", "echo")
-		assert.NoError(t, err)
-
-		err = p.EmployComponent("http_handler", "echo")
-		assert.EqualError(t, err, `failed to add node to layout: failed to add node to "handler": node "echo.go" already exists`)
 	})
 }
