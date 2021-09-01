@@ -268,12 +268,11 @@ func TestProjectEmployComponentFails(t *testing.T) {
 	// TODO (ref): in all error cases validate that no new nodes added to project layout
 	// TODO (ref): in succes cases validate node added to layout
 
-	name := "cheftest" // test project name
 	testTmpl := template.Must(template.New("test").Parse("package foo"))
 
 	testProject := func() (*project.Project, error) {
 		l := layout.New(node.NewDnode("handler"))
-		p := project.New("project", project.WithLayout(l), project.WithRoot(t.TempDir()))
+		p := project.New("cheftest", project.WithLayout(l), project.WithRoot(t.TempDir()))
 		if err := p.Init(); err != nil {
 			return nil, err
 		}
@@ -295,7 +294,7 @@ func TestProjectEmployComponentFails(t *testing.T) {
 		{
 			desc: "when project is not inited",
 			pgen: func() (*project.Project, error) {
-				return project.New(name), nil
+				return project.New("cheftest"), nil
 			},
 			comp: "foo",
 			name: "bar",
@@ -351,5 +350,48 @@ func TestProjectEmployComponentFails(t *testing.T) {
 
 		err = p.EmployComponent("http_handler", "echo")
 		assert.EqualError(t, err, `failed to add node to layout: failed to add node to "handler": node "echo.go" already exists`)
+	})
+}
+
+func TestProjectEmployComponent(t *testing.T) {
+	testTmpl := template.Must(template.New("test").Parse("package foo"))
+
+	testProject := func() (*project.Project, error) {
+		l := layout.New(node.NewDnode("handler"))
+		p := project.New("cheftest", project.WithLayout(l), project.WithRoot(t.TempDir()))
+		if err := p.Init(); err != nil {
+			return nil, err
+		}
+
+		if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
+			return nil, err
+		}
+
+		return p, nil
+	}
+
+	t.Run("adds new component node to a project layout", func(t *testing.T) {
+		p, err := testProject()
+		require.NoError(t, err)
+		loc, err := p.Build()
+		require.NoError(t, err)
+
+		projectRoot, err := os.ReadDir(loc)
+		assert.NoError(t, err)
+		assert.Len(t, projectRoot, 1)
+		assert.Equal(t, projectRoot[0].Name(), "handler")
+		assert.True(t, projectRoot[0].IsDir())
+
+		handlersDir, err := os.ReadDir(path.Join(loc, "handler"))
+		assert.NoError(t, err)
+		assert.Empty(t, handlersDir)
+
+		err = p.EmployComponent("http_handler", "echo")
+		assert.NoError(t, err)
+
+		handlersDir, err = os.ReadDir(path.Join(loc, "handler"))
+		assert.NoError(t, err)
+		assert.Len(t, handlersDir, 1)
+		assert.Equal(t, "echo.go", handlersDir[0].Name())
 	})
 }
