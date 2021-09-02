@@ -105,7 +105,6 @@ func TestProjectInit(t *testing.T) {
 			}
 		})
 	}
-	// TODO (ref): inits project with default layout in the existing project directory
 }
 
 func TestProjectBuildFails(t *testing.T) {
@@ -266,8 +265,6 @@ func TestProjectRegisterComponent(t *testing.T) {
 }
 
 func TestProjectEmployComponentFails(t *testing.T) {
-	// TODO (ref): in all error cases validate that no new nodes added to project layout
-	// TODO (ref): in succes cases validate node added to layout
 	t.Run("when project is not inited", func(t *testing.T) {
 		p := project.New("cheftest")
 		err := p.EmployComponent("http_handler", "echo.go")
