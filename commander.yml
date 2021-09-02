@@ -3,6 +3,7 @@ config:
   inherit-env: true
 
 tests:
+  # Test 'chef init'
   chef init service in current directory:
     command: chef init -n XYZ -c srv -m cheftest && ls -la XYZ
     exit-code: 0
@@ -31,3 +32,14 @@ tests:
   chef init service in provided directory:
     command: chef init -n XYZ -c srv -m cheftest -r subdir && ls subdir/XYZ
     exit-code: 0
+
+  # Test 'chef components'
+  chef components employ http handler:
+    command: |
+      chef init -n XYZHttpEmploy -c srv -m cheftest -s http
+      cd XYZHttpEmploy
+      chef components employ -c http_handler -n health.go
+    exit-code: 0
+    stdout:
+      contains:
+        - successfully added "health.go" as "http_handler" component

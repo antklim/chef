@@ -11,7 +11,6 @@ import (
 )
 
 // TODO (feat): add register component
-// TODO (ref): add command tests for employ component
 
 var (
 	component = Flag{

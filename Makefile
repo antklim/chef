@@ -47,7 +47,7 @@ run-integration:
 .PHONY: run-integration
 
 integration-cleanup:
-	./scripts/test-cleanup.sh
+	./scripts/integration/test-cleanup.sh
 .PHONY: integration-cleanup
 
 cmd-integration: build $(GOBIN)/commander
