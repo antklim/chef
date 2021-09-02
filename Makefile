@@ -42,6 +42,7 @@ $(GOBIN)/commander:
 	cd && GO111MODULE=auto go get github.com/commander-cli/commander/cmd/commander
 
 run-integration:
+	rm -rf tmp && mkdir -p tmp/subdir
 	commander test commander.yml
 .PHONY: run-integration
 

@@ -1,7 +1,33 @@
 config:
+  dir: ./tmp
   inherit-env: true
 
 tests:
-  chef init:
-    command: chef init -n XYZ -c srv -m cheftest -s http
+  chef init service in current directory:
+    command: chef init -n XYZ -c srv -m cheftest && ls -la XYZ
+    exit-code: 0
+    stdout:
+      contains:
+        - adapter
+        - app
+        - handler
+        - provider
+        - server
+        - test
+
+  chef init http service in current directory:
+    command: chef init -n XYZHttp -c srv -m cheftest -s http && ls -la XYZHttp
+    exit-code: 0
+    stdout:
+      contains:
+        - adapter
+        - app        
+        - handler
+        - provider
+        - server
+        - test
+        - main.go
+
+  chef init service in provided directory:
+    command: chef init -n XYZ -c srv -m cheftest -r subdir && ls subdir/XYZ
     exit-code: 0

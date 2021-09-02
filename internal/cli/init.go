@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO (ref): add commamds tests, use https://github.com/commander-cli/commander
-
 var (
 	projName = Flag{
 		LongForm:   "name",
