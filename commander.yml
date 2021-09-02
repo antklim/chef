@@ -1,0 +1,7 @@
+config:
+  inherit-env: true
+
+tests:
+  chef init:
+    command: chef init -n XYZ -c srv -m cheftest -s http
+    exit-code: 0

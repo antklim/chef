@@ -1,14 +1,23 @@
+# setup variables
+GOBIN ?= $(shell go env GOPATH)/bin
+
 .PHONY: lint
 lint: go-lint ## Run linter
 
 .PHONY: test
 test: go-test ## Run tests
 
+.PHONY: build
+build: go-build ## Build Chef
+
 .PHONY: cov-report
 cov-report: go-cov-report ## View coverage report (HTML version)
 
 .PHONY: cov-report-ci
 cov-report-ci: go-cov-report-ci ## View coverage report (text version for CI)
+
+.PHONY: integration
+integration: cmd-integration ## Chef command integration tests
 
 .PHONY: help
 help:
@@ -20,10 +29,30 @@ go-lint:
 go-test:
 	go test -race -cover -coverprofile=coverage.out -count=1 ./...
 
+go-build:
+	go build -o $(GOBIN)/chef cmd/chef/main.go
+
 go-cov-report:
 	go tool cover -html=coverage.out
 
 go-cov-report-ci:
 	go tool cover -func=coverage.out
+
+$(GOBIN)/commander:
+	cd && GO111MODULE=auto go get github.com/commander-cli/commander/cmd/commander
+
+run-integration:
+	commander test commander.yml
+.PHONY: run-integration
+
+integration-cleanup:
+	./scripts/test-cleanup.sh
+.PHONY: integration-cleanup
+
+cmd-integration: build $(GOBIN)/commander
+	@$(MAKE) run-integration; \
+	ret=$$?; \
+	$(MAKE) integration-cleanup; \
+	exit $$ret
 
 .DEFAULT_GOAL := help
