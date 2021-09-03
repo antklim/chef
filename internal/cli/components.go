@@ -10,7 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO (feat): add register component
+// TODO: by default employ component adds a component to the current
+// directory (assume current directory is a root of the project).
+// Add ability to provide a project name and location.
+
+// TODO: add register component
 
 var (
 	component = Flag{
@@ -50,17 +54,18 @@ func listComponentsCmd() *cobra.Command {
 		Example: `chef components list
 chef components ls`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO (feat): implement list registered components
-			fmt.Println("not implemented")
-			return nil
+			dir, err := os.Getwd()
+			if err != nil {
+				return errors.Wrap(err, "failed to get working directory")
+			}
+			// TODO: project should be inited based on chef.yml
+			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)))
+			return componentsListCmdRunner(p)
 		},
 	}
 
 	return cmd
 }
-
-// TODO (feat): by default this command add component to a current directory (assume current directory is a root of the project)
-// add ability to provide a project name and location
 
 func employComponentCmd() *cobra.Command {
 	var inputs struct {
@@ -80,6 +85,8 @@ chef components employ -c http_handler -n bar`,
 			if err != nil {
 				return errors.Wrap(err, "failed to get working directory")
 			}
+			// TODO: project should be inited based on chef.yml
+			// TODO: when no chef.yml found error should be returned and default layout applied (optionaly)
 			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsEmployCmdRunner(p, inputs.Component, inputs.Name)
 		},
@@ -89,6 +96,26 @@ chef components employ -c http_handler -n bar`,
 	componentName.RegisterString(cmd, &inputs.Name, "")
 
 	return cmd
+}
+
+func componentsListCmdRunner(p Project) error {
+	if err := p.Init(); err != nil {
+		return errors.Wrap(err, "init project failed")
+	}
+
+	// TODO: component should have name, location and description (optional)
+	components := p.ComponentsNames()
+	if len(components) == 0 {
+		fmt.Fprintln(printout, "project does not have registered components")
+		return nil
+	}
+
+	fmt.Println("registered components:")
+	for _, component := range p.ComponentsNames() {
+		fmt.Fprintf(printout, "\t%q\n", component)
+	}
+
+	return nil
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
@@ -101,7 +128,7 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 		return errors.Wrapf(err, "employ %q component failed", component)
 	}
 
-	fmt.Printf("successfully added %q as %q component\n", name, component)
+	fmt.Fprintf(printout, "successfully added %q as %q component\n", name, component)
 
 	return nil
 }

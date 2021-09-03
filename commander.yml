@@ -43,3 +43,5 @@ tests:
     stdout:
       contains:
         - successfully added "health.go" as "http_handler" component
+
+  ## TODO: add list components test

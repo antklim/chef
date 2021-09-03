@@ -1,11 +1,44 @@
 package cli
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestComponentsListCmdRunner(t *testing.T) {
+	t.Run("fails when project init failed", func(t *testing.T) {
+		p := FailedInit(errors.New("some init error"))
+		err := componentsListCmdRunner(p)
+		assert.EqualError(t, err, "init project failed: some init error")
+	})
+
+	t.Run("shows information when no registered components found", func(t *testing.T) {
+		var buf bytes.Buffer
+		printout = &buf
+
+		p := projMock{}
+		err := componentsListCmdRunner(p)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "project does not have registered components\n", buf.String())
+	})
+
+	t.Run("shows a list of registered components", func(t *testing.T) {
+		var buf bytes.Buffer
+		printout = &buf
+
+		p := projMock{cnames: []string{"handler", "test"}}
+		err := componentsListCmdRunner(p)
+		assert.NoError(t, err)
+
+		bufs := buf.String()
+		assert.Contains(t, bufs, "handler")
+		assert.Contains(t, bufs, "test")
+	})
+}
 
 func TestComponentsEmployCmdRunner(t *testing.T) {
 	t.Run("fails when project init failed", func(t *testing.T) {
@@ -21,8 +54,13 @@ func TestComponentsEmployCmdRunner(t *testing.T) {
 	})
 
 	t.Run("successfully employs a component", func(t *testing.T) {
+		var buf bytes.Buffer
+		printout = &buf
+
 		p := projMock{}
 		err := componentsEmployCmdRunner(p, "handler", "health")
 		assert.NoError(t, err)
+
+		assert.Equal(t, "successfully added \"health\" as \"handler\" component\n", buf.String())
 	})
 }

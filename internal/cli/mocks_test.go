@@ -5,6 +5,7 @@ type projMock struct {
 	buildErr error
 	ecErr    error
 	loc      string
+	cnames   []string
 }
 
 func (p projMock) Init() error {
@@ -13,6 +14,10 @@ func (p projMock) Init() error {
 
 func (p projMock) Build() (string, error) {
 	return p.loc, p.buildErr
+}
+
+func (p projMock) ComponentsNames() []string {
+	return p.cnames
 }
 
 func (p projMock) EmployComponent(component, name string) error {
