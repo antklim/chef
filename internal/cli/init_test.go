@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 
@@ -23,8 +24,13 @@ func TestInitCmdRunner(t *testing.T) {
 	})
 
 	t.Run("successfully inits a project", func(t *testing.T) {
-		p := projMock{}
+		var buf bytes.Buffer
+		printout = &buf
+
+		p := projMock{loc: "project_location"}
 		err := initCmdRunner(p)
 		assert.NoError(t, err)
+
+		assert.Equal(t, "project successfully inited at project_location\n", buf.String())
 	})
 }

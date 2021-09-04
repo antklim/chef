@@ -98,7 +98,7 @@ func initCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
-	fmt.Printf("project successfully inited at %s\n", loc)
+	fmt.Fprintf(printout, "project successfully inited at %s\n", loc)
 
 	return nil
 }
