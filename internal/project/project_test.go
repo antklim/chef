@@ -167,16 +167,14 @@ func TestProjectBuild(t *testing.T) {
 
 func TestProjectRegisterComponentFails(t *testing.T) {
 	name := "cheftest" // test project name
-	componentName := "handler"
 	tmpl := template.Must(template.New("test").Parse("package foo"))
 
-	handlerComponent := project.NewComponent("handler", "handler", "", tmpl)
-	noTmplComponent := project.NewComponent("handler", "handler", "", nil)
+	handlerComponent := project.NewComponent("http_handler", "handler", "", tmpl)
+	noTmplComponent := project.NewComponent("http_handler", "handler", "", nil)
 
 	testCases := []struct {
 		desc string
 		pgen func() (*project.Project, error)
-		tmpl *template.Template
 		c    project.Component
 		err  string
 	}{
@@ -206,9 +204,8 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 				err := p.Init()
 				return p, err
 			},
-			tmpl: tmpl,
-			c:    handlerComponent,
-			err:  `"handler" does not exist`,
+			c:   handlerComponent,
+			err: `"handler" does not exist`,
 		},
 		{
 			desc: "when location cannot have subnodes",
@@ -218,9 +215,8 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 				err := p.Init()
 				return p, err
 			},
-			tmpl: tmpl,
-			c:    handlerComponent,
-			err:  `"handler" cannot have subnodes`,
+			c:   handlerComponent,
+			err: `"handler" cannot have subnodes`,
 		},
 	}
 	for _, tC := range testCases {
@@ -230,7 +226,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 
 			err = p.RegisterComponent(tC.c)
 			require.EqualError(t, err, tC.err)
-			assert.NotContains(t, p.ComponentsNames(), componentName)
+			assert.NotContains(t, p.ComponentsNames(), "http_handler")
 		})
 	}
 }
