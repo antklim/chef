@@ -23,7 +23,8 @@ func ProjectFactory(opts ...project.Option) (*project.Project, error) {
 		return nil, err
 	}
 
-	if err := p.RegisterComponent("http_handler", "handler", testTmpl); err != nil {
+	c := project.NewComponent("http_handler", "handler", "HTTP Handler", testTmpl)
+	if err := p.RegisterComponent(c); err != nil {
 		return nil, err
 	}
 

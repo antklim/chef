@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"text/template"
 
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
@@ -92,7 +91,7 @@ type Project struct {
 	opts       projectOptions
 	loc        string
 	lout       *layout.Layout
-	components map[string]component
+	components map[string]Component
 }
 
 // New project creates a new instance of a project.
@@ -107,7 +106,7 @@ func New(name string, opt ...Option) *Project {
 	p := &Project{
 		name:       name,
 		opts:       opts,
-		components: make(map[string]component),
+		components: make(map[string]Component),
 	}
 	return p
 }
@@ -141,32 +140,29 @@ func (p *Project) Build() (string, error) {
 	return p.loc, nil
 }
 
-// RegisterComponent adds a component with the template to the project.
+// RegisterComponent adds a component to the project.
 //
 // After component registered, new layout nodes can be added to project
 // using `EmployComponent` method.
-func (p *Project) RegisterComponent(componentName, loc string, t *template.Template) error {
+func (p *Project) RegisterComponent(c Component) error {
 	if !p.inited {
 		return errNotInited
 	}
 
-	if t == nil {
+	// TODO: replace with HasTemplate method
+	if c.tmpl == nil {
 		return errComponentTemplateNil
 	}
 
-	n := p.lout.FindNode(loc)
+	n := p.lout.FindNode(c.loc)
 	if n == nil {
-		return fmt.Errorf("%q does not exist", loc)
+		return fmt.Errorf("%q does not exist", c.loc)
 	}
 	if _, ok := n.(node.Adder); !ok {
-		return fmt.Errorf("%q cannot have subnodes", loc)
+		return fmt.Errorf("%q cannot have subnodes", c.loc)
 	}
 
-	p.components[componentName] = component{
-		loc:      loc,
-		name:     componentName,
-		template: t,
-	}
+	p.components[c.name] = c
 
 	return nil
 }
@@ -203,7 +199,7 @@ func (p *Project) EmployComponent(component, name string) error {
 	// TODO (feat): nodes should be added by name. File name extensions should be added
 	// at build time depending on template/component.
 
-	n := node.NewFnode(nname, node.WithTemplate(c.template))
+	n := node.NewFnode(nname, node.WithTemplate(c.tmpl))
 	if err := p.lout.AddNode(n, c.loc); err != nil {
 		return errors.Wrap(err, "failed to add node to layout")
 	}

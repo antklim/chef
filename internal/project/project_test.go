@@ -170,10 +170,14 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 	componentName := "handler"
 	tmpl := template.Must(template.New("test").Parse("package foo"))
 
+	handlerComponent := project.NewComponent("handler", "handler", "", tmpl)
+	noTmplComponent := project.NewComponent("handler", "handler", "", nil)
+
 	testCases := []struct {
 		desc string
 		pgen func() (*project.Project, error)
 		tmpl *template.Template
+		c    project.Component
 		err  string
 	}{
 		{
@@ -181,6 +185,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 			pgen: func() (*project.Project, error) {
 				return project.New(name), nil
 			},
+			c:   noTmplComponent,
 			err: "project not inited",
 		},
 		{
@@ -190,6 +195,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 				err := p.Init()
 				return p, err
 			},
+			c:   noTmplComponent,
 			err: "nil component template",
 		},
 		{
@@ -201,6 +207,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 				return p, err
 			},
 			tmpl: tmpl,
+			c:    handlerComponent,
 			err:  `"handler" does not exist`,
 		},
 		{
@@ -212,6 +219,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 				return p, err
 			},
 			tmpl: tmpl,
+			c:    handlerComponent,
 			err:  `"handler" cannot have subnodes`,
 		},
 	}
@@ -220,7 +228,7 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 			p, err := tC.pgen()
 			require.NoError(t, err)
 
-			err = p.RegisterComponent(componentName, "handler", tC.tmpl)
+			err = p.RegisterComponent(tC.c)
 			require.EqualError(t, err, tC.err)
 			assert.NotContains(t, p.ComponentsNames(), componentName)
 		})
@@ -238,26 +246,30 @@ func TestProjectRegisterComponent(t *testing.T) {
 		desc          string
 		loc           string
 		componentName string
+		c             project.Component
 	}{
 		{
 			desc:          "registers a handler",
 			loc:           "handler",
 			componentName: "http_handler",
+			c:             project.NewComponent("http_handler", "handler", "", tmpl),
 		},
 		{
 			desc:          "registers other handler to the same location",
 			loc:           "handler",
 			componentName: "grpc_hander",
+			c:             project.NewComponent("grpc_hander", "handler", "", tmpl),
 		},
 		{
 			desc:          "registers component to root location",
 			loc:           layout.Root,
 			componentName: "main.go",
+			c:             project.NewComponent("main.go", layout.Root, "", tmpl),
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			err = p.RegisterComponent(tC.componentName, tC.loc, tmpl)
+			err = p.RegisterComponent(tC.c)
 			require.NoError(t, err)
 			assert.Contains(t, p.ComponentsNames(), tC.componentName)
 		})

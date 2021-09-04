@@ -87,19 +87,19 @@ func TestProjectSetComponents(t *testing.T) {
 	testCases := []struct {
 		desc string
 		p    *Project
-		a    func(*testing.T, map[string]component)
+		a    func(*testing.T, map[string]Component)
 	}{
 		{
 			desc: "sets components for default project",
 			p:    New("test"),
-			a: func(t *testing.T, c map[string]component) {
+			a: func(t *testing.T, c map[string]Component) {
 				assert.Empty(t, c)
 			},
 		},
 		{
 			desc: "sets components for http service project",
 			p:    New("test1", WithCategory("srv"), WithServer("http")),
-			a: func(t *testing.T, c map[string]component) {
+			a: func(t *testing.T, c map[string]Component) {
 				assert.NotEmpty(t, c)
 			},
 		},
@@ -200,14 +200,15 @@ func TestProjectRegisterComponent(t *testing.T) {
 		err := p.Init()
 		require.NoError(t, err)
 
-		componentName := "http_handler"
-		err = p.RegisterComponent(componentName, "handler", tmpl)
+		c := NewComponent("http_handler", "handler", "HTTP Handler", tmpl)
+		err = p.RegisterComponent(c)
 		require.NoError(t, err)
-		assert.Equal(t, tmpl, p.components[componentName].template)
+		assert.Equal(t, tmpl, p.components[c.name].tmpl)
 
 		otherTmpl := template.Must(template.New("test2").Parse("package bar"))
-		err = p.RegisterComponent(componentName, "handler", otherTmpl)
+		c = NewComponent("http_handler", "handler", "HTTP Handler", otherTmpl)
+		err = p.RegisterComponent(c)
 		require.NoError(t, err)
-		assert.Equal(t, otherTmpl, p.components[componentName].template)
+		assert.Equal(t, otherTmpl, p.components[c.name].tmpl)
 	})
 }
