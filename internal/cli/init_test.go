@@ -8,8 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: add fmt output test
-
 func TestInitCmdRunner(t *testing.T) {
 	t.Run("fails when project init failed", func(t *testing.T) {
 		p := FailedInit(errors.New("some init error"))
