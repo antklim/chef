@@ -4,8 +4,16 @@ config:
 
 tests:
   # Test 'chef init'
-  chef init service in current directory:
-    command: chef init -n XYZ -c srv -m cheftest && ls -la XYZ
+  chef init default service in current directory:
+    command: chef init -n XYZ -c srv -m cheftest
+    exit-code: 0
+    stdout:
+      contains:
+        - project successfully inited at
+        - tmp/XYZ
+
+  chef verify default service layout:
+    command: ls -la XYZ
     exit-code: 0
     stdout:
       contains:
@@ -17,7 +25,15 @@ tests:
         - test
 
   chef init http service in current directory:
-    command: chef init -n XYZHttp -c srv -m cheftest -s http && ls -la XYZHttp
+    command: chef init -n XYZHttp -c srv -m cheftest -s http
+    exit-code: 0
+    stdout:
+      contains:
+        - project successfully inited at
+        - tmp/XYZHttp
+
+  chef verify http service layout:
+    command: ls -la XYZHttp
     exit-code: 0
     stdout:
       contains:
@@ -29,9 +45,13 @@ tests:
         - test
         - main.go
 
-  chef init service in provided directory:
-    command: chef init -n XYZ -c srv -m cheftest -r subdir && ls subdir/XYZ
+  chef init default service in provided directory:
+    command: chef init -n XYZ -c srv -m cheftest -r subdir
     exit-code: 0
+    stdout:
+      contains:
+        - project successfully inited at
+        - subdir/XYZ
 
   # Test 'chef components'
   chef components employ http handler:

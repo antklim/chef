@@ -272,6 +272,7 @@ func (p *Project) setLocation() error {
 		root = cwd
 	}
 
+	// TODO: get full path of the root (currently it uses relative path)
 	fi, err := os.Stat(root)
 	if err != nil {
 		return err
