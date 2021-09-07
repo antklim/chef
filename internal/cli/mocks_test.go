@@ -1,11 +1,13 @@
 package cli
 
+import "github.com/antklim/chef/internal/project"
+
 type projMock struct {
-	initErr  error
-	buildErr error
-	ecErr    error
-	loc      string
-	cnames   []string
+	initErr    error
+	buildErr   error
+	ecErr      error
+	loc        string
+	components []project.Component
 }
 
 func (p projMock) Init() error {
@@ -16,8 +18,8 @@ func (p projMock) Build() (string, error) {
 	return p.loc, p.buildErr
 }
 
-func (p projMock) ComponentsNames() []string {
-	return p.cnames
+func (p projMock) Components() []project.Component {
+	return p.components
 }
 
 func (p projMock) EmployComponent(component, name string) error {

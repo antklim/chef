@@ -214,15 +214,6 @@ func (p *Project) EmployComponent(component, name string) error {
 	return n.Build(path.Join(p.loc, c.Loc), data)
 }
 
-// ComponentsNames returns a list of registered components names.
-func (p *Project) ComponentsNames() []string {
-	var names []string
-	for name := range p.components {
-		names = append(names, name)
-	}
-	return names
-}
-
 // Components returns a list of registered components sorted by component name.
 func (p *Project) Components() []Component {
 	names := make([]string, 0, len(p.components))

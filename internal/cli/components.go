@@ -104,15 +104,15 @@ func componentsListCmdRunner(p Project) error {
 	}
 
 	// TODO: component should have name, location and description (optional)
-	components := p.ComponentsNames()
+	components := p.Components()
 	if len(components) == 0 {
 		fmt.Fprintln(printout, "project does not have registered components")
 		return nil
 	}
 
 	fmt.Println("registered components:")
-	for _, component := range p.ComponentsNames() {
-		fmt.Fprintf(printout, "\t%q\n", component)
+	for _, component := range p.Components() {
+		fmt.Fprintf(printout, "\t%q\n", component.Name)
 	}
 
 	return nil

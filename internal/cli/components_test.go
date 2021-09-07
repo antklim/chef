@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,14 @@ func TestComponentsListCmdRunner(t *testing.T) {
 		var buf bytes.Buffer
 		printout = &buf
 
-		p := projMock{cnames: []string{"handler", "test"}}
+		p := projMock{components: []project.Component{
+			{
+				Name: "handler",
+			},
+			{
+				Name: "test",
+			},
+		}}
 		err := componentsListCmdRunner(p)
 		assert.NoError(t, err)
 

@@ -3,6 +3,8 @@ package cli
 import (
 	"io"
 	"os"
+
+	"github.com/antklim/chef/internal/project"
 )
 
 var printout io.Writer = os.Stdout
@@ -10,6 +12,6 @@ var printout io.Writer = os.Stdout
 type Project interface {
 	Init() error
 	Build() (string, error)
-	ComponentsNames() []string // TODO: replace with components
+	Components() []project.Component
 	EmployComponent(string, string) error
 }
