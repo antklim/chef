@@ -36,3 +36,14 @@ func defaultProjectOptions() []project.Option {
 	opts := []project.Option{project.WithLayout(l)}
 	return opts
 }
+
+// FindComponent finds and returns the first component at which f(c) is true.
+// If component not found it returns nil.
+func FindComponent(components []project.Component, f func(project.Component) bool) *project.Component {
+	for _, c := range components {
+		if f(c) {
+			return &c
+		}
+	}
+	return nil
+}

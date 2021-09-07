@@ -99,11 +99,9 @@ func TestProjectInit(t *testing.T) {
 			assert.NoError(t, err)
 
 			if tC.hasComponents {
-				// components := p.Components()
-				// assert.True(t, len(components))
-				assert.NotEmpty(t, p.ComponentsNames()) // TODO: replace with components
+				assert.NotEmpty(t, p.Components())
 			} else {
-				assert.Empty(t, p.ComponentsNames()) // TODO: replace with components
+				assert.Empty(t, p.Components())
 			}
 		})
 	}
@@ -227,8 +225,11 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 			require.NoError(t, err)
 
 			err = p.RegisterComponent(tC.c)
-			require.EqualError(t, err, tC.err)
-			assert.NotContains(t, p.ComponentsNames(), "http_handler") // TODO: replace with components
+			assert.EqualError(t, err, tC.err)
+
+			components := p.Components()
+			component := testapi.FindComponent(components, func(c project.Component) bool { return c.Name == "http_handler" })
+			assert.Nil(t, component)
 		})
 	}
 }
@@ -270,7 +271,10 @@ func TestProjectRegisterComponent(t *testing.T) {
 		t.Run(tC.desc, func(t *testing.T) {
 			err = p.RegisterComponent(tC.c)
 			require.NoError(t, err)
-			assert.Contains(t, p.ComponentsNames(), tC.componentName) // TODO: replace with components
+
+			components := p.Components()
+			component := testapi.FindComponent(components, func(c project.Component) bool { return c.Name == tC.componentName })
+			assert.NotNil(t, component)
 		})
 	}
 }
