@@ -99,9 +99,11 @@ func TestProjectInit(t *testing.T) {
 			assert.NoError(t, err)
 
 			if tC.hasComponents {
-				assert.NotEmpty(t, p.ComponentsNames())
+				// components := p.Components()
+				// assert.True(t, len(components))
+				assert.NotEmpty(t, p.ComponentsNames()) // TODO: replace with components
 			} else {
-				assert.Empty(t, p.ComponentsNames())
+				assert.Empty(t, p.ComponentsNames()) // TODO: replace with components
 			}
 		})
 	}
@@ -226,12 +228,13 @@ func TestProjectRegisterComponentFails(t *testing.T) {
 
 			err = p.RegisterComponent(tC.c)
 			require.EqualError(t, err, tC.err)
-			assert.NotContains(t, p.ComponentsNames(), "http_handler")
+			assert.NotContains(t, p.ComponentsNames(), "http_handler") // TODO: replace with components
 		})
 	}
 }
 
 func TestProjectRegisterComponent(t *testing.T) {
+	// TODO (ref): replace with testapi project factory
 	tmpl := template.Must(template.New("test").Parse("package foo"))
 	l := layout.New(node.NewDnode("handler"))
 	p := project.New("project", project.WithLayout(l))
@@ -253,8 +256,8 @@ func TestProjectRegisterComponent(t *testing.T) {
 		{
 			desc:          "registers other handler to the same location",
 			loc:           "handler",
-			componentName: "grpc_hander",
-			c:             project.NewComponent("grpc_hander", "handler", "", tmpl),
+			componentName: "grpc_handler",
+			c:             project.NewComponent("grpc_handler", "handler", "", tmpl),
 		},
 		{
 			desc:          "registers component to root location",
@@ -267,7 +270,7 @@ func TestProjectRegisterComponent(t *testing.T) {
 		t.Run(tC.desc, func(t *testing.T) {
 			err = p.RegisterComponent(tC.c)
 			require.NoError(t, err)
-			assert.Contains(t, p.ComponentsNames(), tC.componentName)
+			assert.Contains(t, p.ComponentsNames(), tC.componentName) // TODO: replace with components
 		})
 	}
 }
@@ -360,4 +363,21 @@ func TestProjectEmployComponent(t *testing.T) {
 		assert.Len(t, handlersDir, 1)
 		assert.Equal(t, "echo.go", handlersDir[0].Name())
 	})
+}
+
+func TestComponents(t *testing.T) {
+	p, err := testapi.ProjectFactory()
+	require.NoError(t, err)
+
+	tmpl := template.Must(template.New("test").Parse("package foo"))
+	grpcHandler := project.NewComponent("grpc_handler", "handler", "", tmpl)
+	err = p.RegisterComponent(grpcHandler)
+	require.NoError(t, err)
+
+	expected := []string{"grpc_handler", "http_handler"} // sorted list of components names
+	components := p.Components()
+	assert.Equal(t, len(components), len(expected))
+	for i, name := range expected {
+		assert.Equal(t, name, components[i].Name)
+	}
 }

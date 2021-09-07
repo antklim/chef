@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/antklim/chef/internal/layout"
@@ -149,20 +150,19 @@ func (p *Project) RegisterComponent(c Component) error {
 		return errNotInited
 	}
 
-	// TODO: replace with HasTemplate method
-	if c.tmpl == nil {
+	if c.Tmpl == nil {
 		return errComponentTemplateNil
 	}
 
-	n := p.lout.FindNode(c.loc)
+	n := p.lout.FindNode(c.Loc)
 	if n == nil {
-		return fmt.Errorf("%q does not exist", c.loc)
+		return fmt.Errorf("%q does not exist", c.Loc)
 	}
 	if _, ok := n.(node.Adder); !ok {
-		return fmt.Errorf("%q cannot have subnodes", c.loc)
+		return fmt.Errorf("%q cannot have subnodes", c.Loc)
 	}
 
-	p.components[c.name] = c
+	p.components[c.Name] = c
 
 	return nil
 }
@@ -199,8 +199,8 @@ func (p *Project) EmployComponent(component, name string) error {
 	// TODO (feat): nodes should be added by name. File name extensions should be added
 	// at build time depending on template/component.
 
-	n := node.NewFnode(nname, node.WithTemplate(c.tmpl))
-	if err := p.lout.AddNode(n, c.loc); err != nil {
+	n := node.NewFnode(nname, node.WithTemplate(c.Tmpl))
+	if err := p.lout.AddNode(n, c.Loc); err != nil {
 		return errors.Wrap(err, "failed to add node to layout")
 	}
 
@@ -211,7 +211,7 @@ func (p *Project) EmployComponent(component, name string) error {
 		Path: "/" + tname,
 	}
 
-	return n.Build(path.Join(p.loc, c.loc), data)
+	return n.Build(path.Join(p.loc, c.Loc), data)
 }
 
 // ComponentsNames returns a list of registered components names.
@@ -221,6 +221,23 @@ func (p *Project) ComponentsNames() []string {
 		names = append(names, name)
 	}
 	return names
+}
+
+// Components returns a list of registered components sorted by component name.
+func (p *Project) Components() []Component {
+	names := make([]string, 0, len(p.components))
+	for name := range p.components {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	components := make([]Component, 0, len(p.components))
+	for _, name := range names {
+		components = append(components, p.components[name])
+	}
+
+	return components
 }
 
 func (p *Project) build() error {

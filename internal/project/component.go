@@ -12,18 +12,18 @@ const (
 )
 
 type Component struct {
-	name string
-	loc  string
-	desc string
-	tmpl *template.Template
+	Name string
+	Loc  string
+	Desc string
+	Tmpl *template.Template
 }
 
 func NewComponent(name, loc, desc string, tmpl *template.Template) Component {
 	return Component{
-		name: name,
-		loc:  loc,
-		desc: desc,
-		tmpl: tmpl,
+		Name: name,
+		Loc:  loc,
+		Desc: desc,
+		Tmpl: tmpl,
 	}
 }
 
@@ -43,10 +43,10 @@ type httpServiceComponets struct{}
 func (httpServiceComponets) makeComponents() map[string]Component {
 	c := make(map[string]Component)
 	c[httpHandler] = Component{
-		loc:  path.Join(dirHandler, dirHTTP),
-		name: httpHandler,
-		desc: "HTTP handler",
-		tmpl: templ.Get(templ.HTTPEndpoint),
+		Name: httpHandler,
+		Loc:  path.Join(dirHandler, dirHTTP),
+		Desc: "HTTP handler",
+		Tmpl: templ.Get(templ.HTTPEndpoint),
 	}
 	return c
 }

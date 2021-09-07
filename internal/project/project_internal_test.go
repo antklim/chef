@@ -203,12 +203,12 @@ func TestProjectRegisterComponent(t *testing.T) {
 		c := NewComponent("http_handler", "handler", "HTTP Handler", tmpl)
 		err = p.RegisterComponent(c)
 		require.NoError(t, err)
-		assert.Equal(t, tmpl, p.components[c.name].tmpl)
+		assert.Equal(t, tmpl, p.components[c.Name].Tmpl)
 
 		otherTmpl := template.Must(template.New("test2").Parse("package bar"))
 		c = NewComponent("http_handler", "handler", "HTTP Handler", otherTmpl)
 		err = p.RegisterComponent(c)
 		require.NoError(t, err)
-		assert.Equal(t, otherTmpl, p.components[c.name].tmpl)
+		assert.Equal(t, otherTmpl, p.components[c.Name].Tmpl)
 	})
 }
