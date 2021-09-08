@@ -64,4 +64,5 @@ tests:
       contains:
         - successfully added "health.go" as "http_handler" component
 
-  ## TODO: add list components test
+  ## TODO: add list components test after checf.yml implemented
+  ## (it will provide information about registered components of existing project)
