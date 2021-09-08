@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/antklim/chef/internal/display"
 	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -59,7 +60,7 @@ chef components ls`,
 				return errors.Wrap(err, "failed to get working directory")
 			}
 			// TODO: project should be inited based on chef.yml
-			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)))
+			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsListCmdRunner(p)
 		},
 	}
@@ -103,19 +104,7 @@ func componentsListCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
-	// TODO: component should have name, location and description (optional)
-	components := p.Components()
-	if len(components) == 0 {
-		fmt.Fprintln(printout, "project does not have registered components")
-		return nil
-	}
-
-	fmt.Println("registered components:")
-	for _, component := range p.Components() {
-		fmt.Fprintf(printout, "\t%q\n", component.Name)
-	}
-
-	return nil
+	return display.ComponentsList(printout, p.Components())
 }
 
 func componentsEmployCmdRunner(p Project, component, name string) error {
@@ -128,6 +117,7 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 		return errors.Wrapf(err, "employ %q component failed", component)
 	}
 
+	// TODO (ref): replace with display
 	fmt.Fprintf(printout, "successfully added %q as %q component\n", name, component)
 
 	return nil

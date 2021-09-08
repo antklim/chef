@@ -98,6 +98,7 @@ func initCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
+	// TODO (ref): replace with display
 	fmt.Fprintf(printout, "project successfully inited at %s\n", loc)
 
 	return nil
