@@ -1,33 +1,15 @@
 package display
 
-import (
-	"io"
+import "text/tabwriter"
+
+// the following are tabwriter init parameters
+const (
+	minwidth      = 0    // minimal cell width including any padding
+	tabwidth      = 8    // width of tab characters (equivalent number of spaces)
+	padding       = 0    // padding added to a cell before computing its width
+	padchar  byte = '\t' // ASCII char used for padding
+	flags         = 0    // formatting control
 )
 
-type Displayer interface {
-	Display(interface{}) error
-}
-
-type View interface {
-	Header(io.Writer) error
-	Body(io.Writer, interface{}) error
-}
-
-type Renderer struct {
-	w io.Writer
-}
-
-func NewRenderer(w io.Writer) *Renderer {
-	return &Renderer{w: w}
-}
-
-func (r *Renderer) Render(view View, v interface{}) error {
-	if err := view.Header(r.w); err != nil {
-		return err
-	}
-
-	if err := view.Body(r.w, v); err != nil {
-		return err
-	}
-	return nil
-}
+// a tabwriter instance
+var tw = new(tabwriter.Writer)

@@ -1,3 +1,3 @@
-// Package display contains notation to format results of various Chef commands,
-// and render it in CLI.
+// Package display contains display functions to render results of various Chef
+// commands.
 package display
