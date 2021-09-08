@@ -1,6 +1,9 @@
 package display
 
-import "text/tabwriter"
+import (
+	"io"
+	"text/tabwriter"
+)
 
 // the following are tabwriter init parameters
 const (
@@ -13,3 +16,20 @@ const (
 
 // a tabwriter instance
 var tw = new(tabwriter.Writer)
+
+// errorWriter is helper structure that provide wraps io.Writer and handles
+// errors occurred during Write.
+type errorWriter struct {
+	io.Writer
+	err error
+}
+
+func (e *errorWriter) Write(buf []byte) (int, error) {
+	if e.err != nil {
+		return 0, e.err
+	}
+
+	var n int
+	n, e.err = e.Writer.Write(buf)
+	return n, e.err
+}

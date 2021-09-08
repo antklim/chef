@@ -16,17 +16,6 @@ func TestComponentsListCmdRunner(t *testing.T) {
 		assert.EqualError(t, err, "init project failed: some init error")
 	})
 
-	t.Run("shows information when no registered components found", func(t *testing.T) {
-		var buf bytes.Buffer
-		printout = &buf
-
-		p := projMock{}
-		err := componentsListCmdRunner(p)
-		assert.NoError(t, err)
-
-		assert.Equal(t, "project does not have registered components\n", buf.String())
-	})
-
 	t.Run("shows a list of registered components", func(t *testing.T) {
 		var buf bytes.Buffer
 		printout = &buf

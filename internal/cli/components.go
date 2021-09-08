@@ -104,14 +104,6 @@ func componentsListCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
-	// TODO: component should have name, location and description (optional)
-	components := p.Components()
-	if len(components) == 0 {
-		fmt.Fprintln(printout, "project does not have registered components")
-		return nil
-	}
-
-	fmt.Println("registered components:")
 	return display.ComponentsList(printout, p.Components())
 }
 
@@ -125,6 +117,7 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 		return errors.Wrapf(err, "employ %q component failed", component)
 	}
 
+	// TODO (ref): replace with display
 	fmt.Fprintf(printout, "successfully added %q as %q component\n", name, component)
 
 	return nil

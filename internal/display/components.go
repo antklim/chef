@@ -7,21 +7,33 @@ import (
 	"github.com/antklim/chef/internal/project"
 )
 
-const componentListFormat = "%s\t%s\t%s\n"
+const (
+	componentsListTitle    = "registered components:"
+	componentsListFormat   = "%s\t%s\t%s\n"
+	componentsEmptyListMsg = "\tproject does not have registered components"
+)
 
 func ComponentsList(w io.Writer, components []project.Component) error {
-	tw.Init(w, minwidth, tabwidth, padding, padchar, flags)
-	_, err := fmt.Fprintf(tw, componentListFormat, "NAME", "LOCATION", "DESCRIPTION")
-	if err != nil {
+	ew := &errorWriter{Writer: w}
+
+	fmt.Fprintln(ew, componentsListTitle)
+
+	if len(components) == 0 {
+		fmt.Fprintln(ew, componentsEmptyListMsg)
+		return ew.err
+	}
+
+	tw.Init(ew, minwidth, tabwidth, padding, padchar, flags)
+
+	fmt.Fprintf(tw, componentsListFormat, "NAME", "LOCATION", "DESCRIPTION")
+
+	for _, component := range components {
+		fmt.Fprintf(tw, componentsListFormat, component.Name, component.Loc, component.Desc)
+	}
+
+	if err := tw.Flush(); err != nil {
 		return err
 	}
 
-	for _, component := range components {
-		_, err := fmt.Fprintf(tw, componentListFormat, component.Name, component.Loc, component.Desc)
-		if err != nil {
-			return err
-		}
-	}
-
-	return tw.Flush()
+	return ew.err
 }

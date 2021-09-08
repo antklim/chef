@@ -10,15 +10,25 @@ import (
 )
 
 func TestComponentsList(t *testing.T) {
-	components := []project.Component{
-		{Name: "header", Loc: "internal/header", Desc: "header component"},
-		{Name: "test", Loc: "test", Desc: "project tests"},
-	}
+	t.Run("displays a components list", func(t *testing.T) {
+		components := []project.Component{
+			{Name: "header", Loc: "internal/header", Desc: "header component"},
+			{Name: "test", Loc: "test", Desc: "project tests"},
+		}
 
-	var buf bytes.Buffer
-	err := display.ComponentsList(&buf, components)
-	assert.NoError(t, err)
+		var buf bytes.Buffer
+		err := display.ComponentsList(&buf, components)
+		assert.NoError(t, err)
 
-	expected := "NAME\tLOCATION\tDESCRIPTION\nheader\tinternal/header\theader component\ntest\ttest\t\tproject tests\n"
-	assert.Equal(t, expected, buf.String())
+		expected := "registered components:\n" +
+			"NAME\tLOCATION\tDESCRIPTION\nheader\tinternal/header\theader component\ntest\ttest\t\tproject tests\n"
+		assert.Equal(t, expected, buf.String())
+	})
+
+	t.Run("displays an information message when a components list is empty", func(t *testing.T) {
+		var buf bytes.Buffer
+		err := display.ComponentsList(&buf, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, "registered components:\n\tproject does not have registered components\n", buf.String())
+	})
 }
