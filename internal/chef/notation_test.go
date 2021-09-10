@@ -20,3 +20,18 @@ category: srv
 server: http`
 	assert.YAMLEq(t, expected, buf.String())
 }
+
+func TestReadNotation(t *testing.T) {
+	var buf bytes.Buffer
+	buf.WriteString(`version: 1.0
+category: srv
+server: http`)
+
+	expected := chef.Notation{
+		Category: "srv",
+		Server:   "http",
+	}
+	notation, err := chef.ReadNotation(&buf)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, notation)
+}
