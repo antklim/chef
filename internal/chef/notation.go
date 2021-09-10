@@ -6,27 +6,24 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type notation struct {
-	Version  string
-	Category string
-	Server   string
-}
-
 // Notation defines chef project notation.
 type Notation struct {
 	Category string
 	Server   string
 }
 
+// Write writes notation to provided output.
 func (n Notation) Write(w io.Writer) error {
-	nn := notation{
+	notation := struct {
+		Version  string
+		Notation `yaml:",inline"`
+	}{
 		Version:  version,
-		Category: n.Category,
-		Server:   n.Server,
+		Notation: n,
 	}
 
 	enc := yaml.NewEncoder(w)
-	if err := enc.Encode(nn); err != nil {
+	if err := enc.Encode(notation); err != nil {
 		return err
 	}
 

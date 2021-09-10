@@ -10,8 +10,13 @@ import (
 
 func TestNotationWrite(t *testing.T) {
 	n := chef.Notation{Category: "srv", Server: "http"}
+
 	var buf bytes.Buffer
 	err := n.Write(&buf)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, buf.String())
+
+	expected := `version: unknown
+category: srv
+server: http`
+	assert.YAMLEq(t, expected, buf.String())
 }
