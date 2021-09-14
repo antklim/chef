@@ -1,6 +1,8 @@
 # setup variables
 GOBIN ?= $(shell go env GOPATH)/bin
 
+# TODO (notation): set notation version
+
 .PHONY: lint
 lint: go-lint ## Run linter
 

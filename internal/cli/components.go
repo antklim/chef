@@ -59,7 +59,7 @@ chef components ls`,
 			if err != nil {
 				return errors.Wrap(err, "failed to get working directory")
 			}
-			// TODO: project should be inited based on chef.yml
+			// TODO (notation): project should be inited based on chef.yml
 			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsListCmdRunner(p)
 		},
@@ -86,8 +86,8 @@ chef components employ -c http_handler -n bar`,
 			if err != nil {
 				return errors.Wrap(err, "failed to get working directory")
 			}
-			// TODO: project should be inited based on chef.yml
-			// TODO: when no chef.yml found error should be returned and default layout applied (optionaly)
+			// TODO (notation): project should be inited based on chef.yml
+			// TODO (notation): when no chef.yml found error should be returned and default layout applied (optionaly)
 			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsEmployCmdRunner(p, inputs.Component, inputs.Name)
 		},

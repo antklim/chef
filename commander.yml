@@ -23,6 +23,7 @@ tests:
         - provider
         - server
         - test
+        - .chef.yml
 
   chef init http service in current directory:
     command: chef init -n XYZHttp -c srv -m cheftest -s http
@@ -44,6 +45,7 @@ tests:
         - server
         - test
         - main.go
+        - .chef.yml
 
   chef init default service in provided directory:
     command: chef init -n XYZ -c srv -m cheftest -r subdir
@@ -64,5 +66,5 @@ tests:
       contains:
         - successfully added "health.go" as "http_handler" component
 
-  ## TODO: add list components test after checf.yml implemented
+  ## TODO (notation): add list components test after checf.yml implemented
   ## (it will provide information about registered components of existing project)

@@ -14,12 +14,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO: write layout settings to yaml
-// TODO: read layout settings from yaml
-// TODO: test/build generated go code
-// TODO: support functionality of bring your own templates
+// TODO (notation): read layout settings from yaml
 // TODO: init project with go.mod (when Go lang selected)
+// TODO: test/build generated go code
 // TODO: make layout and components pluggable
+// TODO: support functionality of bring your own templates
 
 const (
 	categoryUnknown = "unknown"
