@@ -6,6 +6,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// TODO: split notation into parts - generic information like category and
+// language specific information like module name.
+
+// TODO: add notation builders specializing on language/tech: NewGoNotation ...
+
+// DefaultNotationName is a default file name to store notation.
+const DefaultNotationName = ".chef.yml"
+
 type notation struct {
 	Version  string
 	Notation `yaml:",inline"`
@@ -14,7 +22,8 @@ type notation struct {
 // Notation defines chef project notation.
 type Notation struct {
 	Category string
-	Server   string
+	Server   string `yaml:",omitempty"`
+	Module   string `yaml:",omitempty"` // Go module name
 }
 
 // Write writes notation to provided output.
