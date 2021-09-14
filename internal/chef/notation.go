@@ -12,7 +12,7 @@ import (
 // TODO: add notation builders specializing on language/tech: NewGoNotation ...
 
 // DefaultNotationName is a default file name to store notation.
-const DefaultNotationName = ".chef.yml"
+const DefaultNotationFileName = ".chef.yml"
 
 type notation struct {
 	Version  string

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
 	"github.com/antklim/chef/internal/project"
@@ -152,7 +153,9 @@ func TestProjectBuildFails(t *testing.T) {
 func TestProjectBuild(t *testing.T) {
 	t.Run("builds project", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		p := project.New("project", project.WithRoot(tmpDir))
+		p := project.New("project",
+			project.WithRoot(tmpDir),
+			project.WithModule("project.git"))
 		err := p.Init()
 		require.NoError(t, err)
 
@@ -162,6 +165,16 @@ func TestProjectBuild(t *testing.T) {
 		nodes, err := os.ReadDir(loc)
 		require.NoError(t, err)
 		assert.NotEmpty(t, nodes)
+
+		nf := path.Join(loc, chef.DefaultNotationFileName)
+		f, err := os.Open(nf)
+		require.NoError(t, err)
+
+		n, err := chef.ReadNotation(f)
+		require.NoError(t, err)
+
+		assert.Equal(t, "srv", n.Category)
+		assert.Equal(t, "project.git", n.Module)
 	})
 }
 
@@ -351,9 +364,13 @@ func TestProjectEmployComponent(t *testing.T) {
 
 		projectRoot, err := os.ReadDir(loc)
 		assert.NoError(t, err)
-		assert.Len(t, projectRoot, 1)
-		assert.Equal(t, projectRoot[0].Name(), "handler")
-		assert.True(t, projectRoot[0].IsDir())
+
+		var dirEntriesName []string
+		for _, dirEntry := range projectRoot {
+			dirEntriesName = append(dirEntriesName, dirEntry.Name())
+		}
+
+		assert.Contains(t, dirEntriesName, "handler")
 
 		handlersDir, err := os.ReadDir(path.Join(loc, "handler"))
 		assert.NoError(t, err)

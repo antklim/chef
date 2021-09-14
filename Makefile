@@ -10,14 +10,14 @@ test: go-test ## Run tests
 .PHONY: build
 build: go-build ## Build Chef
 
+.PHONY: integration
+integration: cmd-integration ## Chef command integration tests
+
 .PHONY: cov-report
 cov-report: go-cov-report ## View coverage report (HTML version)
 
 .PHONY: cov-report-ci
 cov-report-ci: go-cov-report-ci ## View coverage report (text version for CI)
-
-.PHONY: integration
-integration: cmd-integration ## Chef command integration tests
 
 .PHONY: help
 help:

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
 	"github.com/pkg/errors"
@@ -129,14 +130,18 @@ func (p *Project) Init() error {
 }
 
 // Build creates project layout and returns project location and any occurred
-// build error. In case of the error the location is available, an empty string
-// returned instead.
+// build error. In case of the error, the location is an empty string.
 func (p *Project) Build() (string, error) {
 	if !p.inited {
 		return "", errNotInited
 	}
 	if err := p.build(); err != nil {
 		return "", errors.Wrap(err, "build failed")
+	}
+	// writeNotation should be called after project layout created
+	// notation failed saved to the root directory of the project
+	if err := p.writeNotation(); err != nil {
+		return "", errors.Wrap(err, "project notation write failed")
 	}
 	return p.loc, nil
 }
@@ -290,7 +295,7 @@ func (p *Project) setLocation() error {
 	return nil
 }
 
-func (p Project) validate() error {
+func (p *Project) validate() error {
 	if p.name == "" {
 		return errEmptyProjectName
 	}
@@ -304,6 +309,24 @@ func (p Project) validate() error {
 	}
 
 	return nil
+}
+
+// writeNotation stores project notation to .chef.yml file after a project was
+// successfully built.
+func (p *Project) writeNotation() error {
+	n := chef.Notation{
+		Category: p.opts.cat,
+		Server:   p.opts.srv,
+		Module:   p.opts.mod,
+	}
+
+	file := path.Join(p.loc, chef.DefaultNotationFileName)
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+
+	return n.Write(f)
 }
 
 // Option sets project options such as root location, category, etc.
