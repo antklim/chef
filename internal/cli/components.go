@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/display"
 	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
@@ -55,12 +56,10 @@ func listComponentsCmd() *cobra.Command {
 		Example: `chef components list
 chef components ls`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dir, err := os.Getwd()
+			p, err := initProject()
 			if err != nil {
-				return errors.Wrap(err, "failed to get working directory")
+				return err
 			}
-			// TODO (notation): project should be inited based on chef.yml
-			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsListCmdRunner(p)
 		},
 	}
@@ -82,13 +81,10 @@ func employComponentCmd() *cobra.Command {
 		Example: `chef components employ --component http_handler --name foo 
 chef components employ -c http_handler -n bar`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dir, err := os.Getwd()
+			p, err := initProject()
 			if err != nil {
-				return errors.Wrap(err, "failed to get working directory")
+				return err
 			}
-			// TODO (notation): project should be inited based on chef.yml
-			// TODO (notation): when no chef.yml found error should be returned and default layout applied (optionaly)
-			p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithServer("http"))
 			return componentsEmployCmdRunner(p, inputs.Component, inputs.Name)
 		},
 	}
@@ -121,4 +117,24 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 	fmt.Fprintf(printout, "successfully added %q as %q component\n", name, component)
 
 	return nil
+}
+
+func initProject() (*project.Project, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get working directory")
+	}
+
+	f, err := os.Open(path.Join(dir, chef.DefaultNotationFileName))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open notation")
+	}
+
+	n, err := chef.ReadNotation(f)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read notation")
+	}
+
+	p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithNotation(n))
+	return p, nil
 }
