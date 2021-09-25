@@ -6,6 +6,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
 	"github.com/stretchr/testify/assert"
@@ -72,6 +73,16 @@ func TestProjectOptions(t *testing.T) {
 				cat:  "srv",
 				srv:  "",
 				lout: tl,
+			},
+		},
+		{
+			desc: "project created from notation",
+			opts: []Option{WithNotation(chef.Notation{Category: "srv", Server: "http", Module: "cheftest"})},
+			expected: projectOptions{
+				root: "",
+				cat:  "srv",
+				srv:  "http",
+				mod:  "cheftest",
 			},
 		},
 	}

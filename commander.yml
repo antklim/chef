@@ -56,6 +56,26 @@ tests:
         - subdir/XYZ
 
   # Test 'chef components'
+  chef components list of project without registered components:
+    command: |
+      chef init -n XYZList -c srv -m cheftest
+      cd XYZList
+      chef components list
+    exit-code: 0
+    stdout:
+      contains:
+        - project does not have registered components
+
+  chef components list of project with registered components:
+    command: |
+      chef init -n XYZHttpList -c srv -m cheftest -s http
+      cd XYZHttpList
+      chef components list
+    exit-code: 0
+    stdout:
+      contains:
+        - http_handler
+
   chef components employ http handler:
     command: |
       chef init -n XYZHttpEmploy -c srv -m cheftest -s http
@@ -65,6 +85,3 @@ tests:
     stdout:
       contains:
         - successfully added "health.go" as "http_handler" component
-
-  ## TODO (notation): add list components test after checf.yml implemented
-  ## (it will provide information about registered components of existing project)

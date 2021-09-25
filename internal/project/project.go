@@ -379,3 +379,13 @@ func WithLayout(l *layout.Layout) Option {
 		o.lout = l
 	})
 }
+
+// WithNotation returns an Option that sets project properties according to
+// provided notation.
+func WithNotation(n chef.Notation) Option {
+	return newFuncOption(func(o *projectOptions) {
+		o.cat = n.Category
+		o.srv = n.Server
+		o.mod = n.Module
+	})
+}
