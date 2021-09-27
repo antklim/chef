@@ -32,3 +32,10 @@ func TestComponentsList(t *testing.T) {
 		assert.Equal(t, "registered components:\n\tproject does not have registered components\n", buf.String())
 	})
 }
+
+func TestComponentsEmploy(t *testing.T) {
+	var buf bytes.Buffer
+	err := display.ComponentsEmploy(&buf, "health.go", "http_handler")
+	assert.NoError(t, err)
+	assert.Equal(t, `successfully added "health.go" as "http_handler" component`+"\n", buf.String())
+}

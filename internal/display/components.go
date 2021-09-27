@@ -22,6 +22,12 @@ func ComponentsList(w io.Writer, components []project.Component) error {
 	return err
 }
 
+func ComponentsEmploy(w io.Writer, name, component string) error {
+	ew := &errorWriter{Writer: w}
+	fmt.Fprintf(ew, "successfully added %q as %q component\n", name, component)
+	return ew.err
+}
+
 func componentsList(w io.Writer, components []project.Component) error {
 	fmt.Fprintln(w, componentsListTitle)
 

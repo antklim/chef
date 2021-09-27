@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 	"path"
 
@@ -113,10 +112,7 @@ func componentsEmployCmdRunner(p Project, component, name string) error {
 		return errors.Wrapf(err, "employ %q component failed", component)
 	}
 
-	// TODO (ref): replace with display
-	fmt.Fprintf(printout, "successfully added %q as %q component\n", name, component)
-
-	return nil
+	return display.ComponentsEmploy(printout, name, component)
 }
 
 func initProject() (*project.Project, error) {
