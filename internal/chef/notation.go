@@ -6,10 +6,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// TODO: add layout information to notation
+
 // TODO: split notation into parts - generic information like category and
 // language specific information like module name.
 
 // TODO: add notation builders specializing on language/tech: NewGoNotation ...
+
+// TODO: add language information to notation
 
 // DefaultNotationName is a default file name to store notation.
 const DefaultNotationFileName = ".chef.yml"
