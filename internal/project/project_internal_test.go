@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TODO (ref): make exports_test and join internal tests with tests.
+
 func TestProjectOptions(t *testing.T) {
 	tl := layout.New()
 	testCases := []struct {

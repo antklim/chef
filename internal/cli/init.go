@@ -1,8 +1,7 @@
 package cli
 
 import (
-	"fmt"
-
+	"github.com/antklim/chef/internal/display"
 	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -98,8 +97,5 @@ func initCmdRunner(p Project) error {
 		return errors.Wrap(err, "init project failed")
 	}
 
-	// TODO (ref): replace with display
-	fmt.Fprintf(printout, "project successfully inited at %s\n", loc)
-
-	return nil
+	return display.ProjectInit(printout, loc, p.Components())
 }

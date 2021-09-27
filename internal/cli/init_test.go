@@ -29,6 +29,6 @@ func TestInitCmdRunner(t *testing.T) {
 		err := initCmdRunner(p)
 		assert.NoError(t, err)
 
-		assert.Equal(t, "project successfully inited at project_location\n", buf.String())
+		assert.Contains(t, buf.String(), "project successfully inited at project_location\n")
 	})
 }

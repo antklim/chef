@@ -15,15 +15,22 @@ const (
 
 func ComponentsList(w io.Writer, components []project.Component) error {
 	ew := &errorWriter{Writer: w}
-
-	fmt.Fprintln(ew, componentsListTitle)
-
-	if len(components) == 0 {
-		fmt.Fprintln(ew, componentsEmptyListMsg)
+	err := componentsList(ew, components)
+	if ew.err != nil {
 		return ew.err
 	}
+	return err
+}
 
-	tw.Init(ew, minwidth, tabwidth, padding, padchar, flags)
+func componentsList(w io.Writer, components []project.Component) error {
+	fmt.Fprintln(w, componentsListTitle)
+
+	if len(components) == 0 {
+		fmt.Fprintln(w, componentsEmptyListMsg)
+		return nil
+	}
+
+	tw.Init(w, minwidth, tabwidth, padding, padchar, flags)
 
 	fmt.Fprintf(tw, componentsListFormat, "NAME", "LOCATION", "DESCRIPTION")
 
@@ -34,6 +41,5 @@ func ComponentsList(w io.Writer, components []project.Component) error {
 	if err := tw.Flush(); err != nil {
 		return err
 	}
-
-	return ew.err
+	return nil
 }
