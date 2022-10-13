@@ -78,8 +78,7 @@ func (l *Layout) Build(loc, mod string) error {
 //	find(layout.Root)
 //
 //	// Returns nil when not found nodes associated with the location.
-// 	find("foo/bar")
-//
+//	find("foo/bar")
 func (l *Layout) FindNode(loc string) node.Node {
 	locs := splitPath(loc)
 	node := l.root

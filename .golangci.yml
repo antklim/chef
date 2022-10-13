@@ -21,9 +21,8 @@ linters-settings:
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
 
 linters:
-  disable-all: true  
+  disable-all: true
   enable:
-    - deadcode
     - dogsled
     - dupl
     - errcheck
@@ -48,13 +47,11 @@ linters:
     - nolintlint
     - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 issues:
