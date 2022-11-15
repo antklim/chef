@@ -7,7 +7,6 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/layout"
 	"github.com/antklim/chef/internal/layout/node"
 	"github.com/antklim/chef/internal/project"
@@ -165,16 +164,6 @@ func TestProjectBuild(t *testing.T) {
 		nodes, err := os.ReadDir(loc)
 		require.NoError(t, err)
 		assert.NotEmpty(t, nodes)
-
-		nf := path.Join(loc, chef.DefaultNotationFileName)
-		f, err := os.Open(nf)
-		require.NoError(t, err)
-
-		n, err := chef.ReadNotation(f)
-		require.NoError(t, err)
-
-		assert.Equal(t, "srv", n.Category)
-		assert.Equal(t, "project.git", n.Module)
 	})
 }
 

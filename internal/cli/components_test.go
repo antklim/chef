@@ -3,10 +3,8 @@ package cli
 import (
 	"bytes"
 	"errors"
-	"os"
 	"testing"
 
-	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/project"
 	"github.com/stretchr/testify/assert"
 )
@@ -61,27 +59,5 @@ func TestComponentsEmployCmdRunner(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, "successfully added \"health\" as \"handler\" component\n", buf.String())
-	})
-}
-
-func TestInitProjectFails(t *testing.T) {
-	t.Run("when no notation file found in working directory", func(t *testing.T) {
-		p, err := initProject()
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to open notation:")
-		assert.Nil(t, p)
-	})
-
-	t.Run("when notation file corrupted", func(t *testing.T) {
-		t.Cleanup(func() {
-			os.Remove(chef.DefaultNotationFileName)
-		})
-		err := os.WriteFile(chef.DefaultNotationFileName, []byte(`foo`), 0600)
-		assert.NoError(t, err)
-
-		p, err := initProject()
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to read notation:")
-		assert.Nil(t, p)
 	})
 }

@@ -1,4 +1,4 @@
 package chef
 
 // version defines chef notation version.
-var version = "unknown"
+var version = "1.0"
