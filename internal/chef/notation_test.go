@@ -13,7 +13,10 @@ const testChefTemplate = `version: "1.0"
 project:
   name: dogs-and-cats
   description: Simple HTTP service in Go
-  language: go`
+  language: go
+  template: https://github.com/antklim/chef-go-template
+  components:
+    handler: handler/http/handler.go`
 
 func TestNotationWrite(t *testing.T) {
 	n := chef.Notation{
@@ -22,6 +25,10 @@ func TestNotationWrite(t *testing.T) {
 			Name:        "dogs-and-cats",
 			Description: "Simple HTTP service in Go",
 			Language:    "go",
+			Template:    "https://github.com/antklim/chef-go-template",
+			Components: map[string]string{
+				"handler": "handler/http/handler.go",
+			},
 		},
 	}
 
@@ -42,6 +49,10 @@ func TestReadNotation(t *testing.T) {
 			Name:        "dogs-and-cats",
 			Description: "Simple HTTP service in Go",
 			Language:    "go",
+			Template:    "https://github.com/antklim/chef-go-template",
+			Components: map[string]string{
+				"handler": "handler/http/handler.go",
+			},
 		},
 	}
 	notation, err := chef.ReadNotation(&buf)

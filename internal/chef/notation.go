@@ -14,6 +14,8 @@ type Project struct {
 	Name        string
 	Description string
 	Language    string
+	Template    string
+	Components  map[string]string
 }
 
 // Notation defines chef project notation.
