@@ -313,10 +313,11 @@ func (p *Project) validate() error {
 // writeNotation stores project notation to .chef.yml file after a project was
 // successfully built.
 func (p *Project) writeNotation() error {
+	// TODO: update with the new notation
 	n := chef.Notation{
-		Category: p.opts.cat,
-		Server:   p.opts.srv,
-		Module:   p.opts.mod,
+		// Category: p.opts.cat,
+		// Server:   p.opts.srv,
+		// Module:   p.opts.mod,
 	}
 
 	file := path.Join(p.loc, chef.DefaultNotationFileName)
@@ -377,15 +378,5 @@ func WithModule(m string) Option {
 func WithLayout(l *layout.Layout) Option {
 	return newFuncOption(func(o *projectOptions) {
 		o.lout = l
-	})
-}
-
-// WithNotation returns an Option that sets project properties according to
-// provided notation.
-func WithNotation(n chef.Notation) Option {
-	return newFuncOption(func(o *projectOptions) {
-		o.cat = n.Category
-		o.srv = n.Server
-		o.mod = n.Module
 	})
 }

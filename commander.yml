@@ -39,7 +39,7 @@ tests:
     stdout:
       contains:
         - adapter
-        - app        
+        - app
         - handler
         - provider
         - server
@@ -76,12 +76,12 @@ tests:
       contains:
         - http_handler
 
-  chef components employ http handler:
-    command: |
-      chef init -n XYZHttpEmploy -c srv -m cheftest -s http
-      cd XYZHttpEmploy
-      chef components employ -c http_handler -n health.go
-    exit-code: 0
-    stdout:
-      contains:
-        - successfully added "health.go" as "http_handler" component
+  # chef components employ http handler:
+  #   command: |
+  #     chef init -n XYZHttpEmploy -c srv -m cheftest -s http
+  #     cd XYZHttpEmploy
+  #     chef components employ -c http_handler -n health.go
+  #   exit-code: 0
+  #   stdout:
+  #     contains:
+  #       - successfully added "health.go" as "http_handler" component

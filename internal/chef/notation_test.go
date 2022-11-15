@@ -8,28 +8,52 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testChefTemplate = `version: "1.0"
+
+project:
+  name: dogs-and-cats
+  description: Simple HTTP service in Go
+  language: go
+  template: https://github.com/antklim/chef-go-template
+  components:
+    handler: handler/http/handler.go`
+
 func TestNotationWrite(t *testing.T) {
-	n := chef.Notation{Category: "srv", Server: "http"}
+	n := chef.Notation{
+		Version: "1.0",
+		Project: chef.Project{
+			Name:        "dogs-and-cats",
+			Description: "Simple HTTP service in Go",
+			Language:    "go",
+			Template:    "https://github.com/antklim/chef-go-template",
+			Components: map[string]string{
+				"handler": "handler/http/handler.go",
+			},
+		},
+	}
 
 	var buf bytes.Buffer
 	err := n.Write(&buf)
 	assert.NoError(t, err)
 
-	expected := `version: unknown
-category: srv
-server: http`
-	assert.YAMLEq(t, expected, buf.String())
+	assert.YAMLEq(t, testChefTemplate, buf.String())
 }
 
 func TestReadNotation(t *testing.T) {
 	var buf bytes.Buffer
-	buf.WriteString(`version: 1.0
-category: srv
-server: http`)
+	buf.WriteString(testChefTemplate)
 
 	expected := chef.Notation{
-		Category: "srv",
-		Server:   "http",
+		Version: "1.0",
+		Project: chef.Project{
+			Name:        "dogs-and-cats",
+			Description: "Simple HTTP service in Go",
+			Language:    "go",
+			Template:    "https://github.com/antklim/chef-go-template",
+			Components: map[string]string{
+				"handler": "handler/http/handler.go",
+			},
+		},
 	}
 	notation, err := chef.ReadNotation(&buf)
 	assert.NoError(t, err)

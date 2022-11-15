@@ -4,7 +4,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/antklim/chef/internal/chef"
 	"github.com/antklim/chef/internal/display"
 	"github.com/antklim/chef/internal/project"
 	"github.com/pkg/errors"
@@ -121,16 +120,6 @@ func initProject() (*project.Project, error) {
 		return nil, errors.Wrap(err, "failed to get working directory")
 	}
 
-	f, err := os.Open(path.Join(dir, chef.DefaultNotationFileName))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open notation")
-	}
-
-	n, err := chef.ReadNotation(f)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read notation")
-	}
-
-	p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)), project.WithNotation(n))
+	p := project.New(path.Base(dir), project.WithRoot(path.Dir(dir)))
 	return p, nil
 }
