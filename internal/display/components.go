@@ -44,8 +44,6 @@ func componentsList(w io.Writer, components []project.Component) error {
 		fmt.Fprintf(tw, componentsListFormat, component.Name, component.Loc, component.Desc)
 	}
 
-	if err := tw.Flush(); err != nil {
-		return err
-	}
-	return nil
+	err := tw.Flush()
+	return err
 }
