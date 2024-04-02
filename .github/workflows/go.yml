@@ -24,11 +24,10 @@ jobs:
           cache: true
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v4
         with:
           version: latest
           args: --verbose
-          skip-go-installation: true
 
   unit:
     name: Unit Test
