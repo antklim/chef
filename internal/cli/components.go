@@ -54,7 +54,7 @@ func listComponentsCmd() *cobra.Command {
 		Long:    "List registered project components",
 		Example: `chef components list
 chef components ls`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			p, err := initProject()
 			if err != nil {
 				return err
@@ -79,7 +79,7 @@ func employComponentCmd() *cobra.Command {
 		Long:  "Use component to add a new functionality to a project",
 		Example: `chef components employ --component http_handler --name foo 
 chef components employ -c http_handler -n bar`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			p, err := initProject()
 			if err != nil {
 				return err

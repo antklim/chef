@@ -66,7 +66,7 @@ func initCmd() *cobra.Command {
 		Example: `chef init --name myproject
 chef init --category [srv] --name myproject
 chef init -c [srv] -n myproject --root /usr/local`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			p := project.New(inputs.Name,
 				project.WithRoot(inputs.Root),
 				project.WithCategory(inputs.Category),
