@@ -22,7 +22,7 @@ func (p projMock) Components() []project.Component {
 	return p.components
 }
 
-func (p projMock) EmployComponent(component, name string) error {
+func (p projMock) EmployComponent(_, _ string) error {
 	return p.ecErr
 }
 
