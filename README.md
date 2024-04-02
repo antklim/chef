@@ -1,7 +1,5 @@
 # chef
 
-[![codecov](https://codecov.io/gh/antklim/chef/branch/master/graph/badge.svg?token=EMWCS55TZR)](https://codecov.io/gh/antklim/chef)
-
 Chef is a layout and components generator for Go projects.
 
 Categories:
