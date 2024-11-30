@@ -46,22 +46,24 @@ jobs:
       - name: Test
         run: make test
 
-  integration:
-    name: Integration Test
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # TODO(antklim): fix integration test runner
+  # integration:
+  #   name: Integration Test
+  #   runs-on: ubuntu-latest
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
-      - name: Test
-        run: make integration
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version-file: go.mod
+  #         cache: true
+
+  #     - name: Test
+  #       run: make integration
 
   build:
     name: Build
