@@ -23,10 +23,10 @@ linters-settings:
 linters:
   disable-all: true
   enable:
+    - copyloopvar
     - dogsled
     - dupl
     - errcheck
-    - exportloopref
     - exhaustive
     - funlen
     - gochecknoinits
@@ -35,7 +35,6 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -43,6 +42,7 @@ linters:
     - ineffassign
     - lll
     - misspell
+    - mnd
     - nakedret
     - nolintlint
     - revive
